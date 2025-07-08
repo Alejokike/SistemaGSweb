@@ -1,0 +1,60 @@
+set dateformat dmy;
+declare @Descri varchar(500);
+set @Descri = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error.......';
+declare @Obser varchar(300);
+set @Obser = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillu';
+
+insert into Planilla(Solicitante,EdadSolicitante,TipoAyuda,DescripcionAyuda,TotalSolicitadoItems,TotalRecibidoItems,MontoSolicitadoAyuda,MontoRecibidoAyuda,RecibidoPor,Beneficiario,EdadBeneficiario,Observaciones,Funcionario,FechaSolicitud,FechaEntrega, Activo)
+values
+(90065887,50,'Ayudas funerarias',@Descri,0,0,5160,2580,'C.I.: 27985945 Elena García',58568091,65,@Obser,10786904,'6/1/2024','4/8/2024',1),
+(25494016,53,'Ayudas funerarias',@Descri,0,0,8600,4300,'C.I.: 29374809 Paula Nuñez',11728391,64,@Obser,39197453,'8/3/2024','9/7/2024',0),
+(42935880,46,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 28781296 Valentina Cruz',93564537,87,@Obser,78822729,'19/1/2024','5/7/2024',1),
+(30621241,45,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 31935925 Olivia Silva',81552112,89,@Obser,25800369,'24/4/2024','17/10/2024',1),
+(85001935,60,'Ayudas funerarias',@Descri,0,0,6880,3440,'C.I.: 27295741 Lucía Castro',51629750,91,@Obser,95474060,'9/5/2024','7/11/2024',1),
+(18399167,72,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 30832895 Sara Suárez',99191832,20,@Obser,89631299,'9/5/2024','3/11/2024',1),
+(70211654,92,'Ayudas funerarias',@Descri,0,0,1720,860,'C.I.: 27005365 Sofía Iglesias',55368182,44,@Obser,4506068,'16/1/2024','4/11/2024',1),
+(18456981,42,'Apoyo financiero para cirugías',@Descri,0,0,8600,4300,'C.I.: 28577548 Carlos Vázquez',16135400,76,@Obser,98834718,'10/3/2024','5/11/2024',0),
+(93952103,21,'Apoyo financiero para cirugías',@Descri,0,0,6880,3440,'C.I.: 29202012 Alejandro Iglesias',88822548,66,@Obser,59182077,'3/2/2024','1/11/2024',1),
+(35405236,25,'Ayudas funerarias',@Descri,0,0,5160,2580,'C.I.: 31380182 Martina Pérez',26419092,33,@Obser,62604671,'17/4/2024','24/10/2024',0),
+(77557122,51,'Apoyo financiero para cirugías',@Descri,0,0,8600,4300,'C.I.: 28878260 Laura Fernández',48320241,42,@Obser,27246302,'6/1/2024','3/7/2024',1),
+(63689734,73,'Apoyo financiero para cirugías',@Descri,0,0,3440,1720,'C.I.: 27763002 Juan Vidal',53412539,68,@Obser,98834718,'19/2/2024','4/7/2024',1),
+(66792877,72,'Apoyo financiero para cirugías',@Descri,0,0,8600,4300,'C.I.: 28232958 Alejandro Villa',83110516,50,@Obser,55145639,'11/3/2024','17/9/2024',1),
+(40717578,22,'Ayudas funerarias',@Descri,0,0,8600,4300,'C.I.: 30713154 Andrés Flores',21988105,43,@Obser,12476941,'23/2/2024','20/11/2024',0),
+(87075222,81,'Ayudas funerarias',@Descri,0,0,10320,5160,'C.I.: 32624567 Juan Vázquez',59523877,61,@Obser,70189474,'12/4/2024','7/10/2024',0),
+(57530870,36,'Apoyo financiero para cirugías',@Descri,0,0,5160,2580,'C.I.: 32339995 Sara Villa',11728391,64,@Obser,98834718,'13/4/2024','8/9/2024',0),
+(18456981,42,'Apoyo financiero para cirugías',@Descri,0,0,1720,860,'C.I.: 29752524 Inés López',68370161,81,@Obser,50007671,'25/2/2024','12/10/2024',0),
+(15645292,82,'Apoyo financiero para cirugías',@Descri,0,0,10320,5160,'C.I.: 27196574 Inés Torres',38124833,62,@Obser,83181100,'24/5/2024','23/10/2024',1),
+(28124324,46,'Apoyo financiero para cirugías',@Descri,0,0,8600,4300,'C.I.: 32519658 Alejandro Flores',52585603,39,@Obser,30852868,'15/3/2024','24/10/2024',1),
+(93952103,21,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 27547026 Emma Villa',24387737,94,@Obser,75970478,'1/4/2024','15/9/2024',0),
+(99913847,49,'Apoyo financiero para cirugías',@Descri,0,0,8600,4300,'C.I.: 31281717 Irene García',6516959,86,@Obser,95498608,'7/2/2024','27/9/2024',0),
+(28296712,28,'Apoyo financiero para cirugías',@Descri,0,0,5160,2580,'C.I.: 29711277 José Rodríguez',7866259,49,@Obser,4916613,'3/4/2024','10/8/2024',0),
+(99456792,73,'Ayudas funerarias',@Descri,0,0,8600,4300,'C.I.: 31629239 Camila Sánchez',75630483,64,@Obser,42417761,'10/1/2024','3/10/2024',1),
+(16197095,26,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 31062983 Andrés Cruz',61903443,88,@Obser,52481772,'2/1/2024','18/11/2024',0),
+(9263571,52,'Apoyo financiero para cirugías',@Descri,0,0,5160,2580,'C.I.: 31100436 Sara Suárez',81552112,89,@Obser,95474060,'22/2/2024','17/8/2024',0),
+(33960924,71,'Ayudas funerarias',@Descri,0,0,1720,860,'C.I.: 28839766 Sara Villa',25030671,78,@Obser,75970478,'11/2/2024','1/7/2024',1),
+(38473944,46,'Apoyo financiero para cirugías',@Descri,0,0,1720,860,'C.I.: 31178780 Elena Martínez',82925271,24,@Obser,1667074,'27/3/2024','3/9/2024',1),
+(9263571,52,'Apoyo financiero para cirugías',@Descri,0,0,1720,860,'C.I.: 29128639 Diego Suárez',11728391,64,@Obser,11865573,'13/3/2024','22/7/2024',0),
+(4357635,48,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 31965226 Blanca Vega',53523117,21,@Obser,12882542,'16/5/2024','19/7/2024',1),
+(70220272,83,'Apoyo financiero para cirugías',@Descri,0,0,6880,3440,'C.I.: 27041362 Alvaro Díaz',92578606,82,@Obser,19360020,'19/5/2024','21/8/2024',1),
+(7115292,60,'Ayudas funerarias',@Descri,0,0,5160,2580,'C.I.: 27920931 Pablo Blanco',27947275,26,@Obser,75306631,'24/5/2024','16/8/2024',1),
+(66792877,72,'Apoyo financiero para cirugías',@Descri,0,0,3440,1720,'C.I.: 29671397 Emma Hernández',6516959,86,@Obser,53254586,'1/4/2024','16/10/2024',1),
+(46221236,47,'Apoyo financiero para cirugías',@Descri,0,0,1720,860,'C.I.: 31710386 Sergio Martín',27256516,29,@Obser,21545997,'6/3/2024','26/9/2024',1),
+(40717578,22,'Apoyo financiero para cirugías',@Descri,0,0,5160,2580,'C.I.: 27261394 Paula Muñoz',55776930,71,@Obser,68162661,'3/4/2024','12/9/2024',0),
+(16197095,26,'Ayudas funerarias',@Descri,0,0,8600,4300,'C.I.: 29430974 Elena Medina',48320241,42,@Obser,39197453,'6/5/2024','10/7/2024',0),
+(43198976,47,'Apoyo financiero para cirugías',@Descri,0,0,5160,2580,'C.I.: 27073554 Diego Guerrero',95041362,39,@Obser,95677888,'7/3/2024','27/9/2024',1),
+(31395467,54,'Ayudas funerarias',@Descri,0,0,6880,3440,'C.I.: 31572732 Paula Sánchez',81101732,29,@Obser,78822729,'26/4/2024','22/8/2024',0),
+(70211654,92,'Ayudas funerarias',@Descri,0,0,6880,3440,'C.I.: 32019972 Laura Gómez',5482746,37,@Obser,21545997,'19/1/2024','23/8/2024',1),
+(46221236,47,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 29737790 Juan Castillo',21797760,77,@Obser,28201718,'18/1/2024','14/10/2024',1),
+(28296712,28,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 27297131 Emma Hernández',47001614,92,@Obser,28201718,'5/4/2024','18/11/2024',1),
+(38473944,46,'Ayudas funerarias',@Descri,0,0,10320,5160,'C.I.: 32289343 Irene Navarro',55776930,71,@Obser,8595086,'22/1/2024','2/10/2024',1),
+(92464302,63,'Ayudas funerarias',@Descri,0,0,1720,860,'C.I.: 30364106 Claudia Cruz',80343454,61,@Obser,81697927,'19/5/2024','22/10/2024',1),
+(93556347,60,'Apoyo financiero para cirugías',@Descri,0,0,5160,2580,'C.I.: 27756720 Laura Cruz',89632416,72,@Obser,11930364,'7/1/2024','17/7/2024',1),
+(45058721,28,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 32353335 Lucía Romero',84081857,73,@Obser,84669290,'6/1/2024','18/9/2024',0),
+(17025564,24,'Apoyo financiero para cirugías',@Descri,0,0,5160,2580,'C.I.: 27148410 Javier Villa',72483899,21,@Obser,48664585,'9/1/2024','27/9/2024',1),
+(72053139,86,'Ayudas funerarias',@Descri,0,0,8600,4300,'C.I.: 27121396 Lucía Iglesias',56903417,68,@Obser,53245591,'9/1/2024','4/7/2024',1),
+(7320381,73,'Apoyo financiero para cirugías',@Descri,0,0,8600,4300,'C.I.: 29182038 Marcos Silva',99191832,20,@Obser,75306631,'26/4/2024','16/10/2024',0),
+(70220272,83,'Apoyo financiero para cirugías',@Descri,0,0,1720,860,'C.I.: 32646918 Olivia Fernández',56903417,68,@Obser,59182077,'10/3/2024','23/10/2024',0),
+(57530870,36,'Apoyo financiero para cirugías',@Descri,0,0,3440,1720,'C.I.: 32625565 Pablo Nuñez',56903417,68,@Obser,56420136,'24/2/2024','1/10/2024',0),
+(98486368,42,'Ayudas funerarias',@Descri,0,0,3440,1720,'C.I.: 31958895 Alvaro Castillo',14159097,72,@Obser,98834718,'7/1/2024','4/8/2024',0)
+
+select * from planilla;

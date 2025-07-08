@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SistemaGS.DTO\SistemaGS.DTO.csproj" />
+    <ProjectReference Include="..\SistemaGS.Model\SistemaGS.Model.csproj" />
+    <ProjectReference Include="..\SistemaGS.Repository\SistemaGS.Repository.csproj" />
+    <ProjectReference Include="..\SistemaGS.Util\SistemaGS.Util.csproj" />
+  </ItemGroup>
+
+</Project>
