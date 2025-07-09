@@ -1,6 +1,7 @@
 using SistemaGS.Repository.DBContext;
 using Microsoft.EntityFrameworkCore;
 
+using SistemaGS.Util;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Repository.Implementacion;
 
@@ -19,6 +20,9 @@ builder.Services.AddDbContext<DbsistemaGsContext>(options =>
 );
 
 builder.Services.AddTransient(typeof(IGenericoRepository<>), typeof(GenericoRepository<>));
+builder.Services.AddScoped<IPlanillaRepository, PlanillaRepository>();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 var app = builder.Build();
 

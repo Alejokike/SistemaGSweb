@@ -1,0 +1,68 @@
+########################################
+# Archivos de compilación y temporales #
+########################################
+bin/
+obj/
+out/
+
+########################################
+# Configuración de usuario de VS       #
+########################################
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+.vs/
+
+########################################
+# Archivos de configuración sensibles  #
+########################################
+SistemaGS.WebAssembly/Properties/launchSettings.json
+SistemaGS.API/appsettings.json
+SistemaGS.API/appsettings.Development.json
+SistemaGS.API/Properties/launchSettings.json
+
+########################################
+# Archivos de Entity Framework Core    #
+########################################
+**/Migrations/
+
+########################################
+# Archivos de paquetes y dependencias  #
+########################################
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+########################################
+# Archivos de logs y diagnósticos      #
+########################################
+*.log
+*.tlog
+*.svclog
+
+########################################
+# Archivos de Blazor                   #
+########################################
+wwwroot/css/app.css
+wwwroot/js/app.js
+wwwroot/_framework/
+wwwroot/_content/
+
+########################################
+# Archivos de publicación              #
+########################################
+publish/
+*.Publish.xml
+
+########################################
+# Archivos de sistema                  #
+########################################
+*.DS_Store
+Thumbs.db
+desktop.ini
+*.png
+*.min.*
