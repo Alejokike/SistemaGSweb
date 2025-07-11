@@ -6,8 +6,8 @@ namespace SistemaGS.DTO
     {
         
         public int IdUsuario { get; set; }
-
         public int? IdRol { get; set; }
+        public string? Rol { get; set; }
         [Required(ErrorMessage = "Ingrese Nombre Completo")]
         public string NombreCompleto { get; set; } = null!;
         [Required(ErrorMessage = "Ingrese Correo")]

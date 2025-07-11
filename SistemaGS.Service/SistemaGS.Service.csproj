@@ -13,9 +13,4 @@
     <ProjectReference Include="..\SistemaGS.Util\SistemaGS.Util.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Contrato\" />
-    <Folder Include="Implementacion\" />
-  </ItemGroup>
-
 </Project>
