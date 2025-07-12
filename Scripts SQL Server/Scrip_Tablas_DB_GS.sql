@@ -44,6 +44,10 @@ Nombre varchar(50) not null,
 
 GO
 
+INSERT INTO ROL(Nombre) VALUES ('Administrador'), ('Asistente'), ('Lector');
+
+GO
+
 CREATE TABLE Usuario(
 IdUsuario  int primary key identity(1,1),
 IdRol int references Rol(IdRol),

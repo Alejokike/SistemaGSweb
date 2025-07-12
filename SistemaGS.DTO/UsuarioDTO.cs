@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Principal;
 
 namespace SistemaGS.DTO
 {
     public class UsuarioDTO
     {
-        
         public int IdUsuario { get; set; }
         public int? IdRol { get; set; }
         public string? Rol { get; set; }
@@ -18,11 +18,8 @@ namespace SistemaGS.DTO
         public string Clave { get; set; } = null!;
         [Required(ErrorMessage = "Ingrese Confirmar Contraseña")]
         public string ConfirmarClave { get; set; } = null!;
-
         public bool? ResetearClave { get; set; }
-
         public bool? Activo { get; set; }
-
         public DateTime? FechaCreacion { get; set; }
     }
 }

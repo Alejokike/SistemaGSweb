@@ -104,7 +104,7 @@ namespace SistemaGS.API.Controllers
             return Ok(response);
         }
         [HttpDelete("Eliminar/{id:int}")]
-        public async Task<IActionResult> Eliminar([FromBody] int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
             var response = new ResponseDTO<bool>();
 
