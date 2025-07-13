@@ -4,6 +4,10 @@ using SistemaGS.WebAssembly;
 
 using Blazored.LocalStorage;
 using Blazored.Toast;
+using CurrieTechnologies.Razor.SweetAlert2;
+
+using SistemaGS.WebAssembly.Services.Contrato;
+using SistemaGS.WebAssembly.Services.Implementacion;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -13,5 +17,9 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();
+builder.Services.AddSweetAlert2();
+
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IAyudaService, AyudaService>();
 
 await builder.Build().RunAsync();
