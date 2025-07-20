@@ -20,6 +20,5 @@ namespace SistemaGS.DTO
         public string ConfirmarClave { get; set; } = null!;
         public bool? ResetearClave { get; set; }
         public bool? Activo { get; set; }
-        public DateTime? FechaCreacion { get; set; }
     }
 }

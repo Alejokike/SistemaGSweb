@@ -46,7 +46,7 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
 
         public async Task<ResponseDTO<UsuarioDTO>> Obtener(int Id)
         {
-            return (await _httpClient.GetFromJsonAsync<ResponseDTO<UsuarioDTO>>($"Usuario/Lista/{Id}"))!;
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<UsuarioDTO>>($"Usuario/Obtener/{Id}"))!;
         }
     }
 }

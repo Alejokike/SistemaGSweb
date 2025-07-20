@@ -16,7 +16,7 @@ namespace SistemaGS.API.Controllers
             _usuarioService = usuarioService;
         }
 
-        [HttpGet("Lista/{rol:int}/{buscar:alpha?}")]
+        [HttpGet("Lista/{rol:int}/{buscar?}")]
         public async Task<IActionResult> Lista(int rol, string buscar = "NA")
         {
             var response = new ResponseDTO<List<UsuarioDTO>>();

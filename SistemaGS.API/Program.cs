@@ -28,10 +28,20 @@ builder.Services.AddScoped<IPlanillaRepository, PlanillaRepository>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
-
+/*
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Nueva Politica", app =>
+    options.AddDefaultPolicy(app =>
+    {
+        app.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
+});
+*/
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Nueva Politica",app =>
     {
         app.AllowAnyOrigin()
         .AllowAnyMethod()

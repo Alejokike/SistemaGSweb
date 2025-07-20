@@ -121,7 +121,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.IdRol == id);
+                var consulta = _modelRepository.Consultar(p => p.IdUsuario == id);
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
 
                 if (fromDBmodel != null) return _mapper.Map<UsuarioDTO>(fromDBmodel);
