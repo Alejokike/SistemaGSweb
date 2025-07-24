@@ -1,7 +1,21 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+@using SistemaGS.WebAssembly.Extensiones;
+@using Microsoft.AspNetCore.Components.Authorization;
+@inject IUsuarioService _usuarioService;
+@inject NavigationManager navManager;
+@inject IToastService _toastService;
+@inject AuthenticationStateProvider authenticationStateProvider;
 
-Welcome to your new app.
+@attribute [Authorize(Roles = "Administrador")]
+
+<PageTitle>Sistema GS</PageTitle>
+
+<BlazoredToasts />
+
+    <h3>Inicio</h3>
+
+@code {
+
+}

@@ -1,5 +1,5 @@
 ﻿@inject IAyudaService ayudaService;
-@implements IDisposable;
+<!--implements IDisposable;-->
 
 @inject SweetAlertService Swat;
 @inject NavigationManager navManager;
@@ -21,18 +21,18 @@
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                <!---->
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <AuthorizeView role="1">
+        <AuthorizeView Roles="Administrador">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="Usuarios">
                     <span class="oi oi-person" aria-hidden="true"></span> Usuarios
                 </NavLink>
             </div>
         </AuthorizeView>
-        
     </nav>
 </div>
 
@@ -40,11 +40,6 @@
     private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    public void Dispose()
-    {
-        throw new NotImplementedException();
-    }
 
     private void ToggleNavMenu()
     {

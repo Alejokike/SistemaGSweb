@@ -1,0 +1,82 @@
+﻿@inject SweetAlertService Swat;
+@inject NavigationManager navManager;
+@using SistemaGS.WebAssembly.Extensiones;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims;
+@inject AuthenticationStateProvider authenticationStateProvider;
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" runat="server" href="#"></a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Alternar navegación" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="@NavMenuCssClass navbar-collapse d-sm-inline-flex justify-content-between">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+
+                <li class="nav-item" b-test><NavLink class="nav-link" href="dashboard"> Dashboard</NavLink></li>
+                <li class="nav-item"><NavLink class="nav-link" href="usuarios"> Usuarios</NavLink></li>
+                <li class="nav-item"><NavLink class="nav-link" href="categorias"> Categorias</NavLink></li>
+                <li class="nav-item"><NavLink class="nav-link" href="productos"> Productos</NavLink></li>
+
+                <li class="nav-item"><NavLink class="nav-link" href="catalogo"> Tienda</NavLink></li>
+            </ul>
+
+            <AuthorizeView>
+                <Authorized>
+                    <div class="top-row px-4">
+                        @context.User.Claims.Where(u => u.Type == ClaimTypes.UserData).Select(c => c.Value).SingleOrDefault();
+                        @context.User.Claims.Where(u => u.Type == ClaimTypes.Email).Select(c => c.Value).SingleOrDefault();
+                    </div>
+                </Authorized>
+
+                <NotAuthorized>
+                    <a class="btn btn-outline-dark ms-auto ms-md-0 me-3" href="/login">Iniciar sesion</a>
+                    <div class="small"><a href="/registrarse">No tienes una cuenta? Registrate!</a></div>
+                </NotAuthorized>
+
+                <Authorized>
+                    <button class="btn btn-outline-dark ms-auto ms-md-0 me-3" type="button" @onclick="CerrarSesion">Salir</button>
+                </Authorized>
+            </AuthorizeView>
+
+        </div>
+    </div>
+</nav>
+
+@code{
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    public void Dispose()
+    {
+        
+    }
+
+    private async Task CerrarSesion()
+    {
+        SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+        {
+            Title = "Aviso",
+            Text = $"¿Seguro de cerrar la sesión activa?",
+            Icon = SweetAlertIcon.Info,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Si",
+            CancelButtonText = "No"
+        });
+        if (result.IsConfirmed)
+        {
+            var AuthExt = (AutExt)authenticationStateProvider;
+            await AuthExt.ActualizarEstadoAut(null);
+            navManager.NavigateTo("/", true);
+        }
+
+    }
+}

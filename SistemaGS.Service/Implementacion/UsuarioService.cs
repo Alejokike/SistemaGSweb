@@ -24,7 +24,19 @@ namespace SistemaGS.Service.Implementacion
                 var consulta = _modelRepository.Consultar(p => p.Correo == Model.Correo && p.Clave == Model.Clave);
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
 
-                if (fromDBmodel != null) return _mapper.Map<SesionDTO>(fromDBmodel);
+                if (fromDBmodel != null) 
+                {
+                    string[] roles = ["Administrador", "Asistente", "Lector", "Solicitante"];
+                    return new SesionDTO
+                    {
+                        IdUsuario = fromDBmodel.IdUsuario,
+                        NombreCompleto = fromDBmodel.NombreCompleto,
+                        Correo = fromDBmodel.Correo,
+                        NombreUsuario = fromDBmodel.NombreUsuario,
+                        IdRol = fromDBmodel.IdRol,
+                        Rol = roles[(int)fromDBmodel.IdRol! -1]
+                    };
+                } //return _mapper.Map<SesionDTO>(fromDBmodel);
                 else throw new TaskCanceledException("No se encontraron coincidencias");
             }
             catch (Exception ex)

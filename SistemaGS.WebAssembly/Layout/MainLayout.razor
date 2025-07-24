@@ -1,19 +1,28 @@
 ﻿@inherits LayoutComponentBase
 
-<BlazoredToasts />
+@inject IAyudaService ayudaService;
+
+@inject SweetAlertService Swat;
+@inject NavigationManager navManager;
+@using SistemaGS.WebAssembly.Extensiones;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims;
+@inject AuthenticationStateProvider authenticationStateProvider;
 
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
-
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
+        <header class="sticky-top bg-white shadow-sm">
+            <HorizontalNav />
+        </header>
         <article class="content px-4">
             @Body
         </article>
     </main>
 </div>
+
+@code{
+    
+}
