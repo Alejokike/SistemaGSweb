@@ -10,10 +10,12 @@ namespace SistemaGS.Service.Implementacion
     public class UsuarioService : IUsuarioService
     {
         private readonly IGenericoRepository<Usuario> _modelRepository;
+        private readonly IGenericoRepository<Rol> _modelRepositoryRol;
         private readonly IMapper _mapper;
-        public UsuarioService(IGenericoRepository<Usuario> modelRepository, IMapper mapper)
+        public UsuarioService(IGenericoRepository<Usuario> modelRepository, IGenericoRepository<Rol> modelRepositoryRol, IMapper mapper)
         {
             _modelRepository = modelRepository;
+            _modelRepositoryRol = modelRepositoryRol;
             _mapper = mapper;
         }
 
@@ -26,7 +28,9 @@ namespace SistemaGS.Service.Implementacion
 
                 if (fromDBmodel != null) 
                 {
-                    string[] roles = ["Administrador", "Asistente", "Lector", "Solicitante"];
+                    var rolUser = _modelRepositoryRol.Consultar(r => r.IdRol == fromDBmodel.IdRol);
+                    var RolUser = await rolUser.FirstOrDefaultAsync();
+
                     return new SesionDTO
                     {
                         IdUsuario = fromDBmodel.IdUsuario,
@@ -34,7 +38,7 @@ namespace SistemaGS.Service.Implementacion
                         Correo = fromDBmodel.Correo,
                         NombreUsuario = fromDBmodel.NombreUsuario,
                         IdRol = fromDBmodel.IdRol,
-                        Rol = roles[(int)fromDBmodel.IdRol! -1]
+                        Rol = RolUser!.Nombre
                     };
                 } //return _mapper.Map<SesionDTO>(fromDBmodel);
                 else throw new TaskCanceledException("No se encontraron coincidencias");
