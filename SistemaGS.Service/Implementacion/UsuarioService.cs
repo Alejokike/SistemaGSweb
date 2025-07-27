@@ -4,6 +4,7 @@ using SistemaGS.DTO;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Service.Contrato;
 using AutoMapper;
+using SistemaGS.Util;
 
 namespace SistemaGS.Service.Implementacion
 {
@@ -23,7 +24,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.Correo == Model.Correo && p.Clave == Model.Clave);
+                var consulta = _modelRepository.Consultar(p => p.Correo == Model.Correo && p.Clave == Ferramentas.ConvertToSha256(Model.Clave));
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
 
                 if (fromDBmodel != null) 
@@ -54,6 +55,7 @@ namespace SistemaGS.Service.Implementacion
             try
             {
                 var DbModel = _mapper.Map<Usuario>(Model);
+                DbModel.Clave = Ferramentas.ConvertToSha256(DbModel.Clave);
                 var rspModel = await _modelRepository.Crear(DbModel);
 
                 if (rspModel.IdUsuario != 0) return _mapper.Map<UsuarioDTO>(rspModel);
@@ -61,7 +63,6 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
@@ -76,8 +77,9 @@ namespace SistemaGS.Service.Implementacion
                 if (fromDBmodel != null)
                 {
                     fromDBmodel.NombreCompleto = Model.NombreCompleto;
+                    fromDBmodel.NombreUsuario = Model.NombreUsuario;
                     fromDBmodel.Correo = Model.Correo;
-                    fromDBmodel.Clave = Model.Clave;
+                    fromDBmodel.Clave = Ferramentas.ConvertToSha256(Model.Clave);
                     fromDBmodel.IdRol = Model.IdRol;
                     var respuesta = await _modelRepository.Editar(fromDBmodel);
 
@@ -119,11 +121,20 @@ namespace SistemaGS.Service.Implementacion
             try
             {
                 var consulta = _modelRepository.Consultar(p =>
-                p.IdRol == Rol &&
+                //p.IdRol == Rol &&
                 string.Concat(p.NombreCompleto.ToLower(), p.NombreUsuario.ToLower(),p.Correo.ToLower()).Contains(buscar.ToLower())
                 );
 
+                var rolUser = _modelRepositoryRol.Consultar();
+                var RolUser = await rolUser.ToListAsync();
+
                 List<UsuarioDTO> lista = _mapper.Map<List<UsuarioDTO>>(await consulta.ToListAsync());
+
+                foreach(UsuarioDTO item in lista)
+                {
+                    item.Rol = RolUser.Where(id => id.IdRol == item.IdRol).Select(id => id.Nombre).Single().ToString();
+                }
+
                 return lista;
             }
             catch (Exception ex)
@@ -140,12 +151,19 @@ namespace SistemaGS.Service.Implementacion
                 var consulta = _modelRepository.Consultar(p => p.IdUsuario == id);
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
 
-                if (fromDBmodel != null) return _mapper.Map<UsuarioDTO>(fromDBmodel);
+                if (fromDBmodel != null)
+                {
+                    var rolUser = _modelRepositoryRol.Consultar(r => r.IdRol == fromDBmodel.IdRol);
+                    var RolUser = await rolUser.FirstOrDefaultAsync();
+
+                    var aux = _mapper.Map<UsuarioDTO>(fromDBmodel);
+                    aux.Rol = RolUser!.Nombre;
+                    return aux;
+                }
                 else throw new TaskCanceledException("");
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }

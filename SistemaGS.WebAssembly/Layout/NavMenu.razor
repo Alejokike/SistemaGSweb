@@ -1,9 +1,6 @@
 ﻿@inject IAyudaService ayudaService;
 <!--implements IDisposable;-->
 @inject NavigationManager navManager;
-@using SistemaGS.WebAssembly.Extensiones;
-@using Microsoft.AspNetCore.Components.Authorization;
-@using System.Security.Claims;
 @inject AuthenticationStateProvider authenticationStateProvider;
 
 
@@ -25,9 +22,23 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
+
         <AuthorizeView Roles="Administrador">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="Usuarios">
+                    <span class="oi oi-people p-2" aria-hidden="true"></span> Usuarios
+                </NavLink>
+            </div>
+        </AuthorizeView>
+
+
+
+        <AuthorizeView Roles="Solicitante">
+            @{
+                int IdUsuario = Convert.ToInt32(@context.User.Claims.Where(u => u.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault()!);
+            }
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="@($"Usuario/{@IdUsuario}")">
                     <span class="oi oi-people p-2" aria-hidden="true"></span> Usuarios
                 </NavLink>
             </div>

@@ -1,8 +1,6 @@
 ﻿@page "/login"
 @layout LoginLayout
 
-@using SistemaGS.WebAssembly.Extensiones;
-@using Microsoft.AspNetCore.Components.Authorization;
 @inject IUsuarioService _usuarioService;
 @inject NavigationManager navManager;
 @inject IToastService _toastService;
@@ -55,10 +53,7 @@
             var AuthExt = (AutExt)authenticationStateProvider;
             await AuthExt.ActualizarEstadoAut(sesion);
 
-            if(sesion.Rol != "Solicitante")
-            {
-                navManager.NavigateTo("/");
-            }
+            navManager.NavigateTo("/");
         }
         else
         {

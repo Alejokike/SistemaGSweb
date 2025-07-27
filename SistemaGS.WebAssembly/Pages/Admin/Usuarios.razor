@@ -3,9 +3,12 @@
 @inject IUsuarioService usuarioService
 @inject IToastService toastService;
 @inject SweetAlertService swat;
+@inject AuthenticationStateProvider authenticationStateProvider;
 
 @attribute [Authorize(Roles = "Administrador")]
 
+<AuthorizeView>
+    <Authorized>
 <div class="row justify-content-center  mt-3">
     <div class="col-sm-6 col-md-4 col-xl-3 mb-4">
         <div class="d-grid gap-1 col-12 mx-auto">
@@ -25,10 +28,11 @@
 <div class="row gx-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 justify-content-start mt-2">
     @if (Lista != null)
     {
-        string[] NomeRol = ["Administrador", "Asistente", "Lector", "Solicitante"];
+        int IdLogged = Convert.ToInt32(@context.User.Claims.Where(u => u.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault());
         foreach(UsuarioDTO item in Lista)
         {
-            item.Rol = NomeRol[(int)item.IdRol! - 1];
+            bool disable = IdLogged == item.IdUsuario;
+
             <div class="col mb-6">
                 <div class="card h-300">
                     <div class="card-body p-7">
@@ -45,7 +49,7 @@
                     <div class="card-footer bg-transparent">
                         <div class="row justify-content-between">
                             <a class="col-5 btn btn-sm btn-outline-primary mt-auto" href="/usuario/@item.IdUsuario"><i class="oi oi-pencil fs-5"></i>Editar</a>
-                            <button class="col-5 btn btn-sm btn-outline-danger mt-auto" type="button" @onclick="(async () => await Eliminar(item))">
+                            <button class="col-5 btn btn-sm btn-outline-danger mt-auto" type="button" disabled="@disable" @onclick="(async () => await Eliminar(item))">
                                 <i class="oi oi-trash fs-5"></i> Eliminar
                             </button>
                         </div>
@@ -62,7 +66,8 @@
     }
 
 </div>
-
+    </Authorized>
+</AuthorizeView>
 @code {
     private List<UsuarioDTO>? Lista = null;
     private string buscar = "";

@@ -1,8 +1,10 @@
 ﻿@page "/"
 
-@attribute [Authorize(Roles = "Administrador")]
+@attribute [Authorize(Roles = "Administrador, Solicitante")]
 
 <PageTitle>Sistema GS</PageTitle>
+
+<AuthorizeView Roles ="Administrador">
 
 <div class="row mt-4">
 
@@ -79,6 +81,12 @@
     </div>
 
 </div>
+
+</AuthorizeView>
+
+<AuthorizeView Roles="Solicitante">
+    <h2>¡Hola @context.User.Claims.Where(u => u.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()!</h2>
+</AuthorizeView>
 
 @code {
 
