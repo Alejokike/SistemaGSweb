@@ -7,6 +7,14 @@
 
 @attribute [Authorize(Roles = "Administrador")]
 
+<style>
+    p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
 <AuthorizeView>
     <Authorized>
 <div class="row justify-content-center  mt-3">
@@ -17,8 +25,15 @@
     </div>
     <div class="col-sm-6 col-md-8 col-xl-9">
         <div class="input-group mb-7">
+            <select class="form-select" @bind="@rol">
+                <option value=0 selected>Todos</option>
+                <option value=1>Administrador</option>
+                <option value=2>Asistente</option>
+                <option value=3>Lector</option>
+                <option value=4>Solicitante</option>
+            </select>
             <input type="text" class="form-control" placeholder="Buscar usuario..." @bind-value="buscar" @oninput="HandleInput">
-            <button class="btn btn-outline-secondary" type="button" @onclick="(async () => await ObtenerUsuarios(buscar))">
+            <button class="btn btn-outline-secondary" type="button" @onclick="(async () => await ObtenerUsuarios(rol,buscar))">
                 <i class="oi oi-magnifying-glass"></i> Buscar
             </button>
         </div>
@@ -71,23 +86,24 @@
 @code {
     private List<UsuarioDTO>? Lista = null;
     private string buscar = "";
+    private int rol = 0;
 
-    private async Task ObtenerUsuarios(string valor = "")
+    private async Task ObtenerUsuarios(int rol = 0, string valor = "")
     {
-        var response = await usuarioService.Lista(1, valor);
+        var response = await usuarioService.Lista(rol, valor);
         if (response.EsCorrecto) Lista = (List<UsuarioDTO>) response.Resultado!;
         else Lista = new List<UsuarioDTO>();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await ObtenerUsuarios();
+        await ObtenerUsuarios(rol, buscar);
     }
 
     private async Task HandleInput(ChangeEventArgs e)
     {
         buscar = e.Value?.ToString()!;
-        await ObtenerUsuarios(buscar);
+        await ObtenerUsuarios(rol,buscar);
     }
 
     private async Task Eliminar(UsuarioDTO model)

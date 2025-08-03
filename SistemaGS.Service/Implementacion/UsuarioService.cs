@@ -120,10 +120,16 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p =>
-                //p.IdRol == Rol &&
-                string.Concat(p.NombreCompleto.ToLower(), p.NombreUsuario.ToLower(),p.Correo.ToLower()).Contains(buscar.ToLower())
-                );
+                IQueryable<Usuario>? consulta;
+
+                if(Rol != 0)
+                {
+                    consulta = _modelRepository.Consultar(p => p.IdRol == Rol && string.Concat(p.NombreCompleto.ToLower(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
+                }
+                else
+                {
+                    consulta = _modelRepository.Consultar(p => string.Concat(p.NombreCompleto.ToLower(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
+                }
 
                 var rolUser = _modelRepositoryRol.Consultar();
                 var RolUser = await rolUser.ToListAsync();

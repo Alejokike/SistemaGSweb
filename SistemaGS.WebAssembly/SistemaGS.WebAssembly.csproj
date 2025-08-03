@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Funcionario\" />
     <Folder Include="Pages\Solicitante\" />
   </ItemGroup>
 

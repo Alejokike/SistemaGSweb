@@ -3,61 +3,80 @@
 
 @inject IUsuarioService _usuarioService;
 @inject NavigationManager navManager;
-@inject ToastService _toastService;
+@inject IToastService _toastService;
+@inject AuthenticationStateProvider authenticationStateProvider;
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-7">
-            <div class="card rounded-lg mt-5">
-                <div class="card-header"><h3 class="text-center font-weight-light my-4">Crear Cuenta</h3></div>
-                <div class="card-body">
+<BlazoredToasts />
 
-                    <EditForm Model="model" OnValidSubmit="GuardarCambios">
-                        <DataAnnotationsValidator></DataAnnotationsValidator>
+<div class="card-header"><h3 class="text-center font-weight-light my-4">Crear Cuenta</h3></div>
+<div class="card-body">
 
-                        <div class="form-floating mb-3">
-                            <input class="form-control" id="inputEmail" type="text" placeholder="name@example.com" @bind-value="model.NombreCompleto" autocomplete="off" />
-                            <label for="inputEmail">Nombre Completo</label>
-                            <ValidationMessage For="@(() => model.NombreCompleto)" />
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input class="form-control" id="inputEmail" type="email" placeholder="name@example.com" @bind-value="model.Correo" autocomplete="off" />
-                            <label for="inputEmail">Correo</label>
-                            <ValidationMessage For="@(() => model.Correo)" />
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3 mb-md-0">
-                                    <input class="form-control" id="inputPassword" type="password" placeholder="Create a password" @bind-value="model.Clave" autocomplete="off" />
-                                    <label for="inputPassword">Contraseña</label>
-                                    <ValidationMessage For="@(() => model.Clave)" />
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3 mb-md-0">
-                                    <input class="form-control" id="inputPasswordConfirm" type="password" placeholder="Confirm password" @bind-value="model.ConfirmarClave" autocomplete="off" />
-                                    <label for="inputPasswordConfirm">Confirmar Contraseña</label>
-                                    <ValidationMessage For="@(() => model.ConfirmarClave)" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4 mb-0">
-                            <div class="d-grid"><button class="btn btn-primary btn-block" type="submit">Registrarse</button></div>
-                        </div>
-                    </EditForm>
+    <EditForm Model="model" OnValidSubmit="GuardarCambios">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
 
+        <div class="form-floating mb-3">
+            <input class="form-control" id="inputName" type="text" placeholder="Nombre Completo" @bind-value="model.NombreCompleto" autocomplete="off" />
+            <label for="inputEmail">Nombre Completo</label>
+            <ValidationMessage For="@(() => model.NombreCompleto)" />
+        </div>
+
+        <div class="form-floating mb-3">
+            <input class="form-control" id="inputUserName" type="text" placeholder="Nombre de Usuario" @bind-value="model.NombreUsuario" autocomplete="off" />
+            <label for="inputEmail">Nombre de Usuario</label>
+            <ValidationMessage For="@(() => model.NombreUsuario)" />
+        </div>
+
+        <div class="form-floating mb-3">
+            <input class="form-control" id="inputEmail" type="email" placeholder="name@example.com" @bind-value="model.Correo" autocomplete="off" />
+            <label for="inputEmail">Correo</label>
+            <ValidationMessage For="@(() => model.Correo)" />
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-floating mb-3 mb-md-0">
+                    <input class="form-control" id="inputPassword" type="password" placeholder="Create a password" @bind-value="model.Clave" autocomplete="off" />
+                    <label for="inputPassword">Contraseña</label>
+                    <ValidationMessage For="@(() => model.Clave)" />
                 </div>
-                <div class="card-footer text-center py-3">
-                    <div class="small"><a href="/login">Tienes una cuenta? ir a login</a></div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-floating mb-3 mb-md-0">
+                    <input class="form-control" id="inputPasswordConfirm" type="password" placeholder="Confirm password" @bind-value="model.ConfirmarClave" autocomplete="off" />
+                    <label for="inputPasswordConfirm">Confirmar Contraseña</label>
+                    <ValidationMessage For="@(() => model.ConfirmarClave)" />
                 </div>
             </div>
         </div>
-    </div>
+        <div class="mt-4 mb-0">
+            <div class="d-grid"><button class="btn btn-primary btn-block" type="submit">Registrarse</button></div>
+        </div>
+    </EditForm>
+
 </div>
+<div class="card-footer text-center py-3">
+    <div class="small"><a href="/login">Tienes una cuenta? ir a login</a></div>
+</div>
+
 
 @code {
     private UsuarioDTO model = new UsuarioDTO();
 
+    /*
+    protected override async Task OnParametersSetAsync()
+    {
+        SesionDTO sesion = new SesionDTO
+        {
+            IdUsuario = 0,
+            NombreUsuario = "Anonymous",
+            NombreCompleto = "Anonymous",
+            Correo = "anonymous@blank.com",
+            IdRol = 0,
+            Rol = "Anonymous"
+        };
+        var AuthExt = (AutExt)authenticationStateProvider;
+        await AuthExt.ActualizarEstadoAut(sesion);
+    }
+    */
     private async Task GuardarCambios()
     {
         if(model.Clave != model.ConfirmarClave)
@@ -80,6 +99,7 @@
             _toastService.ShowWarning("No se pudo crear su cuenta");
             return;
         }
-
+        //var AuthExt = (AutExt)authenticationStateProvider;
+        //await AuthExt.ActualizarEstadoAut(null);
     }
 }
