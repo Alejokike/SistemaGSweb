@@ -24,7 +24,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.Correo == Model.Correo && p.Clave == Ferramentas.ConvertToSha256(Model.Clave));
+                var consulta = _modelRepository.Consultar(p => (p.Correo == Model.Correo || p.NombreUsuario == Model.Correo) && p.Clave == Ferramentas.ConvertToSha256(Model.Clave) && p.Activo == true);
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
 
                 if (fromDBmodel != null) 
@@ -81,6 +81,8 @@ namespace SistemaGS.Service.Implementacion
                     fromDBmodel.Correo = Model.Correo;
                     fromDBmodel.Clave = Ferramentas.ConvertToSha256(Model.Clave);
                     fromDBmodel.IdRol = Model.IdRol;
+                    fromDBmodel.Activo = Model.Activo;
+                    fromDBmodel.ResetearClave = false;
                     var respuesta = await _modelRepository.Editar(fromDBmodel);
 
                     if (!respuesta) throw new TaskCanceledException("No se pudo editar");
@@ -145,7 +147,6 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }

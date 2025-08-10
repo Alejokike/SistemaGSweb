@@ -1,7 +1,6 @@
 ﻿using SistemaGS.DTO;
 using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Json;
-using System.Reflection;
 
 namespace SistemaGS.WebAssembly.Services.Implementacion
 {
