@@ -27,6 +27,7 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, AutExt>();
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IPersonaService, PersonaService>();
 builder.Services.AddScoped<IAyudaService, AyudaService>();
 
 await builder.Build().RunAsync();

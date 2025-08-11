@@ -14,8 +14,8 @@ namespace SistemaGS.API.Controllers
             _personaService = personaService;
         }
 
-        [HttpGet("Lista/{tipo:int}/{buscar?}")]
-        public async Task<IActionResult> Lista(int tipo, string buscar = "NA")
+        [HttpGet("Lista/{Tipo:int}/{buscar?}")]
+        public async Task<IActionResult> Lista(int Tipo, string buscar = "NA")
         {
             var response = new ResponseDTO<List<PersonaDTO>>();
 
@@ -24,7 +24,7 @@ namespace SistemaGS.API.Controllers
                 if (buscar == "NA") buscar = "";
 
                 response.EsCorrecto = true;
-                response.Resultado = await _personaService.Lista(tipo, buscar);
+                response.Resultado = await _personaService.Lista(Tipo, buscar);
             }
             catch (Exception ex)
             {
@@ -33,15 +33,15 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpGet("Obtener/{id:int}")]
-        public async Task<IActionResult> Obtener(int id)
+        [HttpGet("Obtener/{Cedula:int}")]
+        public async Task<IActionResult> Obtener(int Cedula)
         {
             var response = new ResponseDTO<PersonaDTO>();
 
             try
             {
                 response.EsCorrecto = true;
-                response.Resultado = await _personaService.Obtener(id);
+                response.Resultado = await _personaService.Obtener(Cedula);
             }
             catch (Exception ex)
             {

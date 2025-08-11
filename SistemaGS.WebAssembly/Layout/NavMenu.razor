@@ -26,12 +26,18 @@
         <AuthorizeView Roles="Administrador">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="Usuarios">
-                    <span class="oi oi-people p-2" aria-hidden="true"></span> Usuarios
+                    <i class="bi bi-person-badge-fill p-2" aria-hidden="true"></i> Usuarios
                 </NavLink>
             </div>
         </AuthorizeView>
 
-
+        <AuthorizeView Roles="Administrador, Asistente, Lector">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="Personas">
+                    <span class="oi oi-people p-2" aria-hidden="true"></span> Personas
+                </NavLink>
+            </div>
+        </AuthorizeView>
 
         <AuthorizeView Roles="Solicitante">
             @{

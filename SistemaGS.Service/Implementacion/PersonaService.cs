@@ -36,7 +36,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.IdUsuario == Model.IdUsuario);
+                var consulta = _modelRepository.Consultar(p => p.Cedula == Model.Cedula);
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
 
                 if (fromDBmodel != null)

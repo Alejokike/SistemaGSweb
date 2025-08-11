@@ -1,10 +1,10 @@
 ﻿@page "/"
 
-@attribute [Authorize(Roles = "Administrador, Solicitante")]
+@attribute [Authorize(Roles = "Administrador, Asistente, Lector, Solicitante")]
 
 <PageTitle>Sistema GS</PageTitle>
 
-<AuthorizeView Roles ="Administrador">
+<AuthorizeView Roles ="Administrador, Asistente, Lector">
 
 <div class="row mt-4">
 

@@ -18,24 +18,26 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
             return result!;
         }
 
-        public Task<ResponseDTO<bool>> Editar(PersonaDTO model)
+        public async Task<ResponseDTO<bool>> Editar(PersonaDTO model)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.PutAsJsonAsync("Persona/Editar", model);
+            var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
+            return result!;
         }
 
-        public Task<ResponseDTO<bool>> Eliminar(int Id)
+        public async Task<ResponseDTO<bool>> Eliminar(int Cedula)
         {
-            throw new NotImplementedException();
+            return (await _httpClient.DeleteFromJsonAsync<ResponseDTO<bool>>($"Persona/Eliminar/{Cedula}"))!;
         }
 
-        public Task<ResponseDTO<List<PersonaDTO>>> Lista(int Rol, string Buscar)
+        public async Task<ResponseDTO<List<PersonaDTO>>> Lista(int Tipo, string Buscar)
         {
-            throw new NotImplementedException();
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<PersonaDTO>>>($"Persona/Lista/{Tipo}/{Buscar}"))!;
         }
 
-        public Task<ResponseDTO<PersonaDTO>> Obtener(int Id)
+        public async Task<ResponseDTO<PersonaDTO>> Obtener(int Cedula)
         {
-            throw new NotImplementedException();
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<PersonaDTO>>($"Persona/Obtener/{Cedula}"))!;
         }
     }
 }

@@ -28,6 +28,7 @@ builder.Services.AddScoped<IPlanillaRepository, PlanillaRepository>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IPersonaService, PersonaService>();
 /*
 builder.Services.AddCors(options =>
 {
