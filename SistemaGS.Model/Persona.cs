@@ -1,4 +1,7 @@
-﻿namespace SistemaGS.Model;
+﻿using System;
+using System.Collections.Generic;
+
+namespace SistemaGS.Model;
 
 public partial class Persona
 {
@@ -32,13 +35,11 @@ public partial class Persona
 
     public bool Funcionario { get; set; }
 
-    public bool Usuario { get; set; }
-
-    public int? IdUsuario { get; set; }
-
     public virtual ICollection<Planilla> PlanillaBeneficiarioNavigations { get; set; } = new List<Planilla>();
 
     public virtual ICollection<Planilla> PlanillaFuncionarioNavigations { get; set; } = new List<Planilla>();
 
     public virtual ICollection<Planilla> PlanillaSolicitanteNavigations { get; set; } = new List<Planilla>();
+
+    public virtual Usuario? Usuario { get; set; }
 }

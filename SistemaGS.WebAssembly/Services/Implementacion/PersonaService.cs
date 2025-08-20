@@ -18,9 +18,9 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
             return result!;
         }
 
-        public async Task<ResponseDTO<bool>> Editar(PersonaDTO model)
+        public async Task<ResponseDTO<bool>> Editar(PersonaDTO model, int Cedula)
         {
-            var response = await _httpClient.PutAsJsonAsync("Persona/Editar", model);
+            var response = await _httpClient.PutAsJsonAsync($"Persona/Editar/{Cedula}", model);
             var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
             return result!;
         }

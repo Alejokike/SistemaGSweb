@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-
-using SistemaGS.Repository.Contrato;
+﻿using System.Linq.Expressions;
 using SistemaGS.Repository.DBContext;
+using SistemaGS.Repository.Contrato;
 
 namespace SistemaGS.Repository.Implementacion
 {
@@ -18,7 +12,7 @@ namespace SistemaGS.Repository.Implementacion
         {
             _dbContext = dbContext;
         }
-
+        
         public IQueryable<TModel> Consultar(Expression<Func<TModel, bool>>? filtro = null)
         {
             IQueryable<TModel> consulta = (filtro == null) ? _dbContext.Set<TModel>() : _dbContext.Set<TModel>().Where(filtro);

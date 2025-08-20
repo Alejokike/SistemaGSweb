@@ -56,6 +56,7 @@ namespace SistemaGS.Service.Implementacion
             {
                 var DbModel = _mapper.Map<Usuario>(Model);
                 DbModel.Clave = Ferramentas.ConvertToSha256(DbModel.Clave);
+                DbModel.Perfil = Model.Perfil;
                 var rspModel = await _modelRepository.Crear(DbModel);
 
                 if (rspModel.IdUsuario != 0) return _mapper.Map<UsuarioDTO>(rspModel);
@@ -78,6 +79,7 @@ namespace SistemaGS.Service.Implementacion
                 {
                     fromDBmodel.NombreCompleto = Model.NombreCompleto;
                     fromDBmodel.NombreUsuario = Model.NombreUsuario;
+                    fromDBmodel.Perfil = Model.Perfil;
                     fromDBmodel.Correo = Model.Correo;
                     fromDBmodel.Clave = Ferramentas.ConvertToSha256(Model.Clave);
                     fromDBmodel.IdRol = Model.IdRol;

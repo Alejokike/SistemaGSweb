@@ -32,17 +32,19 @@ namespace SistemaGS.Service.Implementacion
             }
         }
 
-        public async Task<bool> Editar(PersonaDTO Model)
+        public async Task<bool> Editar(PersonaDTO Model, int Cedula)
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.Cedula == Model.Cedula);
+                var consulta = _modelRepository.Consultar(p => p.Cedula == Cedula);
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
 
                 if (fromDBmodel != null)
                 {
                     fromDBmodel = _mapper.Map<Persona>(Model);
-                    var respuesta = await _modelRepository.Editar(fromDBmodel);
+                    await Eliminar(Cedula);
+                    var respuesta = (await Crear(Model)).Cedula != 0;
+                    //var respuesta = await _modelRepository.Editar(fromDBmodel);
 
                     if (!respuesta) throw new TaskCanceledException("No se pudo editar");
                     else return respuesta;

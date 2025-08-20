@@ -67,15 +67,15 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpPut("Editar")]
-        public async Task<IActionResult> Editar([FromBody] PersonaDTO model)
+        [HttpPut("Editar/{Cedula:int}")]
+        public async Task<IActionResult> Editar([FromBody] PersonaDTO model, int Cedula)
         {
             var response = new ResponseDTO<bool>();
 
             try
             {
                 response.EsCorrecto = true;
-                response.Resultado = await _personaService.Editar(model);
+                response.Resultado = await _personaService.Editar(model, Cedula);
             }
             catch (Exception ex)
             {

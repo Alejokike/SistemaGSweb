@@ -1,4 +1,7 @@
-﻿namespace SistemaGS.Model;
+﻿using System;
+using System.Collections.Generic;
+
+namespace SistemaGS.Model;
 
 public partial class EstadoAyuda
 {

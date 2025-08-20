@@ -42,8 +42,6 @@
         <div class="row gx-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 justify-content-start mt-2">
             @if (Lista != null)
             {
-                //int IdLogged = Convert.ToInt32(@context.User.Claims.Where(u => u.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault());
-
                 List<PersonaDTO> filtro;
 
                 switch (tipo)
@@ -72,8 +70,8 @@
 
                 foreach (PersonaDTO item in filtro)
                 {
-                    string[] tipop = ["Solicitante ", "Beneficiario ", "Funcionario "];
-                    string Tipo = string.Concat((item.Solicitante ? tipop[0] : ""), (item.Beneficiario ? tipop[1] : ""), (item.Funcionario ? tipop[2] : ""));
+                    string[] perfiles = ["Solicitante ", "Beneficiario ", "Funcionario"];
+                    string perfil = string.Concat((item.Solicitante ? perfiles[0] : ""), (item.Beneficiario ? perfiles[1] : ""), (item.Funcionario ? perfiles[2] : ""));
 
                     <div class="col mb-6">
                         <div class="card h-300">
@@ -83,7 +81,7 @@
                                 </div>
                                 <div class="text-start">
                                     <p class="m-1"><b>Nombre: </b>@item.Nombre @item.Apellido</p>
-                                    <p class="m-1"><b>Tipo: </b>@Tipo</p>
+                                    <p class="m-1"><b>Tipo: </b>@perfil</p>
                                     <p class="m-1"><b>Cedula: </b>@item.Cedula</p>
                                     <p class="m-1"><b>Teléfono: </b>@item.TelefonoHabitacion</p>
                                 </div>

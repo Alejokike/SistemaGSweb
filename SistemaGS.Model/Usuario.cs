@@ -1,4 +1,7 @@
-﻿namespace SistemaGS.Model;
+﻿using System;
+using System.Collections.Generic;
+
+namespace SistemaGS.Model;
 
 public partial class Usuario
 {
@@ -20,7 +23,11 @@ public partial class Usuario
 
     public DateTime? FechaCreacion { get; set; }
 
+    public int? Perfil { get; set; }
+
     public virtual Rol? IdRolNavigation { get; set; }
+
+    public virtual Persona? PerfilNavigation { get; set; }
 
     public virtual ICollection<Registro> Registros { get; set; } = new List<Registro>();
 }

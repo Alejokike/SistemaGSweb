@@ -48,6 +48,8 @@ INSERT INTO ROL(Nombre) VALUES ('Administrador'), ('Asistente'), ('Lector');
 
 GO
 
+drop Table Usuario
+
 CREATE TABLE Usuario(
 IdUsuario  int primary key identity(1,1),
 IdRol int references Rol(IdRol),
@@ -57,7 +59,8 @@ NombreUsuario varchar(50) not null unique,
 Clave varchar(100) not null,
 ResetearClave bit default 1,
 Activo bit default 1,
-FechaCreacion datetime default GETDATE()
+FechaCreacion datetime default GETDATE(),
+Perfil int references Persona(Cedula) unique
 );
 
 GO
@@ -82,6 +85,9 @@ GO
 */
 
 --Tablas estructura de datos
+
+Drop Table persona
+
 CREATE TABLE Persona(
 Cedula int primary key,
 Nombre nvarchar(60),
@@ -97,9 +103,7 @@ DireccionHabitacion nvarchar(150),
 TelefonoHabitacion nvarchar(12),
 Solicitante bit not null,
 Beneficiario bit not null,
-Funcionario bit not null,
-Usuario bit not null,
-IdUsuario int
+Funcionario bit not null
 );
 
 GO

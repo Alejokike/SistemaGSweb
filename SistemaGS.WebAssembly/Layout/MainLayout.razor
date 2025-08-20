@@ -7,15 +7,15 @@
 @inject AuthenticationStateProvider authenticationStateProvider;
 
 <div class="page">
-    <div class="sidebar">
+    <div class="sidebar" style="z-index: 3">
         <NavMenu />
     </div>
     <main>
-        <header style="z-index: 0" class="sticky-top bg-white shadow-sm">
+        <header style="z-index: 2" class="sticky-top bg-white shadow-sm">
             <HorizontalNav />
         </header>
         
-        <article class="content px-4">
+        <article class="content px-4" style="z-index: 1">
             @Body
         </article>
     </main>

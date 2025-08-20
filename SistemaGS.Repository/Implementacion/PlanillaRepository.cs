@@ -1,7 +1,6 @@
 ﻿using SistemaGS.Model;
-using SistemaGS.Repository.Contrato;
 using SistemaGS.Repository.DBContext;
-
+using SistemaGS.Repository.Contrato;
 //Estas clases específicas son para cuando al hacer una actualización de una tabla afectamos a muchas tablas, así mantenemos la atomicidad
 
 namespace SistemaGS.Repository.Implementacion
