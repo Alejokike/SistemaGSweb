@@ -31,7 +31,7 @@
 
             <div class="input-group">
                 <span class="input-group-text bg-light" id="basic-addon3">Nombre Completo</span>
-                <input type="text" class="form-control" @bind-value="model.NombreCompleto">
+                <input type="text" maxlength="60" class="form-control" @bind-value="model.NombreCompleto">
             </div>
             <ValidationMessage For="@(() => model.NombreCompleto)" />
 
@@ -42,10 +42,10 @@
             <ValidationMessage For="@(() => model.NombreUsuario)" />
 
             <div class="input-group mt-3">
-                <span class="input-group-text bg-light" id="basic-addon3">Cedula</span>
-                <input type="text" class="form-control" @bind-value="model.Perfil">
+                <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
+                <input type="text" class="form-control" @bind-value="model.Cedula">
             </div>
-            <ValidationMessage For="@(() => model.NombreUsuario)" />
+            <ValidationMessage For="@(() => model.Cedula)" />
 
             <div class="input-group mt-3">
                 <span class="input-group-text bg-light" id="basic-addon3">Correo</span>
@@ -76,12 +76,6 @@
                 <input type="password" class="form-control" @bind-value="model.ConfirmarClave">
             </div>
             <ValidationMessage For="@(() => model.ConfirmarClave)" />
-
-            <div class="input-group">
-                <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
-                <input type="text" class="form-control" @bind-value="model.Cedula">
-            </div>
-            <ValidationMessage For="@(() => model.Cedula)" />
 
             <div class="form-check form-switch mt-3">
                 <label class="form-check-label" for="userStatusSwitch">Status Usuario: </label>

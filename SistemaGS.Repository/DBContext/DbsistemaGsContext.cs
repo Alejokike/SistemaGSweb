@@ -1,5 +1,6 @@
 ﻿using SistemaGS.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace SistemaGS.Repository.DBContext;
 
@@ -188,7 +189,7 @@ public partial class DbsistemaGsContext : DbContext
 
             entity.ToTable("Usuario");
 
-            entity.HasIndex(e => e.Perfil, "UQ__Usuario__277B0CDCECDE99E4").IsUnique();
+            entity.Property(e => e.Cedula);
 
             entity.HasIndex(e => e.NombreUsuario, "UQ__Usuario__6B0F5AE08E679FA1").IsUnique();
 
@@ -215,7 +216,7 @@ public partial class DbsistemaGsContext : DbContext
                 .HasConstraintName("FK__Usuario__IdRol__65370702");
 
             entity.HasOne(d => d.PerfilNavigation).WithOne(p => p.Usuario)
-                .HasForeignKey<Usuario>(d => d.Perfil)
+                .HasForeignKey<Usuario>(d => d.Cedula)
                 .HasConstraintName("FK__Usuario__Perfil__690797E6");
         });
 

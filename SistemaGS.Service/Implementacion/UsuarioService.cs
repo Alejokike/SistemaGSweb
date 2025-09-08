@@ -39,7 +39,8 @@ namespace SistemaGS.Service.Implementacion
                         Correo = fromDBmodel.Correo,
                         NombreUsuario = fromDBmodel.NombreUsuario,
                         IdRol = fromDBmodel.IdRol,
-                        Rol = RolUser!.Nombre
+                        Rol = RolUser!.Nombre,
+                        Cedula = fromDBmodel.Cedula
                     };
                 } //return _mapper.Map<SesionDTO>(fromDBmodel);
                 else throw new TaskCanceledException("No se encontraron coincidencias");
@@ -56,7 +57,7 @@ namespace SistemaGS.Service.Implementacion
             {
                 var DbModel = _mapper.Map<Usuario>(Model);
                 DbModel.Clave = Ferramentas.ConvertToSha256(DbModel.Clave);
-                DbModel.Perfil = Model.Perfil;
+                DbModel.Cedula = Model.Cedula;
                 var rspModel = await _modelRepository.Crear(DbModel);
 
                 if (rspModel.IdUsuario != 0) return _mapper.Map<UsuarioDTO>(rspModel);
@@ -79,7 +80,7 @@ namespace SistemaGS.Service.Implementacion
                 {
                     fromDBmodel.NombreCompleto = Model.NombreCompleto;
                     fromDBmodel.NombreUsuario = Model.NombreUsuario;
-                    fromDBmodel.Perfil = Model.Perfil;
+                    fromDBmodel.Cedula = Model.Cedula;
                     fromDBmodel.Correo = Model.Correo;
                     fromDBmodel.Clave = Ferramentas.ConvertToSha256(Model.Clave);
                     fromDBmodel.IdRol = Model.IdRol;

@@ -20,8 +20,4 @@
     <ProjectReference Include="..\SistemaGS.DTO\SistemaGS.DTO.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Pages\Solicitante\" />
-  </ItemGroup>
-
 </Project>

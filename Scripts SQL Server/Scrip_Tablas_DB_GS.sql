@@ -48,6 +48,20 @@ INSERT INTO ROL(Nombre) VALUES ('Administrador'), ('Asistente'), ('Lector');
 
 GO
 
+Drop Table Registro
+
+CREATE TABLE Registro(
+    IdRegistro int primary key identity(1,1),
+    TablaAfectada nvarchar(50),
+    IdRegistroAfectado int,
+    Accion nvarchar(20), -- 'INSERT', 'UPDATE', 'DELETE'
+    UsuarioResponsable int references Usuario(IdUsuario),
+    FechaAccion datetime default getdate(),
+    DetalleJSON nvarchar(MAX) CHECK (ISJSON(DetalleJSON) = 1)
+);
+
+GO
+
 drop Table Usuario
 
 CREATE TABLE Usuario(
@@ -60,7 +74,7 @@ Clave varchar(100) not null,
 ResetearClave bit default 1,
 Activo bit default 1,
 FechaCreacion datetime default GETDATE(),
-Perfil int references Persona(Cedula) unique
+Cedula int references Persona(Cedula)
 );
 
 GO
@@ -209,18 +223,6 @@ IdItem int references Item(IdItem) not null,
 DetalleJSON nvarchar(MAX) CHECK (ISJSON(DetalleJSON) = 1),
 FechaSolicitud datetime default GETDATE(),
 FechaEntrega datetime default GETDATE()
-);
-
-GO
-
-CREATE TABLE Registro(
-    IdRegistro int primary key identity(1,1),
-    TablaAfectada nvarchar(50),
-    IdRegistroAfectado int,
-    Accion nvarchar(20), -- 'INSERT', 'UPDATE', 'DELETE'
-    UsuarioResponsable int references Usuario(IdUsuario),
-    FechaAccion datetime default getdate(),
-    DetalleJSON nvarchar(MAX) CHECK (ISJSON(DetalleJSON) = 1)
 );
 
 GO

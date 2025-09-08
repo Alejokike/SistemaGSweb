@@ -23,7 +23,7 @@ public partial class Usuario
 
     public DateTime? FechaCreacion { get; set; }
 
-    public int? Perfil { get; set; }
+    public int? Cedula { get; set; }
 
     public virtual Rol? IdRolNavigation { get; set; }
 

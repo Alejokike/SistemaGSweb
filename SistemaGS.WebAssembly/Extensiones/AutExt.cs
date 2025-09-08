@@ -25,7 +25,8 @@ namespace SistemaGS.WebAssembly.Extensiones
                     new Claim(ClaimTypes.NameIdentifier, sesionUsuario.IdUsuario.ToString()),
                     new Claim(ClaimTypes.Name, sesionUsuario.NombreUsuario.ToString()),
                     new Claim(ClaimTypes.Email, sesionUsuario.Correo.ToString()),
-                    new Claim(ClaimTypes.Role, sesionUsuario.Rol!.ToString())
+                    new Claim(ClaimTypes.Role, sesionUsuario.Rol!.ToString()),
+                    new Claim(ClaimTypes.Actor, sesionUsuario.Cedula.ToString()!)
                 }, "JwtAuth"));
 
                 await _localStorage.SetItemAsync("sesionUsuario", sesionUsuario);
