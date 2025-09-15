@@ -19,6 +19,8 @@ namespace SistemaGS.Util
             CreateMap<UsuarioDTO, Usuario>();
             CreateMap<Persona, PersonaDTO>();
             CreateMap<PersonaDTO, Persona>();
+            CreateMap<Item, ItemDTO>();
+            CreateMap<ItemDTO, Item>();
         }
     }
 }
