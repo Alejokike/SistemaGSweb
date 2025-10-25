@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using SistemaGS.Model;
 
-namespace SistemaGS.Model;
+namespace SistemaGS.Repository.DBContext;
 
 public partial class DbsistemaGsContext : DbContext
 {
-    public DbsistemaGsContext()
+    private readonly IConfiguration _Configuration;
+    public DbsistemaGsContext(IConfiguration configuration)
     {
+        _Configuration = configuration;
     }
 
     public DbsistemaGsContext(DbContextOptions<DbsistemaGsContext> options)
@@ -30,8 +32,11 @@ public partial class DbsistemaGsContext : DbContext
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=localhost; DataBase=DBSISTEMA_GS; Trusted_Connection=True; TrustServerCertificate=True;");
+    {
+        var conectionstring = _Configuration.GetConnectionString("CadenaSQL");
+        optionsBuilder.UseSqlServer(conectionstring);
+    }
+    //=> optionsBuilder.UseSqlServer("Server=localhost; DataBase=DBSISTEMA_GS; Trusted_Connection=True; TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

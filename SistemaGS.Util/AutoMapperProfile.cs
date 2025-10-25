@@ -17,8 +17,7 @@ namespace SistemaGS.Util
             CreateMap<Usuario, UsuarioDTO>()
                 .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation!.Nombre));
             CreateMap<Usuario, SesionDTO>()
-                .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation))
-                .ForMember(dest => dest.Persona, opt => opt.MapFrom(src => src.CedulaNavigation));
+                .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation));
             CreateMap<UsuarioDTO, Usuario>();
             CreateMap<Persona, PersonaDTO>();
             CreateMap<PersonaDTO, Persona>();

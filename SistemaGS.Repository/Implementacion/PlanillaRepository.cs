@@ -5,16 +5,16 @@ using SistemaGS.Repository.Contrato;
 
 namespace SistemaGS.Repository.Implementacion
 {
-    public class PlanillaRepository : GenericoRepository<Planilla>, IPlanillaRepository
+    public class PlanillaRepository : GenericoRepository<Ayuda>, IPlanillaRepository
     {
         private readonly DbsistemaGsContext _dbContext;
         public PlanillaRepository(DbsistemaGsContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
-        public async Task<Planilla> Registrar(Planilla model)
+        public async Task<Ayuda> Registrar(Ayuda model)
         {
-            Planilla planillaGenerada = new Planilla();
+            Ayuda planillaGenerada = new Ayuda();
             /*
             using (var transaction = _dbContext.Database.BeginTransaction())
             {

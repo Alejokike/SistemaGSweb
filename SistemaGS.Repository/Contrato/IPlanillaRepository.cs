@@ -2,8 +2,8 @@
 
 namespace SistemaGS.Repository.Contrato
 {
-    public interface IPlanillaRepository : IGenericoRepository<Planilla>
+    public interface IPlanillaRepository : IGenericoRepository<Ayuda>
     {
-        Task<Planilla> Registrar(Planilla model);
+        Task<Ayuda> Registrar(Ayuda model);
     }
 }

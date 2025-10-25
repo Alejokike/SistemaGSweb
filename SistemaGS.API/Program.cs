@@ -1,12 +1,12 @@
 using SistemaGS.Repository.DBContext;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 using SistemaGS.Util;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Repository.Implementacion;
 using SistemaGS.Service.Contrato;
 using SistemaGS.Service.Implementacion;
-using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +16,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddDbContext<DbsistemaGsContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CadenaSQL"));
-}
+    {
+       options.UseSqlServer(builder.Configuration.GetConnectionString("CadenaSQL"));
+    }
 );
 
 builder.Services.AddTransient(typeof(IGenericoRepository<>), typeof(GenericoRepository<>));
