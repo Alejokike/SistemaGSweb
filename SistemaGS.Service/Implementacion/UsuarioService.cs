@@ -12,11 +12,13 @@ namespace SistemaGS.Service.Implementacion
     {
         private readonly IGenericoRepository<Usuario> _modelRepository;
         private readonly IGenericoRepository<Rol> _modelRepositoryRol;
+        private readonly IGenericoRepository<Persona> _modelRepositoryPersona;
         private readonly IMapper _mapper;
-        public UsuarioService(IGenericoRepository<Usuario> modelRepository, IGenericoRepository<Rol> modelRepositoryRol, IMapper mapper)
+        public UsuarioService(IGenericoRepository<Usuario> modelRepository, IGenericoRepository<Rol> modelRepositoryRol, IGenericoRepository<Persona> modelRepositoryPersona, IMapper mapper)
         {
             _modelRepository = modelRepository;
             _modelRepositoryRol = modelRepositoryRol;
+            _modelRepositoryPersona = modelRepositoryPersona;
             _mapper = mapper;
         }
 
@@ -29,20 +31,15 @@ namespace SistemaGS.Service.Implementacion
 
                 if (fromDBmodel != null) 
                 {
-                    var rolUser = _modelRepositoryRol.Consultar(r => r.IdRol == fromDBmodel.IdRol);
-                    var RolUser = await rolUser.FirstOrDefaultAsync();
-
-                    return new SesionDTO
-                    {
+                    return _mapper.Map<SesionDTO>(fromDBmodel);
+                    /*
                         IdUsuario = fromDBmodel.IdUsuario,
-                        NombreCompleto = fromDBmodel.NombreCompleto,
                         Correo = fromDBmodel.Correo,
                         NombreUsuario = fromDBmodel.NombreUsuario,
-                        IdRol = fromDBmodel.IdRol,
-                        Rol = RolUser!.Nombre,
-                        Cedula = fromDBmodel.Cedula
-                    };
-                } //return _mapper.Map<SesionDTO>(fromDBmodel);
+                        RolUsuario = _mapper.Map<RolDTO>(RolUser),
+                        Perfil = _mapper.Map<PersonaDTO>(PerfilUser)
+                    */
+                }
                 else throw new TaskCanceledException("No se encontraron coincidencias");
             }
             catch (Exception ex)
@@ -57,6 +54,7 @@ namespace SistemaGS.Service.Implementacion
             {
                 var DbModel = _mapper.Map<Usuario>(Model);
                 DbModel.Clave = Ferramentas.ConvertToSha256(DbModel.Clave);
+                DbModel.IdRol = Model.IdRol;
                 DbModel.Cedula = Model.Cedula;
                 var rspModel = await _modelRepository.Crear(DbModel);
 
@@ -78,7 +76,6 @@ namespace SistemaGS.Service.Implementacion
 
                 if (fromDBmodel != null)
                 {
-                    fromDBmodel.NombreCompleto = Model.NombreCompleto;
                     fromDBmodel.NombreUsuario = Model.NombreUsuario;
                     fromDBmodel.Cedula = Model.Cedula;
                     fromDBmodel.Correo = Model.Correo;
@@ -129,22 +126,14 @@ namespace SistemaGS.Service.Implementacion
 
                 if(Rol != 0)
                 {
-                    consulta = _modelRepository.Consultar(p => p.IdRol == Rol && string.Concat(p.NombreCompleto.ToLower(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
+                    consulta = _modelRepository.Consultar(p => p.IdRol == Rol && string.Concat(p.Cedula.ToString(), p.NombreUsuario.ToLower(), p.NombreCompleto.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
                 }
                 else
                 {
-                    consulta = _modelRepository.Consultar(p => string.Concat(p.NombreCompleto.ToLower(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
+                    consulta = _modelRepository.Consultar(p => string.Concat(p.Cedula.ToString(), p.NombreUsuario.ToLower(), p.NombreCompleto.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
                 }
-
-                var rolUser = _modelRepositoryRol.Consultar();
-                var RolUser = await rolUser.ToListAsync();
 
                 List<UsuarioDTO> lista = _mapper.Map<List<UsuarioDTO>>(await consulta.ToListAsync());
-
-                foreach(UsuarioDTO item in lista)
-                {
-                    item.Rol = RolUser.Where(id => id.IdRol == item.IdRol).Select(id => id.Nombre).Single().ToString();
-                }
 
                 return lista;
             }
@@ -163,12 +152,7 @@ namespace SistemaGS.Service.Implementacion
 
                 if (fromDBmodel != null)
                 {
-                    var rolUser = _modelRepositoryRol.Consultar(r => r.IdRol == fromDBmodel.IdRol);
-                    var RolUser = await rolUser.FirstOrDefaultAsync();
-
-                    var aux = _mapper.Map<UsuarioDTO>(fromDBmodel);
-                    aux.Rol = RolUser!.Nombre;
-                    return aux;
+                    return _mapper.Map<UsuarioDTO>(fromDBmodel);
                 }
                 else throw new TaskCanceledException("");
             }

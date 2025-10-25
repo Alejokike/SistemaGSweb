@@ -15,9 +15,7 @@ public partial class Registro
 
     public int? UsuarioResponsable { get; set; }
 
+    public string? Detalle { get; set; }
+
     public DateTime? FechaAccion { get; set; }
-
-    public string? DetalleJson { get; set; }
-
-    public virtual Usuario? UsuarioResponsableNavigation { get; set; }
 }

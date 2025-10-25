@@ -17,6 +17,7 @@ namespace SistemaGS.DTO
         [Required(ErrorMessage = "Ingrese Cédula")]
         [RegularExpression(@"^\d{7,8}$", ErrorMessage = "El número debe tener 7 u 8 dígitos.")]
         public int Cedula { get; set; }
+        public PersonaDTO Persona { get; set; } = null!;
         [Required(ErrorMessage = "Ingrese Nombre Usuario")]
         public string NombreUsuario { get; set; } = null!;
         [Required(ErrorMessage = "Ingrese Contraseña")]

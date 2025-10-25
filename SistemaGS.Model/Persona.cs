@@ -29,17 +29,7 @@ public partial class Persona
 
     public string? TelefonoHabitacion { get; set; }
 
-    public bool Solicitante { get; set; }
+    public virtual ICollection<Ayuda> AyudumFuncionarioNavigations { get; set; } = new List<Ayuda>();
 
-    public bool Beneficiario { get; set; }
-
-    public bool Funcionario { get; set; }
-
-    public virtual ICollection<Planilla> PlanillaBeneficiarioNavigations { get; set; } = new List<Planilla>();
-
-    public virtual ICollection<Planilla> PlanillaFuncionarioNavigations { get; set; } = new List<Planilla>();
-
-    public virtual ICollection<Planilla> PlanillaSolicitanteNavigations { get; set; } = new List<Planilla>();
-
-    public virtual Usuario? Usuario { get; set; }
+    public virtual ICollection<Ayuda> AyudumSolicitanteNavigations { get; set; } = new List<Ayuda>();
 }

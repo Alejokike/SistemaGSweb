@@ -14,8 +14,11 @@ namespace SistemaGS.Util
     {
         public AutoMapperProfile() 
         {
-            CreateMap<Usuario, UsuarioDTO>();
-            CreateMap<Usuario, SesionDTO>();
+            CreateMap<Usuario, UsuarioDTO>()
+                .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation!.Nombre));
+            CreateMap<Usuario, SesionDTO>()
+                .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation))
+                .ForMember(dest => dest.Persona, opt => opt.MapFrom(src => src.CedulaNavigation));
             CreateMap<UsuarioDTO, Usuario>();
             CreateMap<Persona, PersonaDTO>();
             CreateMap<PersonaDTO, Persona>();

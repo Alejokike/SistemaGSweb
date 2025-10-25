@@ -25,18 +25,14 @@ GO
 
 CREATE TABLE Usuario(
 -- Claves
-IdUsuario  int primary key identity(1,1),
+IdUsuario  int primary key,
 IdRol int references Rol(IdRol),
 --
 
---Datos Perfil
-Correo varchar(50) not null,
-NombreUsuario varchar(50) not null unique,
-Clave varchar(100) not null,
---
-
--- Campos
-Cedula int references Persona(Cedula) unique,
+--Datos Perfil,
+Correo nvarchar(50) not null,
+NombreUsuario nvarchar(50) not null unique,
+Clave nvarchar(100) not null,
 --
 
 -- Metadata
@@ -45,16 +41,16 @@ Activo bit default 1,
 FechaCreacion datetime default GETDATE()
 );
 
-insert into Usuario (IdRol, Correo, NombreUsuario, Clave, Cedula, ResetearClave) values
+insert into Usuario (IdRol, Correo, NombreCompleto, NombreUsuario, Clave, ResetearClave) values
 (
 1,
-'alejandriqueparcedo@gmail.com', 
+'alejandriqueparcedo@gmail.com',
+'Alejandro Enrique Yanes Aparcedo',
 'Alekike',
 '2d27f0d5ce289b128aeb5bdbe97d69865111fb057c4d9a6fbf6351666ef30eab',
-29954744,
 0
 )
-select * from Usuario
+
 GO
 
 CREATE TABLE Registro(

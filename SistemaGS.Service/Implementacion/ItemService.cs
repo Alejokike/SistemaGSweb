@@ -79,17 +79,17 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                IQueryable<Usuario>? consulta;
-                /*
+                IQueryable<Item>? consulta;
+                
                 if (tipo != 0)
                 {
-                    consulta = _modelRepository.Consultar(p => p.TipoItem == tipo && string.Concat(p.NombreCompleto.ToLower(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
+                    consulta = _modelRepository.Consultar(p => p.IdItem == tipo && string.Concat(p.Nombre.ToLower()).Contains(buscar.ToLower()));
                 }
                 else
                 {
-                    consulta = _modelRepository.Consultar(p => string.Concat(p.NombreCompleto.ToLower(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
+                    consulta = _modelRepository.Consultar(p => string.Concat(p.Nombre.ToLower()).Contains(buscar.ToLower()));
                 }
-                */
+                
 
                 List<ItemDTO> lista = _mapper.Map<List<ItemDTO>>(await consulta.ToListAsync());
 

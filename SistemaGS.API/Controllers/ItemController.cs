@@ -33,15 +33,15 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpGet("Obtener/{Cedula:int}")]
-        public async Task<IActionResult> Obtener(int Cedula)
+        [HttpGet("Obtener/{Id:int}")]
+        public async Task<IActionResult> Obtener(int Id)
         {
             var response = new ResponseDTO<ItemDTO>();
 
             try
             {
                 response.EsCorrecto = true;
-                response.Resultado = await _itemService.Obtener(Cedula);
+                response.Resultado = await _itemService.Obtener(Id);
             }
             catch (Exception ex)
             {
@@ -67,15 +67,15 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpPut("Editar/{Cedula:int}")]
-        public async Task<IActionResult> Editar([FromBody] ItemDTO model, int Cedula)
+        [HttpPut("Editar/{Id:int}")]
+        public async Task<IActionResult> Editar([FromBody] ItemDTO model, int Id)
         {
             var response = new ResponseDTO<bool>();
 
             try
             {
                 response.EsCorrecto = true;
-                response.Resultado = await _itemService.Editar(model, Cedula);
+                response.Resultado = await _itemService.Editar(model, Id);
             }
             catch (Exception ex)
             {

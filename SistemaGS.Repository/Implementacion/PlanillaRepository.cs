@@ -15,7 +15,7 @@ namespace SistemaGS.Repository.Implementacion
         public async Task<Planilla> Registrar(Planilla model)
         {
             Planilla planillaGenerada = new Planilla();
-
+            /*
             using (var transaction = _dbContext.Database.BeginTransaction())
             {
                 try
@@ -36,7 +36,7 @@ namespace SistemaGS.Repository.Implementacion
                     throw;
                 }
             }
-
+            */
             return planillaGenerada;
         }
     }
