@@ -20,7 +20,7 @@ namespace SistemaGS.Repository.Implementacion
             {
                 try
                 {
-                    if (await _dbContext.Usuarios.AnyAsync(u => u.Cedula == usuario.Cedula) || await _dbContext.Personas.AnyAsync(p => p.Cedula == persona.Cedula))
+                    if(await _dbContext.Usuarios.AnyAsync(u => u.Cedula == usuario.Cedula) || await _dbContext.Personas.AnyAsync(p => p.Cedula == persona.Cedula))
                     {
                         _dbContext.Personas.Update(persona);
                         await _dbContext.SaveChangesAsync();
@@ -29,8 +29,7 @@ namespace SistemaGS.Repository.Implementacion
 
                         transaction.Commit();
                     }
-                    else throw new TaskCanceledException("Este usuario no existe en el sistema");
-
+                    else throw new TaskCanceledException("No existen registros de ese usuario");
                     return true;
                 }
                 catch (Exception)

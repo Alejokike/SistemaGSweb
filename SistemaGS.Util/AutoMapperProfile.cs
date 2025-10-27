@@ -23,6 +23,7 @@ namespace SistemaGS.Util
                 .ForMember(dest => dest.IdRol, opt => opt.MapFrom(src => src.Rol.IdRol));
             CreateMap<Persona, PersonaDTO>();
             CreateMap<PersonaDTO, Persona>();
+            CreateMap<Rol, RolDTO>();
             CreateMap<Item, ItemDTO>();
             CreateMap<ItemDTO, Item>();
             CreateMap<Inventario, InventarioDTO>();

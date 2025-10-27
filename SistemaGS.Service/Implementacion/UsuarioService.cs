@@ -29,10 +29,19 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => (p.Correo == Model.Correo || p.NombreUsuario == Model.Correo) && p.Clave == Ferramentas.ConvertToSha256(Model.Clave) && p.Activo == true);
-                var fromDBmodel = await consulta.FirstOrDefaultAsync();
-                if (fromDBmodel != null) return _mapper.Map<SesionDTO>(fromDBmodel);
-                else throw new TaskCanceledException("No se encontraron coincidencias");
+                if (await _modelRepository.Consultar(l => l.NombreUsuario == Model.NombreUsuario).AnyAsync())
+                {
+                    var fromDBmodel = await _modelRepository.Consultar(p => p.NombreUsuario == Model.NombreUsuario && p.Clave == Ferramentas.ConvertToSha256(Model.Clave) && p.Activo == true).FirstOrDefaultAsync();
+
+                    if (fromDBmodel != null)
+                    {
+                        var sesion = _mapper.Map<SesionDTO>(fromDBmodel);
+                        sesion.Rol = _mapper.Map<RolDTO>(await _RolRepository.Consultar(r => r.IdRol == fromDBmodel.IdRol).FirstAsync());
+                        return sesion;
+                    }
+                    else throw new InvalidOperationException("Contraseña inválida");
+                }
+                else throw new TaskCanceledException("No se encontraron coincidencias");                
             }
             catch (Exception ex)
             {
@@ -70,24 +79,16 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.Cedula == Model.Cedula);
-                var fromDBmodel = await consulta.FirstOrDefaultAsync();
+                var parseoU = _mapper.Map<Usuario>(Model);
+                var parseoP = _mapper.Map<Persona>(Model.Persona);
 
-                if (fromDBmodel != null)
-                {
-                    fromDBmodel.NombreUsuario = Model.NombreUsuario;
-                    fromDBmodel.Cedula = Model.Cedula;
-                    fromDBmodel.Correo = Model.Correo;
-                    fromDBmodel.Clave = Ferramentas.ConvertToSha256(Model.Clave);
-                    //fromDBmodel.IdRol = Model.IdRol;
-                    fromDBmodel.Activo = Model.Activo;
-                    fromDBmodel.ResetearClave = false;
-                    var respuesta = await _modelRepository.Editar(fromDBmodel);
+                parseoU.Clave = Ferramentas.ConvertToSha256(Model.Clave);
+                parseoU.ResetearClave = false;
 
-                    if (!respuesta) throw new TaskCanceledException("No se pudo editar");
-                    else return respuesta;
-                }
-                else throw new TaskCanceledException("No se encontraron coincidencias");
+                bool respuesta = await _UsuarioRepository.Editar(parseoU, parseoP);
+
+                if (!respuesta) throw new TaskCanceledException("No se pudo editar");
+                else return respuesta;
             }
             catch (Exception ex)
             {
@@ -146,14 +147,14 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consultaU = await _modelRepository.Consultar(p => p.Cedula == id).FirstOrDefaultAsync();
-                var consultaP = await _PersonaRepository.Consultar(p => p.Cedula == id).FirstOrDefaultAsync();
+                var consultaU = await _modelRepository.Consultar(p => p.Cedula == id).AsNoTracking().FirstOrDefaultAsync();
+                var consultaP = await _PersonaRepository.Consultar(p => p.Cedula == id).AsNoTracking().FirstOrDefaultAsync();
 
                 if (consultaP != null || consultaU != null)
                 {
                     var respuesta = _mapper.Map<UsuarioDTO>(consultaU);
-                    var persona = _mapper.Map<PersonaDTO>(consultaP);
-                    respuesta.Persona = persona;
+                    respuesta.Rol = _mapper.Map<RolDTO>(await _RolRepository.Consultar(r => r.IdRol == consultaU.IdRol).AsNoTracking().FirstOrDefaultAsync());
+                    respuesta.Persona = _mapper.Map<PersonaDTO>(consultaP);
                     return respuesta;
                 }
                 else throw new TaskCanceledException("");
