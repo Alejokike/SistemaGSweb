@@ -1,15 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using SistemaGS.Model;
 
 namespace SistemaGS.Repository.DBContext;
 
 public partial class DbsistemaGsContext : DbContext
 {
-    private readonly IConfiguration _Configuration;
-    public DbsistemaGsContext(IConfiguration configuration)
+    public DbsistemaGsContext()
     {
-        _Configuration = configuration;
     }
 
     public DbsistemaGsContext(DbContextOptions<DbsistemaGsContext> options)
@@ -32,11 +29,7 @@ public partial class DbsistemaGsContext : DbContext
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        var conectionstring = _Configuration.GetConnectionString("CadenaSQL");
-        optionsBuilder.UseSqlServer(conectionstring);
-    }
-    //=> optionsBuilder.UseSqlServer("Server=localhost; DataBase=DBSISTEMA_GS; Trusted_Connection=True; TrustServerCertificate=True;");
+    => optionsBuilder.UseSqlServer("Server=localhost; DataBase=DBSISTEMA_GS; Trusted_Connection=True; TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

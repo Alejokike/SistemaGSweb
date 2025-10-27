@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaGS.Util", "SistemaGS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaGS.API", "SistemaGS.API\SistemaGS.API.csproj", "{21AAEB97-0EAF-403D-972C-F28D94AACCDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaGS.WebAssembly", "SistemaGS.WebAssembly\SistemaGS.WebAssembly.csproj", "{F5568440-A8BE-43DC-A56E-DF2B6E7FCA49}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,10 +45,6 @@ Global
 		{21AAEB97-0EAF-403D-972C-F28D94AACCDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21AAEB97-0EAF-403D-972C-F28D94AACCDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21AAEB97-0EAF-403D-972C-F28D94AACCDA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F5568440-A8BE-43DC-A56E-DF2B6E7FCA49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5568440-A8BE-43DC-A56E-DF2B6E7FCA49}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5568440-A8BE-43DC-A56E-DF2B6E7FCA49}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5568440-A8BE-43DC-A56E-DF2B6E7FCA49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

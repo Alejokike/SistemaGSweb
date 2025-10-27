@@ -8,6 +8,7 @@ Las propiedades deben ser iguales para que hagan match
 Tambien en dado caso se puede por medio de .ForMember(Destino  => Destino.PropiedadAIgnorar, opt => opt.Ignore())
 indicar las propiedades a ignorar
 */
+
 namespace SistemaGS.Util
 {
     public class AutoMapperProfile : Profile
@@ -15,14 +16,17 @@ namespace SistemaGS.Util
         public AutoMapperProfile() 
         {
             CreateMap<Usuario, UsuarioDTO>()
-                .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation!.Nombre));
+                .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation!));
             CreateMap<Usuario, SesionDTO>()
                 .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation));
-            CreateMap<UsuarioDTO, Usuario>();
+            CreateMap<UsuarioDTO, Usuario>()
+                .ForMember(dest => dest.IdRol, opt => opt.MapFrom(src => src.Rol.IdRol));
             CreateMap<Persona, PersonaDTO>();
             CreateMap<PersonaDTO, Persona>();
             CreateMap<Item, ItemDTO>();
             CreateMap<ItemDTO, Item>();
+            CreateMap<Inventario, InventarioDTO>();
+            CreateMap<InventarioDTO, Inventario>();
         }
     }
 }

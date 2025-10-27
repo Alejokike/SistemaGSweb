@@ -1,28 +1,23 @@
-﻿namespace SistemaGS.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SistemaGS.DTO
 {
     public class AyudaDTO
     {
-        public int IdPlanilla { get; set; }
-
+        public int IdAyuda { get; set; }
+        [Required(ErrorMessage = "Ingrese Cédula solicitante")]
+        [RegularExpression(@"^\d{7,8}$", ErrorMessage = "El número debe tener 7 u 8 dígitos.")]
         public int Solicitante { get; set; }
-
-        public byte EdadSolicitante { get; set; }
-
-        public int Beneficiario { get; set; }
-
-        public byte EdadBeneficiario { get; set; }
-
+        [Required(ErrorMessage = "Ingrese Cédula funcionario")]
+        [RegularExpression(@"^\d{7,8}$", ErrorMessage = "El número debe tener 7 u 8 dígitos.")]
         public int Funcionario { get; set; }
-
-        public int Categoria { get; set; }
-        public string? Descripcion { get; set; }
-
-        public List<DetalleItemDTO>? ListaItems { get; set; }
-
+        [Required(ErrorMessage = "Seleccione una categoría")]
+        public string? Categoria { get; set; }
+        [Required(ErrorMessage = "Ingrese más información")]
+        public string? Detalle { get; set; }
+        public ListaItem? ListaItems { get; set; }
+        public string? Estado { get; set; }
         public DateTime? FechaSolicitud { get; set; }
-
         public DateTime? FechaEntrega { get; set; }
-
-        public bool? Activo { get; set; }
     }
 }

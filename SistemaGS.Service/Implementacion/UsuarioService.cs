@@ -11,14 +11,17 @@ namespace SistemaGS.Service.Implementacion
     public class UsuarioService : IUsuarioService
     {
         private readonly IGenericoRepository<Usuario> _modelRepository;
-        private readonly IGenericoRepository<Rol> _modelRepositoryRol;
-        private readonly IGenericoRepository<Persona> _modelRepositoryPersona;
+        private readonly IUsuarioRepository _UsuarioRepository;
+        private readonly IGenericoRepository<Rol> _RolRepository;
+        private readonly IGenericoRepository<Persona> _PersonaRepository;
+        
         private readonly IMapper _mapper;
-        public UsuarioService(IGenericoRepository<Usuario> modelRepository, IGenericoRepository<Rol> modelRepositoryRol, IGenericoRepository<Persona> modelRepositoryPersona, IMapper mapper)
+        public UsuarioService(IGenericoRepository<Usuario> modelRepository ,IUsuarioRepository UsuarioRepository, IGenericoRepository<Rol> RolRepository, IGenericoRepository<Persona> PersonaRepository,IMapper mapper)
         {
             _modelRepository = modelRepository;
-            _modelRepositoryRol = modelRepositoryRol;
-            _modelRepositoryPersona = modelRepositoryPersona;
+            _UsuarioRepository = UsuarioRepository;
+            _RolRepository = RolRepository;
+            _PersonaRepository = PersonaRepository;
             _mapper = mapper;
         }
 
@@ -28,18 +31,7 @@ namespace SistemaGS.Service.Implementacion
             {
                 var consulta = _modelRepository.Consultar(p => (p.Correo == Model.Correo || p.NombreUsuario == Model.Correo) && p.Clave == Ferramentas.ConvertToSha256(Model.Clave) && p.Activo == true);
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
-
-                if (fromDBmodel != null) 
-                {
-                    return _mapper.Map<SesionDTO>(fromDBmodel);
-                    /*
-                        IdUsuario = fromDBmodel.IdUsuario,
-                        Correo = fromDBmodel.Correo,
-                        NombreUsuario = fromDBmodel.NombreUsuario,
-                        RolUsuario = _mapper.Map<RolDTO>(RolUser),
-                        Perfil = _mapper.Map<PersonaDTO>(PerfilUser)
-                    */
-                }
+                if (fromDBmodel != null) return _mapper.Map<SesionDTO>(fromDBmodel);
                 else throw new TaskCanceledException("No se encontraron coincidencias");
             }
             catch (Exception ex)
@@ -52,14 +44,21 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var DbModel = _mapper.Map<Usuario>(Model);
-                DbModel.Clave = Ferramentas.ConvertToSha256(DbModel.Clave);
-                DbModel.IdRol = Model.IdRol;
-                DbModel.Cedula = Model.Cedula;
-                var rspModel = await _modelRepository.Crear(DbModel);
+                if(await Obtener(Model.Cedula) != null) throw new TaskCanceledException("Ya existe un usuario con esa cédula");
+                else
+                {
+                    var DbUsuario = _mapper.Map<Usuario>(Model);
+                    var DbPersona = _mapper.Map<Persona>(Model.Persona);
+                    DbUsuario.Clave = Ferramentas.ConvertToSha256(DbUsuario.Clave);
 
-                if (rspModel.IdUsuario != 0) return _mapper.Map<UsuarioDTO>(rspModel);
-                else throw new TaskCanceledException("No se pudo crear");
+                    var rspModel = await _UsuarioRepository.Registrar(DbUsuario, DbPersona);
+
+                    if (rspModel)
+                    {
+                        return await Obtener(Model.Cedula);
+                    }
+                    else throw new TaskCanceledException("No se pudo crear");
+                }
             }
             catch (Exception ex)
             {
@@ -71,7 +70,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.IdUsuario == Model.IdUsuario);
+                var consulta = _modelRepository.Consultar(p => p.Cedula == Model.Cedula);
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
 
                 if (fromDBmodel != null)
@@ -80,7 +79,7 @@ namespace SistemaGS.Service.Implementacion
                     fromDBmodel.Cedula = Model.Cedula;
                     fromDBmodel.Correo = Model.Correo;
                     fromDBmodel.Clave = Ferramentas.ConvertToSha256(Model.Clave);
-                    fromDBmodel.IdRol = Model.IdRol;
+                    //fromDBmodel.IdRol = Model.IdRol;
                     fromDBmodel.Activo = Model.Activo;
                     fromDBmodel.ResetearClave = false;
                     var respuesta = await _modelRepository.Editar(fromDBmodel);
@@ -100,7 +99,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.IdUsuario == id);
+                var consulta = _modelRepository.Consultar(p => p.Cedula == id);
                 var fromDBmodel = await consulta.FirstOrDefaultAsync();
 
                 if (fromDBmodel != null)
@@ -126,11 +125,11 @@ namespace SistemaGS.Service.Implementacion
 
                 if(Rol != 0)
                 {
-                    consulta = _modelRepository.Consultar(p => p.IdRol == Rol && string.Concat(p.Cedula.ToString(), p.NombreUsuario.ToLower(), p.NombreCompleto.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
+                    consulta = _modelRepository.Consultar(p => p.IdRol == Rol && string.Concat(p.Cedula.ToString(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
                 }
                 else
                 {
-                    consulta = _modelRepository.Consultar(p => string.Concat(p.Cedula.ToString(), p.NombreUsuario.ToLower(), p.NombreCompleto.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
+                    consulta = _modelRepository.Consultar(p => string.Concat(p.Cedula.ToString(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
                 }
 
                 List<UsuarioDTO> lista = _mapper.Map<List<UsuarioDTO>>(await consulta.ToListAsync());
@@ -147,12 +146,15 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.IdUsuario == id);
-                var fromDBmodel = await consulta.FirstOrDefaultAsync();
+                var consultaU = await _modelRepository.Consultar(p => p.Cedula == id).FirstOrDefaultAsync();
+                var consultaP = await _PersonaRepository.Consultar(p => p.Cedula == id).FirstOrDefaultAsync();
 
-                if (fromDBmodel != null)
+                if (consultaP != null || consultaU != null)
                 {
-                    return _mapper.Map<UsuarioDTO>(fromDBmodel);
+                    var respuesta = _mapper.Map<UsuarioDTO>(consultaU);
+                    var persona = _mapper.Map<PersonaDTO>(consultaP);
+                    respuesta.Persona = persona;
+                    return respuesta;
                 }
                 else throw new TaskCanceledException("");
             }

@@ -82,37 +82,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                IQueryable<Persona>? consulta;
-
-                switch (tipo)
-                {
-                    case 1:
-                        {
-                            consulta = _modelRepository.Consultar(p => p.Solicitante == true &&
-                            string.Concat(p.Nombre!.ToLower(), p.Apellido!.ToLower(), p.Cedula.ToString()).Contains(buscar.ToLower())
-                            );
-                            break;
-                        }
-                    case 2:
-                        {
-                            consulta = _modelRepository.Consultar(p => p.Beneficiario == true &&
-                            string.Concat(p.Nombre!.ToLower(), p.Apellido!.ToLower(), p.Cedula.ToString()).Contains(buscar.ToLower())
-                            );
-                            break;
-                        }
-                    case 3:
-                        {
-                            consulta = _modelRepository.Consultar(p => p.Funcionario == true &&
-                            string.Concat(p.Nombre!.ToLower(), p.Apellido!.ToLower(), p.Cedula.ToString()).Contains(buscar.ToLower())
-                            );
-                            break;
-                        }
-                    default: 
-                        {
-                            consulta = _modelRepository.Consultar(p => string.Concat(p.Nombre!.ToLower(), p.Apellido!.ToLower(), p.Cedula.ToString()).Contains(buscar.ToLower()));
-                            break;
-                        }
-                }
+                IQueryable<Persona>? consulta = _modelRepository.Consultar(p => string.Concat(p.Nombre!.ToLower(), p.Apellido!.ToLower(), p.Cedula.ToString()).Contains(buscar.ToLower()));
 
                 List<PersonaDTO> lista = _mapper.Map<List<PersonaDTO>>(await consulta.ToListAsync());
 
