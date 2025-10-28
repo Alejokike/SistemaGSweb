@@ -29,7 +29,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                if (await _modelRepository.Consultar(l => l.NombreUsuario == Model.NombreUsuario).AnyAsync())
+                if (await _modelRepository.Consultar(l => l.NombreUsuario == Model.NombreUsuario && l.Activo == true).AnyAsync())
                 {
                     var fromDBmodel = await _modelRepository.Consultar(p => p.NombreUsuario == Model.NombreUsuario && p.Clave == Ferramentas.ConvertToSha256(Model.Clave) && p.Activo == true).FirstOrDefaultAsync();
 
@@ -53,21 +53,12 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                if(await Obtener(Model.Cedula) != null) throw new TaskCanceledException("Ya existe un usuario con esa cédula");
-                else
-                {
-                    var DbUsuario = _mapper.Map<Usuario>(Model);
-                    var DbPersona = _mapper.Map<Persona>(Model.Persona);
-                    DbUsuario.Clave = Ferramentas.ConvertToSha256(DbUsuario.Clave);
+                var DbUsuario = _mapper.Map<Usuario>(Model);
+                var DbPersona = _mapper.Map<Persona>(Model.Persona);
+                DbUsuario.Clave = Ferramentas.ConvertToSha256(DbUsuario.Clave);
 
-                    var rspModel = await _UsuarioRepository.Registrar(DbUsuario, DbPersona);
-
-                    if (rspModel)
-                    {
-                        return await Obtener(Model.Cedula);
-                    }
-                    else throw new TaskCanceledException("No se pudo crear");
-                }
+                if (await _UsuarioRepository.Registrar(DbUsuario, DbPersona)) return await Obtener(Model.Cedula);
+                else throw new TaskCanceledException("No se pudo crear");
             }
             catch (Exception ex)
             {
@@ -100,17 +91,9 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _modelRepository.Consultar(p => p.Cedula == id);
-                var fromDBmodel = await consulta.FirstOrDefaultAsync();
-
-                if (fromDBmodel != null)
-                {
-                    var respuesta = await _modelRepository.Eliminar(fromDBmodel);
-
-                    if (!respuesta) throw new TaskCanceledException("No se pudo eliminar");
-                    else return respuesta;
-                }
-                else throw new TaskCanceledException("No se encontraron coincidencias");
+                var respuesta =  await _UsuarioRepository.Eliminar(id);
+                if (!respuesta) throw new TaskCanceledException("No se pudo eliminar");
+                else return respuesta;
             }
             catch (Exception ex)
             {

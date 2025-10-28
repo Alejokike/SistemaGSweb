@@ -80,7 +80,9 @@ namespace SistemaGS.Repository.Implementacion
             {
                 try
                 {
-                    if (await _dbContext.Usuarios.AnyAsync(u => u.Cedula == usuario.Cedula) || await _dbContext.Personas.AnyAsync(p => p.Cedula == persona.Cedula))
+                    if (!await _dbContext.Rols.AnyAsync(r => r.IdRol == usuario.IdRol)) throw new TaskCanceledException("El rol seleccionado no existe");
+
+                    if (!await _dbContext.Usuarios.AnyAsync(u => u.Cedula == usuario.Cedula))
                     {
                         await _dbContext.AddAsync(usuario);
                         await _dbContext.SaveChangesAsync();
