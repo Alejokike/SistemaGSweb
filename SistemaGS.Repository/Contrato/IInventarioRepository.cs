@@ -4,7 +4,7 @@ namespace SistemaGS.Repository.Contrato
 {
     public interface IInventarioRepository : IGenericoRepository<Inventario>
     {
-        Task<Inventario> Registrar(Inventario model);
-        //Task<Ayuda> Desbloqeuar(List<Inventario> movimientos, Ayuda ayuda);
+        Task<bool> Registrar(Inventario transaccion, Item item);
+        Task<bool> Desbloquear(List<Inventario> movimientos, Ayuda ayudaModificada);
     }
 }

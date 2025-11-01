@@ -1,7 +1,9 @@
-﻿using SistemaGS.Model;
-using SistemaGS.Repository.DBContext;
+﻿using Microsoft.EntityFrameworkCore;
+using SistemaGS.Model;
 using SistemaGS.Repository.Contrato;
-using System.Text.Json;
+using SistemaGS.Repository.DBContext;
+using Newtonsoft.Json;
+using Microsoft.IdentityModel.Tokens;
 
 namespace SistemaGS.Repository.Implementacion
 {
@@ -13,103 +15,154 @@ namespace SistemaGS.Repository.Implementacion
         {
             _dbContext = dbContext;
         }
-        /*
-        public async Task<Ayuda> Desbloqeuar(List<Inventario> movimientos, Ayuda ayuda)
+        
+        public async Task<bool> Desbloquear(List<Inventario> movimientos, Ayuda ayudaModificada)
         {
-            Inventario operacion = new Inventario();
             using (var transaction = _dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    Ayuda ayudaModificada = _dbContext.Ayuda.Where(a => a.IdAyuda == ayuda.IdAyuda).First();
+                    Ayuda ayuda = await _dbContext.Ayuda.Where(a => a.IdAyuda == ayudaModificada.IdAyuda).FirstAsync();
+                    
+                    if (ayuda == null) throw new TaskCanceledException("La ayuda seleccionada no existe");
 
-                    if (ayudaModificada == null) throw new TaskCanceledException("La ayuda seleccionada no existe");
-
-                    movimientos = movimientos.OrderBy(i => i.Item).ToList();
-
-                    List<Item> ListaItems = JsonSerializer.Deserialize<List<Item>>(ayudaModificada.ListaItems!)!;
-                    ListaItems = ListaItems.OrderBy(i => i.IdItem).ToList();
-
-                    movimientos.OrderBy
+                    List<ListaItemJSON> itemsAyuda = JsonConvert.DeserializeObject<List<ListaItemJSON>>(ayuda.ListaItems!)!;
+                    if (itemsAyuda.IsNullOrEmpty()) throw new TaskCanceledException("La lista de items esta vacía");
 
                     foreach (var movimiento in movimientos)
                     {
-                        Item item = _dbContext.Items.Where(i => i.IdItem == movimiento.Item).First();
-                        switch (model.TipoOperacion)
+                        Item item = await _dbContext.Items.Where(i => i.IdItem == movimiento.Item).FirstAsync();
+
+                        switch (movimiento.TipoOperacion)
                         {
                             case "ASI":
                                 {
-                                    item.Cantidad += model.Cantidad;
+                                    if (item.Cantidad < movimiento.Cantidad) throw new InvalidOperationException("No hay stock para hacer este movimiento");
+
+                                    var ItemLista = itemsAyuda.FirstOrDefault(ia => ia.ItemLista.IdItem == item.IdItem);
+
+                                    if (ItemLista == null || ItemLista.CantidadSolicitada < movimiento.Cantidad) throw new InvalidOperationException("Operación inválida");
+
+                                    item.Cantidad -= movimiento.Cantidad;
+                                    ItemLista.CantidadEntregada += movimiento.Cantidad;
+
+                                    _dbContext.Items.Update(item);
+
                                     break;
                                 }
                             case "RET":
                                 {
-                                    if (item.Cantidad > model.Cantidad) item.Cantidad -= model.Cantidad;
+                                    var ItemLista = itemsAyuda.FirstOrDefault(ia => ia.ItemLista.IdItem == item.IdItem) ;
+
+                                    if (ItemLista!.CantidadEntregada < movimiento.Cantidad) throw new InvalidOperationException("La ayuda no tiene ese stock asignado");
+
+                                    item.Cantidad += movimiento.Cantidad;
+                                    ItemLista.CantidadEntregada -= movimiento.Cantidad;
+
+                                    _dbContext.Items.Update(item);
 
                                     break;
                                 }
                         }
                     }
 
-                    _dbContext.Items.Update(item);
+                    ayuda.ListaItems = JsonConvert.SerializeObject(itemsAyuda);
+                    _dbContext.Ayuda.Update(ayuda);
                     await _dbContext.SaveChangesAsync();
-
-                    await _dbContext.Inventarios.AddAsync(model);
+                    
+                    await _dbContext.Inventarios.AddRangeAsync(movimientos);
                     await _dbContext.SaveChangesAsync();
-
-                    operacion = model;
 
                     transaction.Commit();
+
+                    return true;
                 }
                 catch
                 {
                     transaction.Rollback();
+                    return false;
                     throw;
                 }
-                return operacion;
             }
         }
-        */
-        public async Task<Inventario> Registrar(Inventario model)
+        public async Task<bool> Registrar(Inventario transaccion, Item item)
         {
-            Inventario operacion = new Inventario();
             using(var transaction = _dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    Item item = _dbContext.Items.Where(i => i.IdItem == model.Item).First();
-
-                    switch(model.TipoOperacion)
+                    switch(transaccion.TipoOperacion)
                     {
                         case "REC":
                             {
-                                item.Cantidad += model.Cantidad;
+                                if (!await _dbContext.Items.AnyAsync(i => i.IdItem == transaccion.Item))
+                                {
+                                    await _dbContext.Items.AddAsync(new Item()
+                                    {
+                                        IdItem = 0,
+                                        Nombre = item.Nombre,
+                                        Categoria = item.Categoria,
+                                        Descripcion = item.Descripcion,
+                                        Unidad = item.Unidad,
+                                        Cantidad = 0
+                                    });
+                                    await _dbContext.SaveChangesAsync();
+                                }
+                                else
+                                {
+                                    var inventario = await _dbContext.Items.Where(i => i.IdItem == transaccion.Item).FirstAsync();
+                                    if (inventario.Unidad == transaccion.Unidad) inventario.Cantidad += transaccion.Cantidad;
+                                    else throw new InvalidOperationException("Las unidades no son iguales, revise nuevamente");
+
+                                    _dbContext.Items.Update(inventario);
+                                    await _dbContext.SaveChangesAsync();
+                                }
                                 break;
                             }
                         case "DEV":
                             {
-                                if (item.Cantidad > model.Cantidad) item.Cantidad -= model.Cantidad;
-                                
-                                    break;
+                                var inventario = await _dbContext.Items.Where(i => i.IdItem == transaccion.Item).FirstAsync();
+                                if (inventario.Unidad == transaccion.Unidad || inventario.Cantidad > transaccion.Cantidad) inventario.Cantidad -= transaccion.Cantidad;
+                                else throw new InvalidOperationException("Operación inválida, revise nuevamente");
+
+                                _dbContext.Items.Update(inventario);
+                                await _dbContext.SaveChangesAsync();
+
+                                break;
                             }
                     }
-                    _dbContext.Items.Update(item);
-                    await _dbContext.SaveChangesAsync();
+                    
 
-                    await _dbContext.Inventarios.AddAsync(model);
+                    await _dbContext.Inventarios.AddAsync(transaccion);
                     await _dbContext.SaveChangesAsync();
-
-                    operacion = model;
 
                     transaction.Commit();
+
+                    return true;
                 }
                 catch
                 {
                     transaction.Rollback();
+                    return false;
                     throw;
                 }
-                return operacion;
             }
+        }
+
+        public class ItemJSON
+        {
+            public int IdItem { get; set; }
+            public string Nombre { get; set; } = null!;
+            public string? Categoria { get; set; }
+            public string Descripcion { get; set; } = null!;
+            public string? Unidad { get; set; }
+        }
+        public class ListaItemJSON
+        {
+            public int IdLista { get; set; }
+            public ItemJSON ItemLista { get; set; } = null!;
+            public decimal CantidadSolicitada { get; set; }
+            public decimal? CantidadEntregada { get; set; }
         }
     }
 }

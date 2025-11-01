@@ -8,7 +8,7 @@ namespace SistemaGS.DTO
         [Required(ErrorMessage = "Seleccione un tipo de operación")]
         public string? TipoOperacion { get; set; }
         [Required(ErrorMessage = "Ingrese un item")]
-        public int? Item { get; set; }
+        public ItemDTO Item { get; set; } = null!;
         [Required(ErrorMessage = "Ingrese la unidad de medida")]
         public string? Unidad { get; set; }
         [Required(ErrorMessage = "Ingrese una cantidad")]

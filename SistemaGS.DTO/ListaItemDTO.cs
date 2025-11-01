@@ -2,7 +2,7 @@
 
 namespace SistemaGS.DTO
 {
-    public class ListaItem
+    public class ListaItemDTO
     {
         int IdLista {  get; set; }
         [Required(ErrorMessage = "Ingrese un item")]

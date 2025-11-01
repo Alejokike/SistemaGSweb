@@ -15,7 +15,7 @@ namespace SistemaGS.DTO
         public string? Categoria { get; set; }
         [Required(ErrorMessage = "Ingrese más información")]
         public string? Detalle { get; set; }
-        public ListaItem? ListaItems { get; set; }
+        public ListaItemDTO? ListaItems { get; set; }
         public string? Estado { get; set; }
         public DateTime? FechaSolicitud { get; set; }
         public DateTime? FechaEntrega { get; set; }

@@ -21,13 +21,21 @@ namespace SistemaGS.Util
                 .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation));
             CreateMap<UsuarioDTO, Usuario>()
                 .ForMember(dest => dest.IdRol, opt => opt.MapFrom(src => src.Rol.IdRol));
+
             CreateMap<Persona, PersonaDTO>();
             CreateMap<PersonaDTO, Persona>();
+
             CreateMap<Rol, RolDTO>();
+            CreateMap<RolDTO, Rol>();
+
             CreateMap<Item, ItemDTO>();
             CreateMap<ItemDTO, Item>();
+
             CreateMap<Inventario, InventarioDTO>();
             CreateMap<InventarioDTO, Inventario>();
+
+            CreateMap<Ayuda, AyudaDTO>();
+            CreateMap<AyudaDTO, Ayuda>();
         }
     }
 }
