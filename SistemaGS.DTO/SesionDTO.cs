@@ -1,4 +1,6 @@
-﻿namespace SistemaGS.DTO
+﻿using SistemaGS.DTO.ModelDTO;
+
+namespace SistemaGS.DTO
 {
     public class SesionDTO
     {

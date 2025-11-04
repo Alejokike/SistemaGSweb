@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SistemaGS.Model;
 
 namespace SistemaGS.Repository.DBContext;
@@ -30,7 +31,11 @@ public partial class DbsistemaGsContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     => optionsBuilder.UseSqlServer("Server=localhost; DataBase=DBSISTEMA_GS; Trusted_Connection=True; TrustServerCertificate=True;");
-
+    /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.
+        optionsBuilder.UseSqlServer();
+    }*/
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Ayuda>(entity =>

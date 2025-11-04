@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SistemaGS.DTO
+namespace SistemaGS.DTO.ModelDTO
 {
     public class AyudaDTO
     {
@@ -15,7 +15,7 @@ namespace SistemaGS.DTO
         public string? Categoria { get; set; }
         [Required(ErrorMessage = "Ingrese más información")]
         public string? Detalle { get; set; }
-        public ListaItemDTO? ListaItems { get; set; }
+        public List<ListaItemDTO> ListaItems { get; set; } = null!;
         public string? Estado { get; set; }
         public DateTime? FechaSolicitud { get; set; }
         public DateTime? FechaEntrega { get; set; }

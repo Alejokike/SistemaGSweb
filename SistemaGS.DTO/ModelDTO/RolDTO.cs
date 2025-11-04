@@ -1,5 +1,4 @@
-﻿
-namespace SistemaGS.DTO
+﻿namespace SistemaGS.DTO.ModelDTO
 {
     public class RolDTO
     {

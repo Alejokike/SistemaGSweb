@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SistemaGS.DTO
+namespace SistemaGS.DTO.ModelDTO
 {
     public class ItemDTO
     {

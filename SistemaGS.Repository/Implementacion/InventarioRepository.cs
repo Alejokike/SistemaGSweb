@@ -16,17 +16,17 @@ namespace SistemaGS.Repository.Implementacion
             _dbContext = dbContext;
         }
         
-        public async Task<bool> Desbloquear(List<Inventario> movimientos, Ayuda ayudaModificada)
+        public async Task<bool> Desbloquear(List<Inventario> movimientos, int IdAyuda)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    Ayuda ayuda = await _dbContext.Ayuda.Where(a => a.IdAyuda == ayudaModificada.IdAyuda).FirstAsync();
+                    Ayuda ayuda = await _dbContext.Ayuda.Where(a => a.IdAyuda == IdAyuda).FirstAsync();
                     
                     if (ayuda == null) throw new TaskCanceledException("La ayuda seleccionada no existe");
 
-                    List<ListaItemJSON> itemsAyuda = JsonConvert.DeserializeObject<List<ListaItemJSON>>(ayuda.ListaItems!)!;
+                    List<ListaItemDTO> itemsAyuda = JsonConvert.DeserializeObject<List<ListaItemDTO>>(ayuda.ListaItems!)!;
                     if (itemsAyuda.IsNullOrEmpty()) throw new TaskCanceledException("La lista de items esta vacía");
 
                     foreach (var movimiento in movimientos)
@@ -77,25 +77,26 @@ namespace SistemaGS.Repository.Implementacion
 
                     return true;
                 }
-                catch
+                catch(Exception ex)
                 {
                     transaction.Rollback();
+                    Console.WriteLine(ex.Message);
                     return false;
                     throw;
                 }
             }
         }
-        public async Task<bool> Registrar(Inventario transaccion, Item item)
+        public async Task<bool> Registrar(Inventario movimiento, Item item)
         {
             using(var transaction = _dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    switch(transaccion.TipoOperacion)
+                    switch(movimiento.TipoOperacion)
                     {
                         case "REC":
                             {
-                                if (!await _dbContext.Items.AnyAsync(i => i.IdItem == transaccion.Item))
+                                if (!await _dbContext.Items.AnyAsync(i => i.IdItem == movimiento.Item))
                                 {
                                     await _dbContext.Items.AddAsync(new Item()
                                     {
@@ -107,11 +108,13 @@ namespace SistemaGS.Repository.Implementacion
                                         Cantidad = 0
                                     });
                                     await _dbContext.SaveChangesAsync();
+
+                                    movimiento.Item = await _dbContext.Items.MaxAsync(i => i.IdItem);
                                 }
                                 else
                                 {
-                                    var inventario = await _dbContext.Items.Where(i => i.IdItem == transaccion.Item).FirstAsync();
-                                    if (inventario.Unidad == transaccion.Unidad) inventario.Cantidad += transaccion.Cantidad;
+                                    var inventario = await _dbContext.Items.Where(i => i.IdItem == movimiento.Item).FirstAsync();
+                                    if (inventario.Unidad == movimiento.Unidad) inventario.Cantidad += movimiento.Cantidad;
                                     else throw new InvalidOperationException("Las unidades no son iguales, revise nuevamente");
 
                                     _dbContext.Items.Update(inventario);
@@ -121,8 +124,8 @@ namespace SistemaGS.Repository.Implementacion
                             }
                         case "DEV":
                             {
-                                var inventario = await _dbContext.Items.Where(i => i.IdItem == transaccion.Item).FirstAsync();
-                                if (inventario.Unidad == transaccion.Unidad || inventario.Cantidad > transaccion.Cantidad) inventario.Cantidad -= transaccion.Cantidad;
+                                var inventario = await _dbContext.Items.Where(i => i.IdItem == movimiento.Item).FirstAsync();
+                                if (inventario.Unidad == movimiento.Unidad || inventario.Cantidad > movimiento.Cantidad) inventario.Cantidad -= movimiento.Cantidad;
                                 else throw new InvalidOperationException("Operación inválida, revise nuevamente");
 
                                 _dbContext.Items.Update(inventario);
@@ -133,23 +136,23 @@ namespace SistemaGS.Repository.Implementacion
                     }
                     
 
-                    await _dbContext.Inventarios.AddAsync(transaccion);
+                    await _dbContext.Inventarios.AddAsync(movimiento);
                     await _dbContext.SaveChangesAsync();
 
                     transaction.Commit();
 
                     return true;
                 }
-                catch
+                catch(Exception ex)
                 {
                     transaction.Rollback();
+                    Console.WriteLine(ex.Message);
                     return false;
                     throw;
                 }
             }
         }
-
-        public class ItemJSON
+        public class ItemDTO
         {
             public int IdItem { get; set; }
             public string Nombre { get; set; } = null!;
@@ -157,10 +160,10 @@ namespace SistemaGS.Repository.Implementacion
             public string Descripcion { get; set; } = null!;
             public string? Unidad { get; set; }
         }
-        public class ListaItemJSON
+        public class ListaItemDTO
         {
             public int IdLista { get; set; }
-            public ItemJSON ItemLista { get; set; } = null!;
+            public ItemDTO ItemLista { get; set; } = null!;
             public decimal CantidadSolicitada { get; set; }
             public decimal? CantidadEntregada { get; set; }
         }

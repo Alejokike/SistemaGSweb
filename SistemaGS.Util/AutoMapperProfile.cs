@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SistemaGS.DTO;
+using SistemaGS.DTO.ModelDTO;
 using SistemaGS.Model;
 
 /*
@@ -31,8 +32,10 @@ namespace SistemaGS.Util
             CreateMap<Item, ItemDTO>();
             CreateMap<ItemDTO, Item>();
 
-            CreateMap<Inventario, InventarioDTO>();
-            CreateMap<InventarioDTO, Inventario>();
+            CreateMap<Inventario, InventarioDTO>()
+                .ForMember(dest => dest.Item, opt => opt.Ignore());
+            CreateMap<InventarioDTO, Inventario>()
+                .ForMember(dest => dest.Item, opt => opt.MapFrom(src => src.Item.IdItem));
 
             CreateMap<Ayuda, AyudaDTO>();
             CreateMap<AyudaDTO, Ayuda>();

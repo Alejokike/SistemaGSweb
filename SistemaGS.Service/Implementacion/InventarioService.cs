@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using SistemaGS.DTO;
+using SistemaGS.DTO.ModelDTO;
 using SistemaGS.Model;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Service.Contrato;
@@ -22,13 +22,12 @@ namespace SistemaGS.Service.Implementacion
             _mapper = mapper;
         }
 
-        public async Task<bool> Desbloquear(List<InventarioDTO> movimientos, AyudaDTO ayuda)
+        public async Task<bool> Desbloquear(List<InventarioDTO> movimientos, int IdAyuda)
         {
             try
             {
                 List<Inventario> auxm = _mapper.Map<List<Inventario>>(movimientos);
-                Ayuda auxA = _mapper.Map<Ayuda>(ayuda);
-                bool responseDB = await _InventarioRepository.Desbloquear(auxm, auxA);
+                bool responseDB = await _InventarioRepository.Desbloquear(auxm, IdAyuda);
                 if (responseDB) return true;
                 else throw new TaskCanceledException("No se pudo crear");
             }
@@ -46,13 +45,17 @@ namespace SistemaGS.Service.Implementacion
 
                 if (IdItem != 0)
                 {
-                    consulta = _modelRepository.Consultar(p => p.Item == IdItem && string.Concat(p.TipoOperacion, p.Fecha).Contains(filtro.ToLower()));
+                    consulta = _modelRepository.Consultar(p => p.Item == IdItem && p.TipoOperacion.Contains(filtro.ToLower()) && (FechaIni <= p.Fecha && p.Fecha <= FechaFin));
                 }
                 else
                 {
-                    consulta = _modelRepository.Consultar(p => string.Concat(p.TipoOperacion, p.Fecha).Contains(filtro.ToLower()));
+                    consulta = _modelRepository.Consultar(i => i.TipoOperacion.ToLower().Contains(filtro.ToLower()) && (FechaIni <= i.Fecha && i.Fecha <= FechaFin));
                 }
-                return _mapper.Map<List<InventarioDTO>>(await consulta.ToListAsync());
+
+                var check = _mapper.Map<List<InventarioDTO>>(await consulta.ToListAsync());
+
+                if (check != null) return check;
+                else throw new TaskCanceledException("No se encontraron coincidencias");
             }
             catch (Exception ex)
             {
@@ -63,11 +66,16 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consulta = _mapper.Map<InventarioDTO>(await _modelRepository.Consultar(i => i.IdTransaccion == IdTransaccion).AsNoTracking().FirstOrDefaultAsync());
-                consulta.Item = _mapper.Map<ItemDTO>(await _ItemRepository.Consultar(i => i.IdItem == consulta.Item.IdItem).AsNoTracking().FirstOrDefaultAsync());
+                var movimiento = await _modelRepository.Consultar(i => i.IdTransaccion == IdTransaccion).AsNoTracking().FirstOrDefaultAsync();
+                if (movimiento == null) throw new TaskCanceledException("No se encontraron coincidencias");
 
-                if (consulta != null || consulta.Item != null) return consulta;
-                else throw new TaskCanceledException("");
+                var item = await _ItemRepository.Consultar(i => i.IdItem == movimiento.Item).AsNoTracking().FirstOrDefaultAsync();
+                if (item == null) throw new TaskCanceledException("No se encontraron coincidencias");
+
+                var consulta = _mapper.Map<InventarioDTO>(movimiento);
+                consulta.Item = _mapper.Map<ItemDTO>(item);
+
+                return consulta;
             }
             catch (Exception ex)
             {

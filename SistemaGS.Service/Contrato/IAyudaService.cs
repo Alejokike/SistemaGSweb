@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SistemaGS.DTO.ModelDTO;
+using SistemaGS.DTO.Query;
 
 namespace SistemaGS.Service.Contrato
 {
-    internal interface IAyudaService
+    public interface IAyudaService
     {
+        Task<List<AyudaDTO>> Lista(AyudaQuery filtro);
+        Task<AyudaDTO> Obtener(int idAyuda);
+        Task<AyudaDTO> Crear(AyudaDTO Model);
+        Task<bool> Editar(AyudaDTO Model);
+        Task<bool> Eliminar(int idAyuda);
     }
 }

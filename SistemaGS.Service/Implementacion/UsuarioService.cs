@@ -5,6 +5,7 @@ using SistemaGS.Repository.Contrato;
 using SistemaGS.Service.Contrato;
 using AutoMapper;
 using SistemaGS.Util;
+using SistemaGS.DTO.ModelDTO;
 
 namespace SistemaGS.Service.Implementacion
 {
@@ -45,10 +46,10 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
         }
-
         public async Task<UsuarioDTO> Crear(UsuarioDTO Model)
         {
             try
@@ -62,6 +63,7 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
         }
@@ -83,6 +85,7 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
         }
@@ -97,6 +100,7 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
         }
@@ -122,6 +126,7 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
         }
@@ -144,6 +149,7 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
         }

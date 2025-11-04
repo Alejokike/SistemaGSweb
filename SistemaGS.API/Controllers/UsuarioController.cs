@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using SistemaGS.Service.Contrato;
 using SistemaGS.DTO;
+using SistemaGS.DTO.ModelDTO;
 
 namespace SistemaGS.API.Controllers
 {

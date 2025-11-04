@@ -32,9 +32,10 @@ namespace SistemaGS.Repository.Implementacion
                     else throw new TaskCanceledException("No existen registros de ese usuario");
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    Console.WriteLine(ex.Message);
                     return false;
                     throw;
                 }
@@ -65,9 +66,10 @@ namespace SistemaGS.Repository.Implementacion
                     else throw new TaskCanceledException("No existe este usuario en sistema");
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    Console.WriteLine(ex.Message);
                     return false;
                     throw;
                 }
@@ -95,9 +97,10 @@ namespace SistemaGS.Repository.Implementacion
 
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    Console.WriteLine(ex.Message);
                     return false;
                     throw;
                 }

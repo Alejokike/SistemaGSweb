@@ -25,22 +25,14 @@ builder.Services.AddDbContext<DbsistemaGsContext>(options =>
 builder.Services.AddTransient(typeof(IGenericoRepository<>), typeof(GenericoRepository<>));
 builder.Services.AddScoped<IInventarioRepository, InventarioRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IAyudaRepository, AyudaRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
-builder.Services.AddScoped<IPersonaService, PersonaService>();
-/*
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(app =>
-    {
-        app.AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
-    });
-});
-*/
+builder.Services.AddScoped<IInventarioService, InventarioService>();
+builder.Services.AddScoped<IAyudaService, AyudaService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Nueva Politica",app =>
