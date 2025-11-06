@@ -15,9 +15,9 @@
         <DataAnnotationsValidator></DataAnnotationsValidator>
 
         <div class="form-floating mb-3">
-            <input class="form-control" id="inputName" type="text" placeholder="Nombre Completo" @bind-value="model.NombreCompleto" autocomplete="off" />
+            <input class="form-control" id="inputName" type="text" placeholder="Nombre Completo" @bind-value="model.Cedula" autocomplete="off" />
             <label for="inputEmail">Nombre Completo</label>
-            <ValidationMessage For="@(() => model.NombreCompleto)" />
+            <ValidationMessage For="@(() => model.Cedula)" />
         </div>
 
         <div class="form-floating mb-3">
@@ -85,7 +85,7 @@
             return;
         }
 
-        model.IdRol = 4;
+        model.Rol.IdRol = 4;
 
         var response = await _usuarioService.Crear(model);
 

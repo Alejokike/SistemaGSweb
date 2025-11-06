@@ -22,11 +22,10 @@ namespace SistemaGS.WebAssembly.Extensiones
             {
                 claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, sesionUsuario.IdUsuario.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, sesionUsuario.Cedula.ToString()),
                     new Claim(ClaimTypes.Name, sesionUsuario.NombreUsuario.ToString()),
                     new Claim(ClaimTypes.Email, sesionUsuario.Correo.ToString()),
-                    new Claim(ClaimTypes.Role, sesionUsuario.Rol!.ToString()),
-                    new Claim(ClaimTypes.Actor, sesionUsuario.Cedula.ToString()!)
+                    new Claim(ClaimTypes.Role, sesionUsuario.Rol!.ToString()!),
                 }, "JwtAuth"));
 
                 await _localStorage.SetItemAsync("sesionUsuario", sesionUsuario);
@@ -47,10 +46,10 @@ namespace SistemaGS.WebAssembly.Extensiones
 
             var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, sesionUsuario.IdUsuario.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, sesionUsuario.Cedula.ToString()),
                     new Claim(ClaimTypes.Name, sesionUsuario.NombreUsuario.ToString()),
                     new Claim(ClaimTypes.Email, sesionUsuario.Correo.ToString()),
-                    new Claim(ClaimTypes.Role, sesionUsuario.Rol!.ToString())
+                    new Claim(ClaimTypes.Role, sesionUsuario.Rol!.ToString()!),
                 }, "JwtAuth"));
 
             return await Task.FromResult(new AuthenticationState(claimsPrincipal));

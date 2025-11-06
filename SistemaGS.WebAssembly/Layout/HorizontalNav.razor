@@ -1,13 +1,16 @@
 ﻿@inject SweetAlertService Swat;
-@inject NavigationManager navManager;
-@inject AuthenticationStateProvider authenticationStateProvider;
+@inject NavigationManager navigationManager;
+
+@inject AuthenticationStateProvider authenticationState;
+
+@attribute [Authorize];
 
 <nav class="navbar navbar-expand-sm navbar-light bg-light">
     <div class="container d-sm-inline-flex justify-content-end gap-3">
             <AuthorizeView>
                 <Authorized>
                     <div>
-                        <strong>Usuario loggeado: </strong>@context.User.Claims.Where(u => u.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()
+                    <strong>Usuario loggeado: </strong>@context.User.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Email)
                     </div>
                     <button class="btn btn-outline-dark ms-auto ms-md-0 me-3" type="button" @onclick="CerrarSesion">Salir</button>
                 </Authorized>
@@ -16,11 +19,6 @@
 </nav>
 
 @code{
-    public void Dispose()
-    {
-        
-    }
-
     private async Task CerrarSesion()
     {
         SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
@@ -34,9 +32,9 @@
         });
         if (result.IsConfirmed)
         {
-            var AuthExt = (AutExt)authenticationStateProvider;
+            var AuthExt = (AutExt) authenticationState;
             await AuthExt.ActualizarEstadoAut(null);
-            navManager.NavigateTo("/login", true);
+            navigationManager.NavigateTo("/login", true);
         }
     }
 }

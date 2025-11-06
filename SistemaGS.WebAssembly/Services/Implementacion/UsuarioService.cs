@@ -1,4 +1,5 @@
 ﻿using SistemaGS.DTO;
+using SistemaGS.DTO.ModelDTO;
 using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Json;
 

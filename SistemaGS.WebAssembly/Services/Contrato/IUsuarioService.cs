@@ -1,4 +1,5 @@
 ﻿using SistemaGS.DTO;
+using SistemaGS.DTO.ModelDTO;
 
 
 namespace SistemaGS.WebAssembly.Services.Contrato

@@ -4,9 +4,12 @@ using SistemaGS.WebAssembly;
 
 using Blazored.LocalStorage;
 using Blazored.Toast;
+using CurrieTechnologies.Razor.SweetAlert2;
 
 using SistemaGS.WebAssembly.Services.Contrato;
 using SistemaGS.WebAssembly.Services.Implementacion;
+using Microsoft.AspNetCore.Components.Authorization;
+using SistemaGS.WebAssembly.Extensiones;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -17,8 +20,15 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();
+builder.Services.AddSweetAlert2(options => {
+    options.Theme = SweetAlertTheme.Default;
+    options.SetThemeForColorSchemePreference(ColorScheme.Light, SweetAlertTheme.Bootstrap4);
+});
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IListaService, ListaService>();
+
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, AutExt>();
 
 await builder.Build().RunAsync();

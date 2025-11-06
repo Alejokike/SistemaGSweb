@@ -1,8 +1,11 @@
-﻿@inject IAyudaService ayudaService;
-<!--implements IDisposable;-->
-@inject NavigationManager navManager;
-@inject AuthenticationStateProvider authenticationStateProvider;
-
+﻿@inject IListaService listaService
+@* @implements IDisposable *@
+@inject SweetAlertService swat;
+@inject NavigationManager navigationManager;
+@using SistemaGS.WebAssembly.Extensiones;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims;
+@inject AuthenticationStateProvider authenticationState;
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -36,7 +39,7 @@
             </div>
         </AuthorizeView>
 
-        <AuthorizeView Roles="Administrador, Asistente, Lector">
+        <AuthorizeView Roles="Administrador, Funcionario">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="Personas">
                     <span class="oi oi-people p-2" aria-hidden="true"></span> Personas
@@ -51,6 +54,7 @@
 
         <AuthorizeView Roles="Solicitante">
             @{
+
                 int IdUsuario = Convert.ToInt32(@context.User.Claims.Where(u => u.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault()!);
                 int Cedula = Convert.ToInt32(context.User.Claims.Where(u => u.Type == ClaimTypes.Actor).Select(c => c.Value).SingleOrDefault()!);
             }
