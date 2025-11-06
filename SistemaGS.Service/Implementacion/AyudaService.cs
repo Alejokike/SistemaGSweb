@@ -24,6 +24,12 @@ namespace SistemaGS.Service.Implementacion
             _personaRepository = personaRepository;
             _mapper = mapper;
         }
+
+        public async Task<bool> CambiarEstado(string estado, int idAyuda)
+        {
+            return await _AyudaRepository.CambiarEstado(estado, idAyuda);
+        }
+
         public async Task<AyudaDTO> Crear(AyudaDTO Model)
         {
             try
@@ -53,10 +59,10 @@ namespace SistemaGS.Service.Implementacion
                     !await _personaRepository.Consultar(f => f.Cedula == Model.Funcionario).AnyAsync()
                     )
                     throw new TaskCanceledException("Las personas en la ayuda no existen en sistema");
-                if (Model.Solicitante != Model.Funcionario) throw new TaskCanceledException("Un solicitante no puede gestionar su propia ayuda");
+                if (Model.Solicitante == Model.Funcionario) throw new TaskCanceledException("Un solicitante no puede gestionar su propia ayuda");
 
                 if (await _modelRepository.Consultar(a => a.IdAyuda == Model.IdAyuda).AnyAsync()) return await _modelRepository.Editar(_mapper.Map<Ayuda>(Model));
-                else throw new TaskCanceledException("No existen coincidencias");
+                else throw new TaskCanceledException("La ayuda seleccionada no existe");
             }
             catch (Exception ex)
             {

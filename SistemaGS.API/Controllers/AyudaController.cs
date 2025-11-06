@@ -70,5 +70,56 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
+        [HttpPut("Editar")]
+        public async Task<IActionResult> Editar([FromBody] AyudaDTO ayuda)
+        {
+            var response = new ResponseDTO<bool>();
+
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _ayudaService.Editar(ayuda);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
+        [HttpPut("CambiarEstado/{estado:alpha}/{idAyuda:int}")]
+        public async Task<IActionResult> Editar(string estado, int idAyuda)
+        {
+            var response = new ResponseDTO<bool>();
+
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _ayudaService.CambiarEstado(estado, idAyuda);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
+        [HttpPut("Eliminar/{idAyuda:int}")]
+        public async Task<IActionResult> Eliminar(int idAyuda)
+        {
+            var response = new ResponseDTO<bool>();
+
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _ayudaService.Eliminar(idAyuda);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using SistemaGS.DTO.ModelDTO;
+using SistemaGS.DTO.Query;
 using SistemaGS.Model;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Service.Contrato;
+using System.Data;
 
 namespace SistemaGS.Service.Implementacion
 {
@@ -56,6 +59,17 @@ namespace SistemaGS.Service.Implementacion
 
                 if (check != null) return check;
                 else throw new TaskCanceledException("No se encontraron coincidencias");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<string> ListarInventario(ItemQuery filtro)
+        {
+            try
+            {
+                return await _InventarioRepository.ListarInventario(JsonConvert.SerializeObject(filtro));
             }
             catch (Exception ex)
             {

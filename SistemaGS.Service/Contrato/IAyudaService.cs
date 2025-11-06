@@ -9,6 +9,7 @@ namespace SistemaGS.Service.Contrato
         Task<AyudaDTO> Obtener(int idAyuda);
         Task<AyudaDTO> Crear(AyudaDTO Model);
         Task<bool> Editar(AyudaDTO Model);
+        Task<bool> CambiarEstado(string estado, int idAyuda);
         Task<bool> Eliminar(int idAyuda);
     }
 }

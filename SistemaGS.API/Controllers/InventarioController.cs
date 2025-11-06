@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
+using Newtonsoft.Json;
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
+using SistemaGS.DTO.Query;
 using SistemaGS.Service.Contrato;
+using System.Text.Json;
 
 namespace SistemaGS.API.Controllers
 {
@@ -37,9 +39,23 @@ namespace SistemaGS.API.Controllers
             return Ok(response);
         }
         [HttpGet("ListarInevntario")]
-        public async Task<IActionResult> ListarInventario([FromQuery] JsonResult filtro)
+        public async Task<IActionResult> ListarInventario([FromQuery] ItemQuery filtro)
         {
-            var response = new ResponseDTO<JsonResult>();
+            var response = new ResponseDTO<JsonDocument>();
+
+            try
+            {
+                
+                response.EsCorrecto = true;
+                JsonDocument resultado = JsonDocument.Parse(await _inventarioService.ListarInventario(filtro));
+                response.Resultado = resultado;
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
         }
         [HttpGet("Obtener/{idTransaccion:int}")]
         public async Task<IActionResult> Obtener(int idTransaccion)
@@ -76,7 +92,7 @@ namespace SistemaGS.API.Controllers
             return Ok(response);
         }
         [HttpPost("Desbloquear/{IdAyuda:int}")]
-        public async Task<IActionResult> Registrar([FromBody] List<InventarioDTO> movimientos, int IdAyuda)
+        public async Task<IActionResult> Desbloquear([FromQuery] List<InventarioDTO> movimientos, int IdAyuda)
         {
             var response = new ResponseDTO<bool>();
 

@@ -15,6 +15,7 @@ namespace SistemaGS.DTO.ModelDTO
         [MaxLength(50, ErrorMessage = "Máximo 50 caracteres")]
         public string NombreUsuario { get; set; } = null!;
         [Required(ErrorMessage = "Ingrese correo electrónico")]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Ingrese un correo electrónico válido")]
         [MaxLength(50, ErrorMessage = "Máximo 50 caracteres")]
         public string Correo { get; set; } = null!;
         [Required(ErrorMessage = "Ingrese contraseña")]

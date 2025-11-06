@@ -15,6 +15,64 @@ namespace SistemaGS.Repository.Implementacion
             _dbContext = dbContext;
         }
 
+        public async Task<bool> CambiarEstado(string estado, int idAyuda)
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var ayuda = await _dbContext.Ayuda.FirstOrDefaultAsync(a => a.IdAyuda == idAyuda);
+                    if (ayuda == null) throw new TaskCanceledException("La ayuda seleccionada no existe");
+
+                    List<ListaItemDTO> lista = JsonConvert.DeserializeObject<List<ListaItemDTO>>(ayuda.ListaItems!)!;
+
+                    //List<string> Estados = new List<string>(["rechazada", "pendiente", "en proceso", "lista para entregar", "cerrada"]);
+
+                    switch (estado)
+                    {
+                        case "Pendiente":
+                            {
+                                if (ayuda.Estado != "En Proceso") throw new InvalidOperationException("Error");
+                                ayuda.Estado = estado;
+                                break;
+                            }
+                        case "En Proceso":
+                            {
+                                if (ayuda.Estado != "Pendiente") throw new InvalidOperationException("Error");
+                                ayuda.Estado = estado;
+                                break;
+                            }
+                        case "Cerrado":
+                            {
+                                if (ayuda.Estado != "Lista Para Entregar" || lista.Any(i => i.CantidadEntregada <= 0)) throw new InvalidOperationException("La ayuda no puede cerrarse");
+                                break;
+                            }
+                        case "Rechazado":
+                            {
+                                if (ayuda.Estado != "Pendiente") throw new InvalidOperationException("Error");
+                                ayuda.Estado = estado;
+                                break;
+                            }
+                        default:
+                            {
+                                throw new InvalidOperationException("El estado seleccionado no existe");
+                            }
+                    };
+
+                    _dbContext.Update(ayuda);
+                    await _dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    Console.WriteLine(ex.Message);
+                    return false;
+                }
+            }
+        }
+
         public async Task<List<Ayuda>> Listar(string q)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
@@ -157,6 +215,21 @@ namespace SistemaGS.Repository.Implementacion
                     throw;
                 }
             }
+        }
+        public class ItemDTO
+        {
+            public int IdItem { get; set; }
+            public string Nombre { get; set; } = null!;
+            public string? Categoria { get; set; }
+            public string Descripcion { get; set; } = null!;
+            public string? Unidad { get; set; }
+        }
+        public class ListaItemDTO
+        {
+            public int IdLista { get; set; }
+            public ItemDTO ItemLista { get; set; } = null!;
+            public decimal CantidadSolicitada { get; set; }
+            public decimal? CantidadEntregada { get; set; }
         }
         public class AyudaQuery
         {

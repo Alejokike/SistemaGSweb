@@ -1,0 +1,157 @@
+﻿@page "/Items"
+
+@inject IPersonaService personaService
+@inject IToastService toastService;
+@inject SweetAlertService swat;
+@inject AuthenticationStateProvider authenticationStateProvider;
+
+@attribute [Authorize(Roles = "Administrador, Asistente, Lector")]
+
+<style>
+    p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="row justify-content-center  mt-3">
+            <div class="col-sm-6 col-md-4 col-xl-3 mb-4">
+                <div class="d-grid gap-1 col-12 mx-auto">
+                    <a class="btn btn-primary" href="/persona">Registrar Item</a>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8 col-xl-9">
+                <div class="input-group mb-7">
+                    <select class="form-select" @bind="@tipo">
+                        <option value=0 selected>Todos</option>
+                        <option value=1>Solicitante</option>
+                        <option value=2>Beneficiario</option>
+                        <option value=3>Funcionario</option>
+                    </select>
+                    <input type="text" class="form-control" placeholder="Buscar Persona..." @bind-value="buscar" @oninput="HandleInput">
+                    <button class="btn btn-outline-secondary" type="button" @onclick="(async () => await ObtenerPersonas(tipo, buscar))">
+                        <i class="oi oi-magnifying-glass"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row gx-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 justify-content-start mt-2">
+            @if (Lista != null)
+            {
+                List<PersonaDTO> filtro;
+
+                switch (tipo)
+                {
+                    case 1:
+                        {
+                            filtro = Lista.Where(p => p.Solicitante = true).ToList();
+                            break;
+                        }
+                    case 2:
+                        {
+                            filtro = Lista.Where(p => p.Beneficiario = true).ToList();
+                            break;
+                        }
+                    case 3:
+                        {
+                            filtro = Lista.Where(p => p.Funcionario = true).ToList();
+                            break;
+                        }
+                    default:
+                        {
+                            filtro = Lista;
+                            break;
+                        }
+                }
+
+                foreach (PersonaDTO item in filtro)
+                {
+                    string[] perfiles = ["Solicitante ", "Beneficiario ", "Funcionario"];
+                    string perfil = string.Concat((item.Solicitante ? perfiles[0] : ""), (item.Beneficiario ? perfiles[1] : ""), (item.Funcionario ? perfiles[2] : ""));
+
+                    <div class="col mb-6">
+                        <div class="card h-300">
+                            <div class="card-body p-7">
+                                <div class="text-center">
+                                    <i class="oi oi-person" style="font-size:50px"></i>
+                                </div>
+                                <div class="text-start">
+                                    <p class="m-1"><b>Nombre: </b>@item.Nombre @item.Apellido</p>
+                                    <p class="m-1"><b>Tipo: </b>@perfil</p>
+                                    <p class="m-1"><b>Cedula: </b>@item.Cedula</p>
+                                    <p class="m-1"><b>Teléfono: </b>@item.TelefonoHabitacion</p>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="row justify-content-between">
+                                    <a class="col-5 btn btn-sm btn-outline-primary mt-auto" href="/persona/@item.Cedula"><i class="oi oi-pencil fs-5"></i>Editar</a>
+                                    <button class="col-5 btn btn-sm btn-outline-danger mt-auto" type="button" @onclick="(async () => await Eliminar(item))">
+                                        <i class="oi oi-trash fs-5"></i> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            }
+
+        </div>
+    </Authorized>
+</AuthorizeView>
+@code {
+    private List<PersonaDTO>? Lista = null;
+    private string buscar = "";
+    private int tipo = 0;
+
+    private async Task ObtenerPersonas(int tipo = 0, string valor = "")
+    {
+        var response = await personaService.Lista(tipo, valor);
+        if (response.EsCorrecto) Lista = (List<PersonaDTO>)response.Resultado!;
+        else Lista = new List<PersonaDTO>();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerPersonas(tipo, buscar);
+    }
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        buscar = e.Value?.ToString()!;
+        await ObtenerPersonas(tipo, buscar);
+    }
+
+    private async Task Eliminar(PersonaDTO model)
+    {
+        SweetAlertResult result = await swat.FireAsync(new SweetAlertOptions
+        {
+            Title = "Eliminar este registro",
+            Text = $"Seleccionado: {model.Nombre} {model.Apellido}",
+            Icon = SweetAlertIcon.Warning,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Si, eliminar",
+            CancelButtonText = "No, Volver",
+        });
+
+        if (result.IsConfirmed)
+        {
+            var response = await personaService.Eliminar(model.Cedula);
+            if (response.EsCorrecto)
+            {
+                await ObtenerPersonas();
+                toastService.ShowSuccess("Registro eliminado");
+            }
+            else toastService.ShowSuccess(response.Mensaje!);
+        }
+    }
+}
