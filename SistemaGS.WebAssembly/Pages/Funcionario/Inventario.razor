@@ -1,0 +1,292 @@
+﻿@page "/Inventario"
+
+@inject IInventarioService inventarioService;
+@inject IToastService toastService;
+@inject NavigationManager _navService;
+@inject AuthenticationStateProvider authenticationStateProvider;
+
+@attribute [Authorize(Roles = "Funcionario")]
+
+<PageTitle>Inventario</PageTitle>
+
+<BlazoredToasts />
+
+@*Inventario*@
+
+<div class="row-cols-12 mt-4 align-items-sm-center">
+    <div class="col-sm-12">
+        <div class="card mb-3">
+            
+            <div class="card-header">
+                <h4 class="text-center text-black">
+                    Inventario
+                </h4>
+            </div>
+
+            <div class="card-body">
+                <EditForm Model="filtro" OnValidSubmit="ListarInventario">
+                <div class="d-flex gap-3 mt-3">
+                    <div class="form-row mt-1">
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Nombre</label>
+                            <InputText class="form-control" @bind-value="filtro.Nombre">
+                            </InputText>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Categoria)" />
+
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Categoría</label>
+                            <InputSelect class="form-select" @bind-value="filtro.Categoria">
+                                <option value="" selected>--Cualquiera</option>
+                                <option value="Otros">Otros</option>
+                            </InputSelect>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Categoria)" />
+                    </div>
+
+                    <div class="form-row mt-1">
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Descripción</label>
+                            <InputText class="form-control" @bind-value="filtro.Buscar">
+                            </InputText>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Buscar)" />
+
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Unidad</label>
+                            <InputSelect class="form-select" @bind-value="filtro.Unidad">
+                                <option value="" selected>--Cualquiera</option>
+                                <option value="EU">Unidad Estándar</option>
+                                <option value="MU">Unidad Médica</option>
+                                <option value="VE">Bolívares Fuertes</option>
+                            </InputSelect>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Unidad)" />
+                    </div>
+
+                    <div class="form-row mt-1">
+                        <InputRadioGroup class="d-flex gap-3" @bind-value="filtro.Ascendente">
+                            <div class="form-check form-check-inline">
+                                <InputRadio class="form-check-input" value="true" />
+                                <label class="form-check-label">ascendente</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <InputRadio class="form-check-input" value="false" />
+                                <label class="form-check-label">descendente</label>
+                            </div>
+                        </InputRadioGroup>
+                        <ValidationMessage For="@(() => filtro.Ascendente)" />
+
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Ordenar por</label>
+                            <InputSelect class="form-select" @bind-value="filtro.Unidad">
+                                <option value="" selected>--Cualquiera</option>
+                                <option value="Nombre">Nombre</option>
+                                <option value="Categoria">Categoría</option>
+                                <option value="Buscar">Descripción</option>
+                                <option value="Unidad">Unidad</option>
+                            </InputSelect>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Unidad)" />
+                    </div>
+                </div>
+                <div class="flex-xxl-column gap-3 mt-3">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="oi oi-magnifying-glass"></i> Aplicar filtros
+                    </button>
+                    @**@
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-dark" type="button" @onclick="(() => {if(filtro.Pagina > 1) filtro.Pagina--;})">
+                            <i class="bi bi-arrow-left-short"></i>Atrás
+                        </button>
+                        <input class="form-control text-center" type="number" style="width:50px" readonly @bind="filtro.Pagina" />
+                        <button class="btn btn-outline-dark" type="button" @onclick="(() => {if(filtro.Pagina < (Contador/filtro.PageSize)) filtro.Pagina++;})">
+                            Siguiente<i class="bi bi-arrow-right-short"></i>
+                        </button>
+                    </div>
+                </div>
+                </EditForm>
+
+                <div class="table-responsive mt-2">
+                    <table class="table table-sm bg-light table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Categoria</th>
+                                <th>Unidad</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @if (inventario.Any())
+                            {
+                                foreach (var item in inventario)
+                                {
+                                    <tr>
+                                        <td valign="middle">@item.IdItem</td>
+                                        <td valign="middle">@item.Nombre</td>
+                                        <td valign="middle">@item.Categoria</td>
+                                        <td valign="middle">@item.Unidad</td>
+                                        <td valign="middle" align="center">@item.Cantidad</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="alert alert-warning" role="alert">
+                                            No hay ítems para mostrar
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="card-footer">
+            
+                <div class="text-center">
+                <span class="text-info">¿No encuentras lo que estas buscando?</span>
+                <button class="btn-outline-secondary" @onclick="(() => agregar = !agregar)" >Añadir ítem</button>
+            </div>    
+                @*
+                @if (agregar)
+                {
+                    <EditForm Model="item" OnValidSubmit="AgregarItemLista">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="input-group mt-2">
+                            <span class="input-group-text bg-light" id="basic-addon3">Nombre</span>
+                            <InputText class="form-control" @bind-value="item.Nombre" />
+                        </div>
+                        <ValidationMessage For="@(() => item.Nombre)" />
+
+                        <div class="input-group mt-2">
+                            <label class="input-group-text bg-light">Categoría</label>
+                            <InputSelect class="form-select" @bind-value="item.Categoria">
+                                <option value="Otros" selected>Otros</option>
+                            </InputSelect>
+                        </div>
+                        <ValidationMessage For="@(() => item.Categoria)" />
+
+                        <div class="input-group mt-2">
+                            <span class="input-group-text bg-light" id="basic-addon3">Descripción</span>
+                            <InputTextArea class="form-control" @bind-value="item.Descripcion" />
+                        </div>
+                        <ValidationMessage For="@(() => item.Descripcion)" />
+
+                        <div class="mt-2">
+                            <button type="submit" class="btn btn-primary">Agregar</button>
+                            <button type="reset" class="btn btn-secondary" @onclick="LimpiarItem">Cancelar</button>
+                        </div>
+
+                    </EditForm>
+                }
+                *@
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*Realizar Operación*@
+
+<div class="row-cols-12 mt-3">
+    <div class="col-sm-12">
+        <div class="card mb-3">
+            <div class="card-body">
+                <EditForm Model="movimiento" OnValidSubmit="RegistrarOperacion">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label class="form-label">Movimiento</label>
+                        <InputSelect class="form-select" @bind-value="movimiento.TipoOperacion">
+                            <option value="" selected>--Seleccione tipo de operación</option>
+                            <option value="REC" selected>Recarga</option>
+                            <option value="DEV" selected>Devolución</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => movimiento.TipoOperacion)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"></label>
+                        <InputSelect class="form-select" @bind-value="movimiento.Unidad">
+                            <option value="" selected>--Seleccione una unidad</option>
+                            <option value="EU">Unidad Estándar</option>
+                            <option value="MU">Unidad Estándar</option>
+                            <option value="VE">Unidad Estándar</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => movimiento.Unidad)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Concepto</label>
+                        <InputTextArea class="form-control form-control-sm" placeholder="Ingrese el concepto del movimiento" @bind-value="movimiento.Concepto" />
+                        <ValidationMessage For="@(() => movimiento.Concepto)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"></label>
+                        <InputNumber class="form-select" @bind-value="movimiento.Cantidad">
+
+                        </InputNumber>
+                        <ValidationMessage For="@(() => movimiento.Unidad)" />
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="d-grid gap-1">
+                            <button class="btn btn-outline-primary float-end" type="submit">Solicitar</button>
+                        </div>
+                    </div>
+
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code{
+    private bool agregar = false;
+    private List<Item> inventario = new List<Item>();
+    private int Contador = 0;
+    private ItemQuery filtro = new ItemQuery()
+    {
+       Ascendente = true,
+       Pagina = 1,
+       PageSize = 20
+    };
+    private async Task ListarInventario()
+    {
+        var respuesta = await inventarioService.ListarInventario(filtro);
+        if (respuesta.EsCorrecto)
+        {
+            if (respuesta.Resultado!.contador == 0) return;
+            inventario = JsonConvert.DeserializeObject<List<Item>>(respuesta.Resultado.contenido)!;
+            Contador = respuesta.Resultado.contador;
+        }
+    }
+    private InventarioDTO movimiento = new InventarioDTO();
+    private ItemDTO itemMovimiento = new ItemDTO();
+
+    private async Task RegistrarOperacion()
+    {
+        
+    }
+    public partial class Item
+    {
+        public int IdItem { get; set; }
+        public string Nombre { get; set; } = null!;
+        public string? Categoria { get; set; }
+        public string Descripcion { get; set; } = null!;
+        public string? Unidad { get; set; }
+        public decimal? Cantidad { get; set; }
+    }
+}

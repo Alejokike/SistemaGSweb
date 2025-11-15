@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
 using SistemaGS.DTO.Responses;
 using SistemaGS.Service.Contrato;
-using System.Text.Json;
 
 namespace SistemaGS.API.Controllers
 {
