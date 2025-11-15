@@ -21,33 +21,37 @@
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
                 <!---->
-                <div class="p-1"></div>
-                <span class="bi bi-house-door-fill p-2" aria-hidden="true"></span> Home
+                <i class="bi bi-house-door-fill p-2" aria-hidden="true"></i>Home
             </NavLink>
         </div>
 
         <AuthorizeView Roles="Administrador">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="GestionarAyudas">
+                    <i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i> GestionarAyudas
+                </NavLink>
+            </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="Usuarios">
                     <i class="bi bi-person-badge p-2" aria-hidden="true"></i> Usuarios
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="Aprobar">
-                    <i class="bi bi-file-earmark-check-fill p-2" aria-hidden="true"></i> Aprobar
+                <NavLink class="nav-link" href="Historico">
+                    <i class="bi bi-person-badge p-2" aria-hidden="true"></i> Historico de transacciones
                 </NavLink>
             </div>
         </AuthorizeView>
 
         <AuthorizeView Roles="Administrador, Funcionario">
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="Personas">
-                    <span class="oi oi-people p-2" aria-hidden="true"></span> Personas
+                <NavLink class="nav-link" href="Ayudas">
+                    <i class="bi bi-box2-heart-fill" aria-hidden="true"></i> Gestionar Ayudas
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="Items">
-                    <span class="bi bi-capsule p-2" aria-hidden="true"></span> Items
+                <NavLink class="nav-link" href="Inventario">
+                    <i class="bi bi-capsule p-2" aria-hidden="true"></i> Inventario
                 </NavLink>
             </div>
         </AuthorizeView>
@@ -55,17 +59,26 @@
         <AuthorizeView Roles="Solicitante">
             @{
 
-                int IdUsuario = Convert.ToInt32(@context.User.Claims.Where(u => u.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault()!);
-                int Cedula = Convert.ToInt32(context.User.Claims.Where(u => u.Type == ClaimTypes.Actor).Select(c => c.Value).SingleOrDefault()!);
+                int Cedula = Convert.ToInt32(@context.User.Claims.Where(u => u.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault()!);
             }
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="@($"Usuario/{@IdUsuario}")">
-                    <span class="oi oi-people p-2" aria-hidden="true"></span> Usuarios
+                <NavLink class="nav-link text-center" href="@($"Usuario/{@Cedula}")">
+                    <i class="oi oi-people p-2" aria-hidden="true"></i>Perfil
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="@($"Persona/{@Cedula}")">
-                    <span class="oi oi-people p-2" aria-hidden="true"></span> Personas
+                <NavLink class="nav-link text-center" href="@($"Solicitar/{@Cedula}")">
+                    <i class="bi bi-box2-heart-fill p-2" aria-hidden="true"></i>Solicitar Ayuda
+                </NavLink>
+            </div>
+            <div class="nav-item px-3 text-center">
+                <NavLink class="nav-link" href="@($"Gestionar/{@Cedula}")">
+                    <i class="bi bi-box2-heart-fill p-2" aria-hidden="true"></i>Gestionar Ayudas
+                </NavLink>
+            </div>
+            <div class="nav-item px-3 text-center">
+                <NavLink class="nav-link" href="@($"Historico/{@Cedula}")">
+                    <i class="bi bi-box2-heart-fill p-2" aria-hidden="true"></i>
                 </NavLink>
             </div>
         </AuthorizeView>

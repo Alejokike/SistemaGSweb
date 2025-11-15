@@ -2,8 +2,8 @@
 public partial class Ayuda
 {
     public int IdAyuda { get; set; }
-    public int Solicitante { get; set; }
-    public int Funcionario { get; set; }
+    public int? Solicitante { get; set; }
+    public int? Funcionario { get; set; }
     public string? Categoria { get; set; }
     public string? Detalle { get; set; }
     public string? ListaItems { get; set; }

@@ -47,7 +47,8 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
-                throw ex;
+                Console.WriteLine(ex.Message);
+                throw;
             }
         }
         public async Task<bool> Editar(AyudaDTO Model)
@@ -67,7 +68,7 @@ namespace SistemaGS.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }
         public async Task<bool> Eliminar(int idAyuda)
@@ -86,7 +87,7 @@ namespace SistemaGS.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }
         public async Task<List<AyudaDTO>> Lista(AyudaQuery filtro)
@@ -103,7 +104,7 @@ namespace SistemaGS.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }
         public async Task<AyudaDTO> Obtener(int idAyuda)
@@ -117,7 +118,7 @@ namespace SistemaGS.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }               
     }

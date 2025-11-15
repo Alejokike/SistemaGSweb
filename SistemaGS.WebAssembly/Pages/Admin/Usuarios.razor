@@ -7,6 +7,8 @@
 
 @attribute [Authorize(Roles = "Administrador")]
 
+<PageTitle>Usuarios</PageTitle>
+
 <style>
     p {
         overflow: hidden;
@@ -17,69 +19,75 @@
 
 <AuthorizeView>
     <Authorized>
-<div class="row justify-content-center  mt-3">
-    <div class="col-sm-6 col-md-4 col-xl-3 mb-4">
-        <div class="d-grid gap-1 col-12 mx-auto">
-            <a class="btn btn-primary" href="/usuario">Nuevo usuario</a>
-        </div>
-    </div>
-    <div class="col-sm-6 col-md-8 col-xl-9">
-        <div class="input-group mb-7">
-            <select class="form-select" @bind="@rol">
-                <option value=0 selected>Todos</option>
-                <option value=1>Administrador</option>
-                <option value=2>Asistente</option>
-                <option value=3>Lector</option>
-                <option value=4>Solicitante</option>
-            </select>
-            <input type="text" class="form-control" placeholder="Buscar usuario..." @bind-value="buscar" @oninput="HandleInput">
-            <button class="btn btn-outline-secondary" type="button" @onclick="(async () => await ObtenerUsuarios(rol,buscar))">
-                <i class="oi oi-magnifying-glass"></i> Buscar
-            </button>
-        </div>
-    </div>
-</div>
 
-<div class="row gx-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 justify-content-start mt-2">
-    @if (Lista != null)
-    {
-        int IdLogged = Convert.ToInt32(@context.User.Claims.Where(u => u.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault());
-        foreach(UsuarioDTO item in Lista)
-        {
-            bool disable = IdLogged == item.Cedula;
 
-            <div class="col mb-6">
-                <div class="card h-300">
-                    <div class="card-body p-7">
-                        <div class="text-center">
-                            <i class="oi oi-person" style="font-size:50px"></i>
-                        </div>
-                        <div class="text-start">
-                            <p class="m-1"><b>Rol: </b>@item.Rol</p>
-                            <p class="m-1"><b>Usuario: </b>@item.NombreUsuario</p>
-                            <p class="m-1"><b>Correo: </b>@item.Correo</p>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-transparent">
-                        <div class="row justify-content-between">
-                            <a class="col-5 btn btn-sm btn-outline-primary mt-auto" href="/usuario/@item.Cedula"><i class="oi oi-pencil fs-5"></i>Editar</a>
-                            <button class="col-5 btn btn-sm btn-outline-danger mt-auto" type="button" disabled="@disable" @onclick="(async () => await Eliminar(item))">
-                                <i class="oi oi-trash fs-5"></i> Eliminar
-                            </button>
-                        </div>
-                    </div>
+        <div class="row justify-content-center  mt-3">
+            <div class="col-sm-6 col-md-4 col-xl-3 mb-4">
+                <div class="d-grid gap-1 col-12 mx-auto">
+                    <a class="btn btn-primary" href="/usuario">Nuevo usuario</a>
                 </div>
             </div>
-        }
-    }
-    else
-    {
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <div class="col-sm-6 col-md-8 col-xl-9 mb-4">
+                <div class="input-group mb-3">
+                    <select class="form-select" @bind="@rol">
+                        <option value=0 selected>Todos</option>
+                        <option value=1>Administrador</option>
+                        <option value=2>Funcionario</option>
+                        <option value=3>Solicitante</option>
+                    </select>
+                    <input type="text" class="form-control" placeholder="Buscar usuario..." @bind-value="buscar">
+                    <button class="btn btn-outline-secondary" type="button" @onclick="(async () => await ObtenerUsuarios(rol, buscar))">
+                        <i class="oi oi-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-    }
+        
+        <div class="row gx-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 justify-content-start mt-2">
+        
+            @if (Lista != null)
+            {
+        
+                int IdLogged = Convert.ToInt32(@context.User.Claims.SingleOrDefault(u => u.Type == ClaimTypes.NameIdentifier)!.Value);
 
-</div>
+                foreach (UsuarioDTO item in Lista)
+                {
+                    bool disable = IdLogged == item.Cedula;
+        
+                    <div class="col mb-5">
+                        <div class="card h-100">
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <i class="oi oi-person" style="font-size:50px"></i>
+                                </div>
+                                <div class="text-start">
+                                    <p class="m-1"><b>Usuario: </b>@item.NombreUsuario</p>
+                                    <p class="m-1"><b>Rol: </b>@item.Rol.Nombre</p>
+                                    <p class="m-1"><b>Correo: </b>@item.Correo</p>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="row justify-content-between">
+                                    <a class="col-5 btn btn-sm btn-outline-primary mt-auto" href="/usuario/@item.Cedula"><i class="oi oi-pencil fs-5"></i>Editar</a>
+                                    <button class="col-5 btn btn-sm btn-outline-danger mt-auto" type="button" disabled="@disable" @onclick="(async () => await Eliminar(item))">
+                                        <i class="oi oi-trash fs-5"></i> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+            }
+            else
+            {
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            }
+        
+        </div>
+
     </Authorized>
 </AuthorizeView>
 @code {

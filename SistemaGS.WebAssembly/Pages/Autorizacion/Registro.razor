@@ -6,77 +6,176 @@
 @inject IToastService _toastService;
 @inject AuthenticationStateProvider authenticationStateProvider;
 
-<BlazoredToasts />
+<div class="col-lg-8">
+    <div class="card rounded-lg mt-5">
+        <div class="card-header"><h3 class="text-center font-weight-bold my-4">Crear Cuenta</h3></div>
+        <div class="card-body">
+            <ul class="nav nav-tabs mb-3">
+                <li class="nav-item">
+                    <button class="nav-link @(activeTab == "cuenta" ? "active" : "")" @onclick="@(() => activeTab = "cuenta")">Datos Cuenta</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link @(activeTab == "personal" ? "active" : "")" @onclick="@(() => { activeTab = "personal"; model.Persona.Cedula = model.Cedula; })">Datos Personales</button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="row justify-content-center  mt-3">
+                    <div class="col-sm-12 col-md-8 col-xl-10">
+                        <EditForm Model="model" OnValidSubmit="GuardarCambios">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            @if (activeTab == "cuenta")
+                            {
+                                <h5>Datos de cuenta</h5>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
+                                    <input type="text" maxlength="8" class="form-control" @bind-value="model.Cedula">
+                                </div>
+                                <ValidationMessage For="@(() => model.Cedula)" />
 
-<div class="card-header"><h3 class="text-center font-weight-light my-4">Crear Cuenta</h3></div>
-<div class="card-body">
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Nombre de Usuario</span>
+                                    <input type="text" class="form-control" @bind-value="model.NombreUsuario">
+                                </div>
+                                <ValidationMessage For="@(() => model.NombreUsuario)" />
 
-    <EditForm Model="model" OnValidSubmit="GuardarCambios">
-        <DataAnnotationsValidator></DataAnnotationsValidator>
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Correo</span>
+                                    <input type="text" class="form-control" @bind-value="model.Correo">
+                                </div>
+                                <ValidationMessage For="@(() => model.Correo)" />
 
-        <div class="form-floating mb-3">
-            <input class="form-control" id="inputName" type="text" placeholder="Nombre Completo" @bind-value="model.Cedula" autocomplete="off" />
-            <label for="inputEmail">Nombre Completo</label>
-            <ValidationMessage For="@(() => model.Cedula)" />
-        </div>
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Contraseña</span>
+                                    <input type="password" class="form-control" @bind-value="model.Clave">
+                                </div>
+                                <ValidationMessage For="@(() => model.Clave)" />
 
-        <div class="form-floating mb-3">
-            <input class="form-control" id="inputUserName" type="text" placeholder="Nombre de Usuario" @bind-value="model.NombreUsuario" autocomplete="off" />
-            <label for="inputEmail">Nombre de Usuario</label>
-            <ValidationMessage For="@(() => model.NombreUsuario)" />
-        </div>
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Confirmar Contraseña</span>
+                                    <input type="password" class="form-control" @bind-value="model.ConfirmarClave">
+                                </div>
+                                <ValidationMessage For="@(() => model.ConfirmarClave)" />
+                            }
+                            else
+                            {
+                                <h5>Datos personales</h5>
 
-        <div class="form-floating mb-3">
-            <input class="form-control" id="inputEmail" type="email" placeholder="name@example.com" @bind-value="model.Correo" autocomplete="off" />
-            <label for="inputEmail">Correo</label>
-            <ValidationMessage For="@(() => model.Correo)" />
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="form-floating mb-3 mb-md-0">
-                    <input class="form-control" id="inputPassword" type="password" placeholder="Create a password" @bind-value="model.Clave" autocomplete="off" />
-                    <label for="inputPassword">Contraseña</label>
-                    <ValidationMessage For="@(() => model.Clave)" />
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
+                                    <input type="text" maxlength="8" class="form-control" readonly @bind-value="model.Persona.Cedula">
+                                </div>
+                                <ValidationMessage For="@(() => model.Persona.Cedula)" />
+
+                                <div class="form-row mt-3">
+                                    <div class="input-group col-md-6">
+                                        <span class="input-group-text bg-light" id="basic-addon3">Nombres</span>
+                                        <input type="text" maxlength="60" class="form-control" @bind-value="model.Persona.Nombre" />
+                                    </div>
+                                    <ValidationMessage For="@(() => model.Persona.Nombre)" />
+
+                                    <div class="input-group col-md-6">
+                                        <span class="input-group-text bg-light" id="basic-addon3">Apellidos</span>
+                                        <input type="text" maxlength="60" class="form-control" @bind-value="model.Persona.Apellido" />
+                                    </div>
+                                    <ValidationMessage For="@(() => model.Persona.Apellido)" />
+                                </div>
+
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Fecha de nacimiento</span>
+                                    <input type="date" max="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" id="birthdaytime" name="birthdaytime" @bind-value="model.Persona.FechaNacimiento">
+                                </div>
+                                <ValidationMessage For="@(() => model.Persona.FechaNacimiento)" />
+
+                                bool Masc = model.Persona.Genero == "M";
+
+                                <div class="mt-3">
+                                    <label class="form-label d-block">Género</label>
+                                    <InputRadioGroup @bind-value="model.Persona.Genero" class="form-check form-check-inline">
+                                        <div class="form-check form-check-inline">
+                                            <InputRadio class="form-check-input" Value=@("M") id="generoMasculino" />
+                                            <label class="form-check-label" for="generoMasculino">Masculino</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <InputRadio class="form-check-input" Value=@("F") id="generoFemenino" />
+                                            <label class="form-check-label" for="generoFemenino">Femenino</label>
+                                        </div>
+                                    </InputRadioGroup>
+                                </div>
+                                <ValidationMessage For="@(() => model.Persona.Genero)" />
+
+
+                                <div class="form-row mt-3">
+                                    <div class="input-group col-md-6">
+                                        <span class="input-group-text bg-light" id="basic-addon3">Profesión</span>
+                                        <input type="text" maxlength="50" class="form-control" @bind-value="model.Persona.Profesion" />
+                                    </div>
+                                    <ValidationMessage For="@(() => model.Persona.Profesion)" />
+                                    <div class="input-group col-md-6">
+                                        <span class="input-group-text bg-light" id="basic-addon3">Ocupación</span>
+                                        <input type="text" maxlength="50" class="form-control" @bind-value="model.Persona.Ocupacion" />
+                                    </div>
+                                    <ValidationMessage For="@(() => model.Persona.Ocupacion)" />
+                                </div>
+
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Lugar de Trabajo</span>
+                                    <input type="text" class="form-control" @bind-value="model.Persona.LugarTrabajo">
+                                </div>
+                                <ValidationMessage For="@(() => model.Persona.LugarTrabajo)" />
+
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Dirección de Trabajo</span>
+                                    <input type="text" class="form-control" @bind-value="model.Persona.DireccionTrabajo">
+                                </div>
+                                <ValidationMessage For="@(() => model.Persona.DireccionTrabajo)" />
+
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Teléfono de trabajo</span>
+                                    <input type="text" class="form-control" @bind-value="model.Persona.TelefonoTrabajo">
+                                </div>
+                                <ValidationMessage For="@(() => model.Persona.TelefonoTrabajo)" />
+
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Dirección de habitación</span>
+                                    <input type="text" class="form-control" @bind-value="model.Persona.DireccionHabitacion">
+                                </div>
+                                <ValidationMessage For="@(() => model.Persona.DireccionHabitacion)" />
+
+                                <div class="input-group mt-3">
+                                    <span class="input-group-text bg-light" id="basic-addon3">Teléfono de habitación</span>
+                                    <input type="text" class="form-control" @bind-value="model.Persona.TelefonoHabitacion">
+                                </div>
+                                <ValidationMessage For="@(() => model.Persona.TelefonoHabitacion)" />
+                            }
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary" style="width:130px">Registrarse</button>
+                            </div>
+                        </EditForm>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="form-floating mb-3 mb-md-0">
-                    <input class="form-control" id="inputPasswordConfirm" type="password" placeholder="Confirm password" @bind-value="model.ConfirmarClave" autocomplete="off" />
-                    <label for="inputPasswordConfirm">Confirmar Contraseña</label>
-                    <ValidationMessage For="@(() => model.ConfirmarClave)" />
-                </div>
-            </div>
-        </div>
-        <div class="mt-4 mb-0">
-            <div class="d-grid"><button class="btn btn-primary btn-block" type="submit">Registrarse</button></div>
-        </div>
-    </EditForm>
 
+        </div>
+        <div class="card-footer text-center py-3">
+            <div class="small"><a href="/login">Tienes una cuenta? ir a login</a></div>
+        </div>
+    </div>
 </div>
-<div class="card-footer text-center py-3">
-    <div class="small"><a href="/login">Tienes una cuenta? ir a login</a></div>
-</div>
-
 
 @code {
-    private UsuarioDTO model = new UsuarioDTO();
+    private UsuarioDTO model = new UsuarioDTO() {Persona = new PersonaDTO(), Rol = new RolDTO()};
 
-    /*
-    protected override async Task OnParametersSetAsync()
+    private string activeTab = "cuenta";
+
+    //private EditContext editContext;
+    //private ValidationMessageStore messageStore;
+
+    protected override void OnInitialized()
     {
-        SesionDTO sesion = new SesionDTO
-        {
-            IdUsuario = 0,
-            NombreUsuario = "Anonymous",
-            NombreCompleto = "Anonymous",
-            Correo = "anonymous@blank.com",
-            IdRol = 0,
-            Rol = "Anonymous"
-        };
-        var AuthExt = (AutExt)authenticationStateProvider;
-        await AuthExt.ActualizarEstadoAut(sesion);
+
     }
-    */
+
     private async Task GuardarCambios()
     {
         if(model.Clave != model.ConfirmarClave)
@@ -85,13 +184,14 @@
             return;
         }
 
-        model.Rol.IdRol = 4;
+        model.Rol.IdRol = 3;
+        model.Activo = true;
 
         var response = await _usuarioService.Crear(model);
 
         if (response.EsCorrecto)
         {
-            _toastService.ShowWarning("Su cuenta ha sido Creada");
+            _toastService.ShowSuccess("Su cuenta ha sido Creada");
             navManager.NavigateTo("/login");
         }
         else
@@ -99,7 +199,8 @@
             _toastService.ShowWarning("No se pudo crear su cuenta");
             return;
         }
-        //var AuthExt = (AutExt)authenticationStateProvider;
-        //await AuthExt.ActualizarEstadoAut(null);
+
+        var AuthExt = (AutExt)authenticationStateProvider;
+        await AuthExt.ActualizarEstadoAut(null);
     }
 }

@@ -6,32 +6,39 @@
 @inject IToastService _toastService;
 @inject AuthenticationStateProvider authenticationStateProvider;
 
-<BlazoredToasts />
-
-<div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
-<div class="card-body">
-    <EditForm Model="model" OnValidSubmit="Iniciar">
-        <DataAnnotationsValidator></DataAnnotationsValidator>
-        <div class="form-floating mb-3">
-            <input class="form-control" id="inputEmail" type="email" placeholder="admin@example.com" @bind-value="model.Correo" autocomplete="off" />
-            <label for="inputEmail">Correo</label>
-            <ValidationMessage For="@(() => model.Correo)" />
-        </div>
-        <div class="form-floating mb-3">
-            <input class="form-control" id="inputPassword" type="password" placeholder="123" @bind-value="model.Clave" autocomplete="off" />
-            <label for="inputPassword">Contraseña</label>
-            <ValidationMessage For="@(() => model.Clave)" />
+<div class="col-lg-5">
+    <div class="card rounded-lg mt-5">
+        <div class="container d-flex justify-content-between align-items-center mb-4" style="max-width: 300px; margin: 0 auto;">
+            <img src="img/FundaciónGSletrasnegras.png" class="img-fluid" style="max-width: 100px;" alt="Logo Fundación GS" />
+            <img src="img/LogoAlcaldiaLetrasAzules.png" class="img-fluid" style="max-width: 100px;" alt="Logo Alcaldía" />
         </div>
 
-        <div class="d-grid gap-1 mt-4 mb-0">
-            <button class="btn btn-primary" type="submit">Ingresar</button>
+        <div class="card-header"><h3 class="text-center font-weight-bold my-4">Login</h3></div>
+        <div class="card-body">
+            <EditForm Model="model" OnValidSubmit="Iniciar">
+                <DataAnnotationsValidator />
+                <div class="form-floating mb-3">
+                    <input class="form-control" id="inputUsername" type="text" placeholder="Ingrese nombre de usuario" @bind-value="model.NombreUsuario" autocomplete="off" />
+                    <label for="inputUsername">Nombre de Usuario</label>
+                    <ValidationMessage For="@(() => model.NombreUsuario)" />
+                </div>
+                <div class="form-floating mb-3">
+                    <input class="form-control" id="inputPassword" type="password" placeholder="Ingrese contraseña" @bind-value="model.Clave" autocomplete="off" />
+                    <label for="inputPassword">Contraseña</label>
+                    <ValidationMessage For="@(() => model.Clave)" />
+                </div>
+
+                <div class="d-grid gap-1 mt-4 mb-0">
+                    <button class="btn btn-primary" type="submit">Ingresar</button>
+                </div>
+            </EditForm>
         </div>
-    </EditForm>
+        <div class="card-footer text-center py-3">
+            <div class="small"><a href="/Register">No tienes una cuenta? Registrate!</a></div>
+        </div>
+    </div>
 </div>
-<div class="card-footer text-center py-3">
-    <div class="small"><a href="/Register">No tienes una cuenta? Registrate!</a></div>
-</div>
-                
+
 @code {
     private LoginDTO model = new LoginDTO();
 

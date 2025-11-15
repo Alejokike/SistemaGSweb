@@ -2,6 +2,7 @@
 using SistemaGS.Model;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Repository.DBContext;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SistemaGS.Repository.Implementacion
 {
@@ -71,6 +72,81 @@ namespace SistemaGS.Repository.Implementacion
                     transaction.Rollback();
                     Console.WriteLine(ex.Message);
                     return false;
+                    throw;
+                }
+            }
+        }
+
+        public async Task<List<(Usuario usuario, Persona persona, Rol rol)>> Listar(int rol, string buscar)
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    string filtro = (buscar ?? "").ToLower();
+
+                    var temp = 
+                        await (from u in _dbContext.Usuarios
+                               join p in _dbContext.Personas on u.Cedula equals p.Cedula
+                               join r in _dbContext.Rols on u.IdRol equals r.IdRol
+                               where
+
+                               (r.IdRol != 0 || r.IdRol == rol) &&
+
+                               (string.IsNullOrEmpty(filtro) ||
+                                        EF.Functions.Like((p.Cedula.ToString() ?? "").ToLower(), filtro) ||
+                                        EF.Functions.Like((p.Nombre ?? "").ToLower(), filtro) ||
+                                        EF.Functions.Like((p.Apellido ?? "").ToLower(), filtro) ||
+                                        EF.Functions.Like((p.TelefonoTrabajo ?? "").ToLower(), filtro) ||
+                                        EF.Functions.Like((p.TelefonoHabitacion ?? "").ToLower(), filtro))
+                               select new
+                               {
+                                   u,
+                                   p,
+                                   r
+                               }).ToListAsync();
+
+                    List<(Usuario usuario, Persona persona, Rol rol)> lista = temp.Select(t => (usuario: t.u, persona: t.p, rol: t.r)).ToList();
+                    return lista;
+
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    Console.WriteLine(ex.Message);
+                    throw;
+                }
+            }
+        }
+
+        public async Task<(Usuario usuario, Persona persona, Rol rol)> Obtener(int IdUsuario)
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var temp =
+                         await (from u in _dbContext.Usuarios
+                                join p in _dbContext.Personas on u.Cedula equals p.Cedula
+                                join r in _dbContext.Rols on u.IdRol equals r.IdRol
+                                where u.Cedula == IdUsuario
+                                select new
+                                {
+                                    u,
+                                    p,
+                                    r
+                                }).FirstOrDefaultAsync();
+
+                    if (temp.u == null || temp.p == null || temp.r == null) throw new InvalidDataException("No hay coincidencias");
+
+                    (Usuario usuario, Persona persona, Rol rol) t = (usuario: temp.u, persona: temp.p, rol: temp.r);
+
+                    return t;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
             }

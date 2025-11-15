@@ -57,5 +57,10 @@ app.UseCors("Nueva Politica");
 app.UseAuthorization();
 
 app.MapControllers();
-
+/*
+AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+{
+    Console.WriteLine($"Unhandled exception: {e.ExceptionObject}");
+};
+*/
 app.Run();

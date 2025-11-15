@@ -6,6 +6,8 @@ using SistemaGS.Service.Contrato;
 using AutoMapper;
 using SistemaGS.Util;
 using SistemaGS.DTO.ModelDTO;
+using System.ComponentModel;
+using System.Threading.Tasks.Dataflow;
 
 namespace SistemaGS.Service.Implementacion
 {
@@ -47,7 +49,7 @@ namespace SistemaGS.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }
         public async Task<UsuarioDTO> Crear(UsuarioDTO Model)
@@ -64,7 +66,7 @@ namespace SistemaGS.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }
 
@@ -86,7 +88,7 @@ namespace SistemaGS.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }
 
@@ -101,17 +103,18 @@ namespace SistemaGS.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }
 
-        public async Task<List<UsuarioDTO>> Lista(int Rol, string buscar)
+        public async Task<List<UsuarioDTO>> Lista(int rol, string buscar)
         {
             try
             {
+                /*
                 IQueryable<Usuario>? consulta;
 
-                if(Rol != 0)
+                if(rol != 0)
                 {
                     consulta = _modelRepository.Consultar(p => p.IdRol == Rol && string.Concat(p.Cedula.ToString(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
                 }
@@ -119,15 +122,25 @@ namespace SistemaGS.Service.Implementacion
                 {
                     consulta = _modelRepository.Consultar(p => string.Concat(p.Cedula.ToString(), p.NombreUsuario.ToLower(), p.Correo.ToLower()).Contains(buscar.ToLower()));
                 }
+                */
+                var listaRepository = await _UsuarioRepository.Listar(rol, buscar);
 
-                List<UsuarioDTO> lista = _mapper.Map<List<UsuarioDTO>>(await consulta.ToListAsync());
+                List<UsuarioDTO> lista = new List<UsuarioDTO>();
+
+                foreach (var t in listaRepository)
+                {
+                    UsuarioDTO usuario = _mapper.Map<UsuarioDTO>(t.usuario);
+                    usuario.Persona = _mapper.Map<PersonaDTO>(t.persona);
+                    usuario.Rol = _mapper.Map<RolDTO>(t.rol);
+                    lista.Add(usuario);
+                }
 
                 return lista;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }
 
@@ -135,14 +148,13 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var consultaU = await _modelRepository.Consultar(p => p.Cedula == id).AsNoTracking().FirstOrDefaultAsync();
-                var consultaP = await _PersonaRepository.Consultar(p => p.Cedula == id).AsNoTracking().FirstOrDefaultAsync();
+                var (usuario, persona, rol) = await _UsuarioRepository.Obtener(id);
 
-                if (consultaP != null || consultaU != null)
+                if (usuario != null && persona != null && rol != null)
                 {
-                    var respuesta = _mapper.Map<UsuarioDTO>(consultaU);
-                    respuesta.Rol = _mapper.Map<RolDTO>(await _RolRepository.Consultar(r => r.IdRol == consultaU.IdRol).AsNoTracking().FirstOrDefaultAsync());
-                    respuesta.Persona = _mapper.Map<PersonaDTO>(consultaP);
+                    var respuesta = _mapper.Map<UsuarioDTO>(usuario);
+                    respuesta.Rol = _mapper.Map<RolDTO>(rol);
+                    respuesta.Persona = _mapper.Map<PersonaDTO>(persona);
                     return respuesta;
                 }
                 else throw new TaskCanceledException("");
@@ -150,7 +162,7 @@ namespace SistemaGS.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
             }
         }
     }

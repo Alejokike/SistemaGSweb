@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
+using SistemaGS.DTO.Responses;
 using SistemaGS.Service.Contrato;
 using System.Text.Json;
 
@@ -38,17 +39,22 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpGet("ListarInevntario")]
+        [HttpGet("ListarInventario")]
         public async Task<IActionResult> ListarInventario([FromQuery] ItemQuery filtro)
         {
-            var response = new ResponseDTO<JsonDocument>();
+            var response = new ResponseDTO<InventarioRespuesta>();
 
             try
             {
-                
                 response.EsCorrecto = true;
-                JsonDocument resultado = JsonDocument.Parse(await _inventarioService.ListarInventario(filtro));
-                response.Resultado = resultado;
+                //JsonDocument resultado = JsonDocument.Parse(await _inventarioService.ListarInventario(filtro));
+                var aux = await _inventarioService.ListarInventario(filtro);
+
+                response.Resultado = new InventarioRespuesta()
+                {
+                    contenido = aux.Item1,
+                    contador = aux.Item2
+                };
             }
             catch (Exception ex)
             {

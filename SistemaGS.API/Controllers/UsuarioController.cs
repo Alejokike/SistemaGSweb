@@ -32,6 +32,7 @@ namespace SistemaGS.API.Controllers
             {
                 response.EsCorrecto = false;
                 response.Mensaje = ex.Message;
+                Console.WriteLine(ex);
             }
             return Ok(response);
         }
@@ -52,7 +53,8 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpPost("Crear")]
+        [HttpPost]
+        [Route("Crear")]
         public async Task<IActionResult> Crear([FromBody]UsuarioDTO model)
         {
             var response = new ResponseDTO<UsuarioDTO>();

@@ -23,8 +23,18 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         public async Task<ResponseDTO<UsuarioDTO>> Crear(UsuarioDTO model)
         {
             var response = await _httpClient.PostAsJsonAsync("Usuario/Crear", model);
-            var result = await response.Content.ReadFromJsonAsync<ResponseDTO<UsuarioDTO>>();
-            return result!;
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<ResponseDTO<UsuarioDTO>>();
+                return result!;
+            }
+            else
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error: {response.StatusCode}, Body: {errorText}");
+                var result = await response.Content.ReadFromJsonAsync<ResponseDTO<UsuarioDTO>>();
+                return result!;
+            }
         }
 
         public async Task<ResponseDTO<bool>> Editar(UsuarioDTO model)

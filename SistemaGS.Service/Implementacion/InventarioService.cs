@@ -34,10 +34,10 @@ namespace SistemaGS.Service.Implementacion
                 if (responseDB) return true;
                 else throw new TaskCanceledException("No se pudo crear");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
-                throw;
             }
         }
         public async Task<List<InventarioDTO>> Lista(int IdItem, string filtro, DateTime? FechaIni, DateTime? FechaFin)
@@ -62,10 +62,11 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
-                throw ex;
+                Console.WriteLine(ex.Message);
+                throw;
             }
         }
-        public async Task<string> ListarInventario(ItemQuery filtro)
+        public async Task<(string, int)> ListarInventario(ItemQuery filtro)
         {
             try
             {
@@ -73,7 +74,8 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
-                throw ex;
+                Console.WriteLine(ex.Message);
+                throw;
             }
         }
         public async Task<InventarioDTO> Obtener(int IdTransaccion)
@@ -93,7 +95,8 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
-                throw ex;
+                Console.WriteLine(ex.Message);
+                throw;
             }
         }
         public async Task<InventarioDTO> Registrar(InventarioDTO Transaccion)
@@ -108,7 +111,8 @@ namespace SistemaGS.Service.Implementacion
             }
             catch (Exception ex)
             {
-                throw ex;
+                Console.WriteLine(ex.Message);
+                throw;
             }
         }
     }

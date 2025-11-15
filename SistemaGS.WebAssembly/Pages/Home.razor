@@ -1,6 +1,8 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@attribute [Authorize(Roles = "Administrador, Funcionario, Solicitante")]
+
+<PageTitle>Inicio</PageTitle>
 
 <h1>Bienvenido!</h1>
 

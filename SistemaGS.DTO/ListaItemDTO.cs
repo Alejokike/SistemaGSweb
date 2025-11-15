@@ -9,10 +9,10 @@ namespace SistemaGS.DTO
         [Required(ErrorMessage = "Ingrese un item")]
         public ItemDTO? ItemLista {  get; set; }
         [Required(ErrorMessage = "Ingrese una cantidad")]
-        [Range(0, double.MaxValue, ErrorMessage = "El valor no puede ser negativo")]
+        //[Range(0, double.MaxValue, ErrorMessage = "El valor no puede ser negativo")]
         public decimal CantidadSolicitada { get; set; }
         [Required(ErrorMessage = "Ingrese una cantidad")]
-        [Range(0, double.MaxValue, ErrorMessage = "El valor no puede ser negativo")]
+        //[Range(0, double.MaxValue, ErrorMessage = "El valor no puede ser negativo")]
         public decimal CantidadEntregada { get; set; } 
     }
 }

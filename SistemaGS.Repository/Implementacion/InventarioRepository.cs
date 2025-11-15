@@ -93,7 +93,7 @@ namespace SistemaGS.Repository.Implementacion
             }
         }
 
-        public async Task<string> ListarInventario(string q)
+        public async Task<(string, int)> ListarInventario(string q)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
             {
@@ -101,17 +101,16 @@ namespace SistemaGS.Repository.Implementacion
                 {
                     var query = JsonConvert.DeserializeObject<ItemQuery>(q!)!;
 
-                    string filtro = $"{query.buscar?.ToLower()}";
+                    string filtro = $"{(query.buscar ?? "").ToLower()}";
                     
                     var consulta = from i in _dbContext.Items
                                    where
-
-                                    (string.IsNullOrEmpty(query.Nombre) || i.Nombre == query.Nombre) &&
-                                    (string.IsNullOrEmpty(query.Categoria) || EF.Functions.Like((i.Categoria ?? "").ToLower(), filtro)) &&
+                                    (string.IsNullOrEmpty(query.Nombre) || EF.Functions.Like((i.Nombre ?? "").ToLower(), $"%{query.Nombre}%".ToLower())) &&
+                                    (string.IsNullOrEmpty(query.Categoria) || EF.Functions.Like((i.Categoria ?? "").ToLower(), $"%{query.Categoria}%".ToLower())) &&
                                     (string.IsNullOrEmpty(query.Unidad) || i.Unidad == query.Unidad) &&
 
                                     (string.IsNullOrEmpty(query.buscar) ||
-                                        EF.Functions.Like((i.Descripcion ?? "").ToLower(), filtro) 
+                                        EF.Functions.Like((i.Descripcion ?? "").ToLower(), $"%{filtro}%".ToLower()) 
                                     )
                                    select new
                                    {
@@ -137,8 +136,11 @@ namespace SistemaGS.Repository.Implementacion
                         : consulta.OrderByDescending(x => x.Item.IdItem)
                     };
 
+                    (string, int) respuesta;
+                    respuesta.Item2 = await consulta.CountAsync();
+
                     //total
-                    Console.WriteLine("Total elementos: " + await consulta.CountAsync());
+                    Console.WriteLine("Total elementos: " + respuesta.Item2);
                     //pagina
                     Console.WriteLine($"pagina: {query.Pagina} con {query.PageSize} elementos");
 
@@ -150,7 +152,9 @@ namespace SistemaGS.Repository.Implementacion
 
                     transaction.Commit();
 
-                    return JsonConvert.SerializeObject(lista);
+                    respuesta.Item1 = JsonConvert.SerializeObject(lista);
+
+                    return respuesta;
                 }
                 catch (Exception ex)
                 {
@@ -250,10 +254,10 @@ namespace SistemaGS.Repository.Implementacion
         public class ItemQuery
         {
             //propiedades filtro
-            public string? Nombre { get; set; }
-            public string? Categoria { get; set; }
-            public string? buscar { get; set; }
-            public string? Unidad { get; set; }
+            public string? Nombre { get; set; } = "";
+            public string? Categoria { get; set; } = "";
+            public string? buscar { get; set; } = "";
+            public string? Unidad { get; set; } = "";
             //propiedades paginación
             public string OrdenarPor { get; set; } = "";
             public bool Ascendente { get; set; } = false;

@@ -1,9 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.Toast.Services;
 using SistemaGS.DTO;
-using SistemaGS.DTO.ModelDTO;
 using SistemaGS.WebAssembly.Services.Contrato;
-using System.Threading.Tasks;
 
 namespace SistemaGS.WebAssembly.Services.Implementacion
 {
