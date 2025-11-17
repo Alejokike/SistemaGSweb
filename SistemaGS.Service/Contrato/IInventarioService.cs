@@ -6,9 +6,10 @@ namespace SistemaGS.Service.Contrato
 {
     public interface IInventarioService
     {
-        Task<List<InventarioDTO>> Lista(int IdItem, string filtro, DateTime? FechaIni, DateTime? FechaFin);
-        Task<(string, int)> ListarInventario(ItemQuery filtro);
+        Task<List<InventarioDTO>> Lista(InventarioQuery filtro);
         Task<InventarioDTO> Obtener(int IdTransaccion);
+        Task<(string, int)> ListarInventario(ItemQuery filtro);
+        Task<ItemDTO> ObtenerItem(int IdItem);
         Task<InventarioDTO> Registrar(InventarioDTO Transaccion);
         Task<bool> Desbloquear(List<InventarioDTO> movimientos, int IdAyuda);
     }

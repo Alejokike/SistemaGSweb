@@ -7,6 +7,7 @@ using SistemaGS.Model;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Service.Contrato;
 using System.Data;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SistemaGS.Service.Implementacion
 {
@@ -40,25 +41,41 @@ namespace SistemaGS.Service.Implementacion
                 return false;
             }
         }
-        public async Task<List<InventarioDTO>> Lista(int IdItem, string filtro, DateTime? FechaIni, DateTime? FechaFin)
+        public async Task<List<InventarioDTO>> Lista(InventarioQuery filtro)
         {
             try
             {
-                IQueryable<Inventario>? consulta;
+                var consulta = from m in _modelRepository.Consultar()
+                               join i in _ItemRepository.Consultar() on m.Item equals i.IdItem
+                               where
+                               filtro.FechaIni <= m.Fecha && m.Fecha <= filtro.FechaFin &&
+                               (i.IdItem == 0 || i.IdItem.Equals(filtro.IdItem)) &&
+                               ((filtro.filtro ?? "").ToLower().Contains(m.TipoOperacion.ToLower()) || filtro.filtro == string.Empty)
+                               select new InventarioDTO
+                               {
+                                   IdTransaccion = m.IdTransaccion,
+                                   TipoOperacion = m.TipoOperacion,
+                                   Item = _mapper.Map<ItemDTO>(i),
+                                   Unidad = m.Unidad,
+                                   Cantidad = m.Cantidad,
+                                   Concepto = m.Concepto,
+                                   Fecha = m.Fecha
+                               };
+                if (!(await consulta.AnyAsync())) return new List<InventarioDTO>();
+                return await consulta.ToListAsync();
+                /*
+                var listaRepository = await _InventarioRepository.Listar(JsonConvert.SerializeObject(filtro));
+                List<InventarioDTO> lista = new List<InventarioDTO>();
 
-                if (IdItem != 0)
+                foreach(var t in listaRepository)
                 {
-                    consulta = _modelRepository.Consultar(p => p.Item == IdItem && p.TipoOperacion.Contains(filtro.ToLower()) && (FechaIni <= p.Fecha && p.Fecha <= FechaFin));
-                }
-                else
-                {
-                    consulta = _modelRepository.Consultar(i => i.TipoOperacion.ToLower().Contains(filtro.ToLower()) && (FechaIni <= i.Fecha && i.Fecha <= FechaFin));
+                    InventarioDTO movimiento = _mapper.Map<InventarioDTO>(t.inventario);
+                    movimiento.Item = _mapper.Map<ItemDTO>(t.item);
+                    lista.Add(movimiento);
                 }
 
-                var check = _mapper.Map<List<InventarioDTO>>(await consulta.ToListAsync());
-
-                if (check != null) return check;
-                else throw new TaskCanceledException("No se encontraron coincidencias");
+                return lista;
+                */
             }
             catch (Exception ex)
             {
@@ -99,6 +116,23 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }
+
+        public async Task<ItemDTO> ObtenerItem(int IdItem)
+        {
+            try
+            {
+                var respuesta = await _ItemRepository.Consultar(i => i.IdItem == IdItem).FirstOrDefaultAsync();
+                if (respuesta == null) throw new TaskCanceledException("El ítem no fue encontrado");
+
+                return _mapper.Map<ItemDTO>(respuesta);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
         public async Task<InventarioDTO> Registrar(InventarioDTO Transaccion)
         {
             try
@@ -107,7 +141,7 @@ namespace SistemaGS.Service.Implementacion
                 Item auxIt = _mapper.Map<Item>(Transaccion.Item);
                 bool responseDB = await _InventarioRepository.Registrar(auxIn, auxIt);
                 if (responseDB) return Transaccion;
-                else throw new TaskCanceledException("No se pudo crear");
+                else throw new TaskCanceledException("No se pudo realizar la transacción");
             }
             catch (Exception ex)
             {

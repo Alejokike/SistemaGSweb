@@ -5,9 +5,6 @@ using SistemaGS.DTO.Query;
 using SistemaGS.DTO.Responses;
 using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Json;
-using System.Reflection;
-using System.Text.Json;
-using System.Transactions;
 
 namespace SistemaGS.WebAssembly.Services.Implementacion
 {
@@ -18,25 +15,38 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         {
             _httpClient = httpClient;
         }
-        public async Task<ResponseDTO<bool>> Desbloquear(List<InventarioDTO> movimientos, int idAyuda)
+        public async Task<ResponseDTO<List<InventarioDTO>>> Lista(InventarioQuery filtro)
         {
-            var response = await _httpClient.PostAsJsonAsync($"Inventario/Desbloquear/{idAyuda:int}", movimientos);
-            var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
-            return result!;
+            var queryparams = new Dictionary<string, string?>
+            {
+                ["IdItem"] = filtro.IdItem.ToString(),// ?? string.Empty,
+                ["FechaIni"] = filtro.FechaIni.HasValue ? filtro.FechaIni.Value.ToString("yyyy-MM-dd") : null,// ?? string.Empty,
+                ["FechaFin"] = filtro.FechaFin.HasValue ? filtro.FechaFin.Value.ToString("yyyy-MM-dd") : null,// ?? string.Empty,
+                ["filtro"] = filtro.filtro,// ?? string.Empty,
+                ["OrdenarPor"] = filtro.OrdenarPor,// ?? string.Empty,
+                ["Ascendente"] = filtro.Ascendente.ToString(),
+                ["Pagina"] = filtro.Pagina.ToString(),
+                ["PageSize"] = filtro.PageSize.ToString()
+            };
+
+            var url = QueryHelpers.AddQueryString("Inventario/Listar", queryparams);
+
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<InventarioDTO>>>(url))!;
         }
-        public async Task<ResponseDTO<List<InventarioDTO>>> Lista(int IdItem, DateTime? FechaIni = null, DateTime? FechaFin = null, string filtro = "NA")
+        
+        public async Task<ResponseDTO<InventarioDTO>> Obtener(int IdTransaccion)
         {
-            return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<InventarioDTO>>>($"Lista/{IdItem}/{FechaIni}/{FechaFin}/{filtro}"))!;
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<InventarioDTO>>($"Inventario/Obtener/{IdTransaccion}"))!;
         }
         public async Task<ResponseDTO<InventarioRespuesta>> ListarInventario(ItemQuery filtro)
         {
             var queryparams = new Dictionary<string, string?>
             {
-                ["Nombre"] = filtro.Nombre ?? string.Empty,
-                ["Categoria"] = filtro.Categoria ?? string.Empty,
-                ["Buscar"] = filtro.Buscar ?? string.Empty,
-                ["Unidad"] = filtro.Unidad ?? string.Empty,
-                ["OrdenarPor"] = filtro.OrdenarPor ?? string.Empty,
+                ["Nombre"] = filtro.Nombre,// ?? string.Empty,
+                ["Categoria"] = filtro.Categoria,// ?? string.Empty,
+                ["Buscar"] = filtro.Buscar,// ?? string.Empty,
+                ["Unidad"] = filtro.Unidad,// ?? string.Empty,
+                ["OrdenarPor"] = filtro.OrdenarPor,// ?? string.Empty,
                 ["Ascendente"] = filtro.Ascendente.ToString(),
                 ["Pagina"] = filtro.Pagina.ToString(),
                 ["PageSize"] = filtro.PageSize.ToString()
@@ -46,14 +56,20 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
 
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<InventarioRespuesta>>(url))!;
         }
-        public async Task<ResponseDTO<InventarioDTO>> Obtener(int IdTransaccion)
+        public async Task<ResponseDTO<ItemDTO>> ObtenerItem(int IdItem)
         {
-            return (await _httpClient.GetFromJsonAsync<ResponseDTO<InventarioDTO>>($"Inventario/Obtener/{IdTransaccion}"))!;
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<ItemDTO>>($"Inventario/ObtenerItem/{IdItem}"))!;
         }
         public async Task<ResponseDTO<InventarioDTO>> Registrar(InventarioDTO Transaccion)
         {
             var response = await _httpClient.PostAsJsonAsync("Inventario/Registrar", Transaccion);
             var result = await response.Content.ReadFromJsonAsync<ResponseDTO<InventarioDTO>>();
+            return result!;
+        }
+        public async Task<ResponseDTO<bool>> Desbloquear(List<InventarioDTO> movimientos, int idAyuda)
+        {
+            var response = await _httpClient.PostAsJsonAsync($"Inventario/Desbloquear/{idAyuda:int}", movimientos);
+            var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
             return result!;
         }
     }

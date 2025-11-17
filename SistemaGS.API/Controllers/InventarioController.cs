@@ -17,18 +17,34 @@ namespace SistemaGS.API.Controllers
             _inventarioService = inventarioService;
         }
 
-        [HttpGet("Lista/{IdItem:int}/{FechaIni:datetime}/{FechaFin:datetime}/{filtro?}")]
-        public async Task<IActionResult> Lista(int IdItem, DateTime? FechaIni = null, DateTime? FechaFin = null, string filtro = "NA")
+        [HttpGet("Listar")]
+        public async Task<IActionResult> Lista([FromQuery] InventarioQuery filtro)
         {
             var response = new ResponseDTO<List<InventarioDTO>>();
 
             try
             {
-                if (filtro == "NA") filtro = "";
-                if (FechaIni == null) FechaIni = new DateTime(DateTime.Today.Year, 1, 1);
-                if (FechaFin == null) FechaFin = new DateTime(DateTime.Today.Year, 12, 31);
+                filtro.FechaIni ??= new DateTime(DateTime.Today.Year, 1, 1);
+                filtro.FechaFin ??= new DateTime(DateTime.Today.Year, 12, 31);
                 response.EsCorrecto = true;
-                response.Resultado = await _inventarioService.Lista(IdItem, filtro, FechaIni, FechaFin);
+                response.Resultado = await _inventarioService.Lista(filtro);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
+        [HttpGet("Obtener/{idTransaccion:int}")]
+        public async Task<IActionResult> Obtener(int idTransaccion)
+        {
+            var response = new ResponseDTO<InventarioDTO>();
+
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _inventarioService.Obtener(idTransaccion);
             }
             catch (Exception ex)
             {
@@ -61,15 +77,15 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpGet("Obtener/{idTransaccion:int}")]
-        public async Task<IActionResult> Obtener(int idTransaccion)
+        [HttpGet("ObtenerItem/{idItem:int}")]
+        public async Task<IActionResult> ObtenerItem(int idItem)
         {
-            var response = new ResponseDTO<InventarioDTO>();
+            var response = new ResponseDTO<ItemDTO>();
 
             try
             {
                 response.EsCorrecto = true;
-                response.Resultado = await _inventarioService.Obtener(idTransaccion);
+                response.Resultado = await _inventarioService.ObtenerItem(idItem);
             }
             catch (Exception ex)
             {
@@ -78,6 +94,7 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
+
         [HttpPost("Registrar")]
         public async Task<IActionResult> Registrar([FromBody] InventarioDTO Transaccion)
         {

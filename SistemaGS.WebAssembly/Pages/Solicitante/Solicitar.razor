@@ -387,12 +387,15 @@
                 Unidad = i.Unidad
             }).ToList();
             Contador = respuesta.Resultado.contador;
+            double total = ((double)Contador / (double)filtro.PageSize);
+            total = Math.Ceiling(total);
+            filtro.Pagina = total < filtro.Pagina ? Convert.ToInt32(total) : filtro.PageSize;
         }
     }
 
     #endregion
 
-    #region Funcionalidad que no he hecho
+    #region Funcionalidad Solicitar Ayuda
     
     private void SolicitarAyuda()
     {
@@ -407,58 +410,6 @@
             return;
         }
     }
-    /*
-    private async Task SolicitarAyuda()
-    {
-        if (!(await listaService.Listar()).Any())
-        {
-            toastService.ShowWarning("La ayuda no contiene ningún ítem");
-            return;
-            }
-
-        bool respuesta = true;
-        string mensaje = string.Empty;
-
-        if (ID != 0)
-        {
-            var response = await usuarioService.Editar(model);
-            if (response.EsCorrecto)
-            {
-                mensaje = "Usuario modificado";
-                }
-            else
-            {
-                respuesta = false;
-                mensaje = "No se pudo editar";
-                }
-            }
-        else
-        {
-            model.ResetearClave = true;
-            model.FechaCreacion = DateTime.Today;
-            var response = await usuarioService.Crear(model);
-            if (response.EsCorrecto)
-            {
-                mensaje = "Usuario creado";
-                }
-            else
-            {
-                respuesta = false;
-                mensaje = "No se pudo crear";
-                }
-            }
-
-        if (respuesta)
-        {
-            toastService.ShowSuccess(mensaje);
-            _navService.NavigateTo("/Usuarios");
-            }
-        else
-        {
-            toastService.ShowWarning(mensaje);
-            }
-        }
-    */
    #endregion
 
    #region Item

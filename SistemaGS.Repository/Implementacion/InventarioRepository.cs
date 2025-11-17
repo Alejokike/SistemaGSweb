@@ -92,7 +92,6 @@ namespace SistemaGS.Repository.Implementacion
                 }
             }
         }
-
         public async Task<(string, int)> ListarInventario(string q)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
@@ -164,7 +163,6 @@ namespace SistemaGS.Repository.Implementacion
                 }
             }
         }
-
         public async Task<bool> Registrar(Inventario movimiento, Item item)
         {
             using(var transaction = _dbContext.Database.BeginTransaction())
@@ -205,6 +203,8 @@ namespace SistemaGS.Repository.Implementacion
                             }
                         case "DEV":
                             {
+                                if(!await _dbContext.Items.AnyAsync(i => i.IdItem == movimiento.Item)) throw new InvalidOperationException("Operación inválida, no puede deolver un ítem inexistente");
+
                                 var inventario = await _dbContext.Items.Where(i => i.IdItem == movimiento.Item).FirstAsync();
                                 if (inventario.Unidad != movimiento.Unidad || inventario.Cantidad < movimiento.Cantidad) throw new InvalidOperationException("Operación inválida, revise nuevamente");
                                 else inventario.Cantidad -= movimiento.Cantidad;
