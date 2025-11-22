@@ -1,0 +1,125 @@
+﻿@inject IAyudaService ayudaService;
+@inject IToastService toastService;
+@inject NavigationManager navigationManager;
+@inject SweetAlertService Swat;
+
+<div class="table-responsive mt-2">
+    <table class="table table-sm bg-light table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Solicitante</th>
+                <th>Funcionario</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Fecha de Solicitud</th>
+                <th>Fecha de Entrega</th>
+                <th>Detalle</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+    
+            @if (ayudas.Any())
+            {
+                int i = 1;
+                foreach (var item in ayudas)
+                {
+                    <tr>
+                        <td valign="middle" align="center">@(i++)</td>
+                        <td valign="middle" align="center">@item.Solicitante</td>
+                        <td valign="middle" align="center">@item.Funcionario</td>
+                        <td valign="middle" align="center">@item.Categoria</td>
+                        <td valign="middle" align="center">@item.Estado</td>
+                        <td valign="middle" align="center">@item.FechaSolicitud!.Value.ToString("dd/MM/yyyy")</td>
+                        <td valign="middle" align="center">@(item.FechaEntrega!.HasValue ? item.FechaEntrega!.Value.ToString("dd/MM/yyyy") : "Sin Entregar")</td>
+    
+                        <td valign="middle" align="center">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-dark" @onclick="() => CargarAyuda(item.IdAyuda)">
+                                <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </td>
+
+                        <td valign="middle" align="center">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-dark" @onclick="() => Eliminar(item.IdAyuda)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8">
+                        <div class="alert alert-warning" role="alert">
+                            No hay ítems para mostrar
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public List<AyudaDTO> ayudas { get; set; } = new List<AyudaDTO>();
+    //[Parameter] public AyudaQuery filtro { get; set; } = new AyudaQuery();
+
+    protected override void OnParametersSet()
+    {
+        ayudas.Add(new AyudaDTO()
+            {
+                IdAyuda = 1,
+                Funcionario = 1,
+                Solicitante = 20159753,
+                Detalle = "Lorem Ipsum Dolor Sit Amet",
+                Categoria = "otros",
+                ListaItems = new List<ListaItemDTO>(),
+                Estado = "¿¿¿???",
+                FechaSolicitud = DateTime.Today
+            });
+
+        ayudas.ForEach(ayuda => ayuda.ListaItems.Add(new ListaItemDTO()
+        {
+            IdLista = 1,
+            CantidadEntregada = 0,
+            CantidadSolicitada = 1,
+            ItemLista = (new ItemDTO()
+            {
+                IdItem = 1,
+                Nombre = "Sal",
+                Descripcion = "String",
+                Categoria = "Otros",
+                Unidad = "EU"
+            })
+        }));
+    }
+    private void CargarAyuda(int idAyuda)
+    {
+        navigationManager.NavigateTo($"/Ayuda/{idAyuda}");
+    }
+    private async Task Eliminar(int idAyuda)
+    {
+        SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+        {
+            Title = "Aviso",
+            Text = $"¿Seguro de eliminar el registro seleccionado? Esta acción no se puede deshacer",
+            Icon = SweetAlertIcon.Warning,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Si",
+            CancelButtonText = "No"
+        });
+        if (result.IsConfirmed)
+        {
+            var response = await ayudaService.Eliminar(idAyuda);
+            if (response.EsCorrecto) toastService.ShowSuccess("La solicitud fué eliminada");
+            else toastService.ShowWarning($"Error: {response.Mensaje}");
+        }
+    }
+}

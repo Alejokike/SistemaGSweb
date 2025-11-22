@@ -91,7 +91,7 @@ namespace SistemaGS.Repository.Implementacion
                                join r in _dbContext.Rols on u.IdRol equals r.IdRol
                                where
 
-                               (r.IdRol != 0 || r.IdRol == rol) &&
+                               (rol == 0 || r.IdRol.Equals(rol)) &&
 
                                (string.IsNullOrEmpty(filtro) ||
                                         EF.Functions.Like((p.Cedula.ToString() ?? "").ToLower(), filtro) ||

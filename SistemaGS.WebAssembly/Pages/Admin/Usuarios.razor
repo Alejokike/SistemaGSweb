@@ -29,12 +29,12 @@
             </div>
             <div class="col-sm-6 col-md-8 col-xl-9 mb-4">
                 <div class="input-group mb-3">
-                    <select class="form-select" @bind="@rol">
+                    <InputSelect class="form-select" @bind-value="rol">
                         <option value=0 selected>Todos</option>
                         <option value=1>Administrador</option>
                         <option value=2>Funcionario</option>
                         <option value=3>Solicitante</option>
-                    </select>
+                    </InputSelect>
                     <input type="text" class="form-control" placeholder="Buscar usuario..." @bind-value="buscar">
                     <button class="btn btn-outline-secondary" type="button" @onclick="(async () => await ObtenerUsuarios(rol, buscar))">
                         <i class="oi oi-magnifying-glass"></i>

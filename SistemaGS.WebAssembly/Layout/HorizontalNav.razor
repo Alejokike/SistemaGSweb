@@ -10,7 +10,7 @@
             <AuthorizeView>
                 <Authorized>
                     <div class="gap-3">
-                    <strong>Usuario loggeado: </strong>@context.User.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Role)!.Value
+                    <strong>Usuario loggeado: </strong>@context.User.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Name)!.Value
                     </div>
                     <button class="btn btn-outline-dark ms-auto ms-md-0 me-3" type="button" @onclick="CerrarSesion">Salir</button>
                 </Authorized>
@@ -19,6 +19,10 @@
 </nav>
 
 @code{
+    private void MostrarNotificaciones()
+    {
+        
+    }
     private async Task CerrarSesion()
     {
         SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions

@@ -428,9 +428,10 @@
             if (respuesta.Resultado!.contador == 0) return;
             inventario = JsonConvert.DeserializeObject<List<Item>>(respuesta.Resultado.contenido)!;
             Contador = respuesta.Resultado.contador;
-            double total = ((double)Contador / (double)filtro.PageSize);
-            total = Math.Ceiling(total);
-            filtro.Pagina = total < filtro.Pagina ? Convert.ToInt32(total) : filtro.PageSize;
+            filtro.Pagina = 1;
+            //double total = ((double)Contador / (double)filtro.PageSize);
+            //total = Math.Ceiling(total);
+            //filtro.Pagina = filtro.Pagina <= total ? filtro.Pagina : 1;
         }
     }
     private void paginacion(bool atras)
@@ -498,6 +499,7 @@
     {
         movimiento.Item = itemMovimiento;
         movimiento.Unidad = itemMovimiento.Unidad;
+        movimiento.Fecha = DateTime.Today;
 
         var response = await inventarioService.Registrar(movimiento);
 

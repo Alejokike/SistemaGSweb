@@ -17,13 +17,13 @@ namespace SistemaGS.API.Controllers
         }
 
         [HttpGet("Lista/{rol:int}/{buscar?}")]
-        public async Task<IActionResult> Lista(int rol, string buscar = "NA")
+        public async Task<IActionResult> Lista(int rol, string buscar = "N/A")
         {
             var response = new ResponseDTO<List<UsuarioDTO>>();
 
             try
             {
-                if (buscar == "NA") buscar = "";
+                if (buscar == "N/A") buscar = "";
 
                 response.EsCorrecto = true;
                 response.Resultado = await _usuarioService.Lista(rol, buscar);

@@ -1,5 +1,12 @@
-﻿<h3>Historial</h3>
+﻿@page "/Historial"
+@page "/Historial/{ID:int}"
+
+
+
+<h3>Historial</h3>
+
 
 @code {
-
+    [Parameter]
+    public int ID { get; set; }
 }

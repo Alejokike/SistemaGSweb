@@ -346,7 +346,7 @@
     public int ID { get; set; }
 
     private UsuarioDTO model = new UsuarioDTO();
-    
+
     protected override async Task OnParametersSetAsync()
     {
         Ayuda.Solicitante = ID;
@@ -389,7 +389,7 @@
             Contador = respuesta.Resultado.contador;
             double total = ((double)Contador / (double)filtro.PageSize);
             total = Math.Ceiling(total);
-            filtro.Pagina = total < filtro.Pagina ? Convert.ToInt32(total) : filtro.PageSize;
+            filtro.Pagina = 1;
         }
     }
 

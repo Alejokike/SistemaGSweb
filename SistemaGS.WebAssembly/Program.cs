@@ -27,6 +27,7 @@ builder.Services.AddSweetAlert2(options => {
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IInventarioService, InventarioService>();
+builder.Services.AddScoped<IAyudaService, AyudaService>();
 builder.Services.AddScoped<IListaService, ListaService>();
 
 builder.Services.AddAuthorizationCore();

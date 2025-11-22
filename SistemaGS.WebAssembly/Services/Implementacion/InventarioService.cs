@@ -56,9 +56,9 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
 
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<InventarioRespuesta>>(url))!;
         }
-        public async Task<ResponseDTO<ItemDTO>> ObtenerItem(int IdItem)
+        public async Task<ResponseDTO<ItemDTO>> ObtenerItem(int IdItem, string nombre = "NA")
         {
-            return (await _httpClient.GetFromJsonAsync<ResponseDTO<ItemDTO>>($"Inventario/ObtenerItem/{IdItem}"))!;
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<ItemDTO>>($"Inventario/ObtenerItem/{IdItem}/{nombre}"))!;
         }
         public async Task<ResponseDTO<InventarioDTO>> Registrar(InventarioDTO Transaccion)
         {

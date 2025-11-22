@@ -1,0 +1,30 @@
+﻿@page "/Gestionar"
+@page "/Gestionar/{ID:int}"
+
+@using SistemaGS.WebAssembly.Layout.ComponentesAyudas;
+@inject IAyudaService ayudaService;
+@inject IToastService toastService;
+
+<PageTitle>Gestionar Ayudas</PageTitle>
+
+<AyudaComponent />
+
+@code {
+    [Parameter]
+    public int ID { get; set; }
+
+    AyudaQuery filtro = new AyudaQuery();
+    List<AyudaDTO> ListaAyudas = new List<AyudaDTO>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        filtro = new AyudaQuery()
+        {
+            solicitante = ID
+        };
+
+        var response = await ayudaService.Listar(filtro);
+        if (response.EsCorrecto) ListaAyudas = response.Resultado!;
+        else toastService.ShowWarning($"Error: {response.Mensaje}");
+    }
+}

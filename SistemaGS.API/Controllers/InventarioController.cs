@@ -77,15 +77,16 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpGet("ObtenerItem/{idItem:int}")]
-        public async Task<IActionResult> ObtenerItem(int idItem)
+        [HttpGet("ObtenerItem/{idItem:int}/{nombre?}")]
+        public async Task<IActionResult> ObtenerItem(int idItem, string nombre = "N/A")
         {
             var response = new ResponseDTO<ItemDTO>();
 
             try
             {
+                if(nombre == "N/A")
                 response.EsCorrecto = true;
-                response.Resultado = await _inventarioService.ObtenerItem(idItem);
+                response.Resultado = await _inventarioService.ObtenerItem(idItem, nombre);
             }
             catch (Exception ex)
             {

@@ -49,8 +49,8 @@ namespace SistemaGS.Service.Implementacion
                                join i in _ItemRepository.Consultar() on m.Item equals i.IdItem
                                where
                                filtro.FechaIni <= m.Fecha && m.Fecha <= filtro.FechaFin &&
-                               (i.IdItem == 0 || i.IdItem.Equals(filtro.IdItem)) &&
-                               ((filtro.filtro ?? "").ToLower().Contains(m.TipoOperacion.ToLower()) || filtro.filtro == string.Empty)
+                               (filtro.IdItem == 0 || i.IdItem.Equals(filtro.IdItem)) &&
+                               (filtro.filtro == null || (m.TipoOperacion).ToLower().Contains(filtro.filtro.ToLower()))
                                select new InventarioDTO
                                {
                                    IdTransaccion = m.IdTransaccion,
@@ -63,19 +63,6 @@ namespace SistemaGS.Service.Implementacion
                                };
                 if (!(await consulta.AnyAsync())) return new List<InventarioDTO>();
                 return await consulta.ToListAsync();
-                /*
-                var listaRepository = await _InventarioRepository.Listar(JsonConvert.SerializeObject(filtro));
-                List<InventarioDTO> lista = new List<InventarioDTO>();
-
-                foreach(var t in listaRepository)
-                {
-                    InventarioDTO movimiento = _mapper.Map<InventarioDTO>(t.inventario);
-                    movimiento.Item = _mapper.Map<ItemDTO>(t.item);
-                    lista.Add(movimiento);
-                }
-
-                return lista;
-                */
             }
             catch (Exception ex)
             {
@@ -116,12 +103,21 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }
-
-        public async Task<ItemDTO> ObtenerItem(int IdItem)
+        public async Task<ItemDTO> ObtenerItem(int IdItem, string nombre)
         {
             try
             {
-                var respuesta = await _ItemRepository.Consultar(i => i.IdItem == IdItem).FirstOrDefaultAsync();
+                Item? respuesta;
+
+                if(IdItem == 0)
+                {
+                    respuesta = await _ItemRepository.Consultar(i => i.Nombre == nombre).FirstOrDefaultAsync();
+                }
+                else
+                {
+                    respuesta = await _ItemRepository.Consultar(i => i.IdItem == IdItem).FirstOrDefaultAsync();
+                }
+                    
                 if (respuesta == null) throw new TaskCanceledException("El ítem no fue encontrado");
 
                 return _mapper.Map<ItemDTO>(respuesta);
@@ -132,7 +128,6 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }
-
         public async Task<InventarioDTO> Registrar(InventarioDTO Transaccion)
         {
             try

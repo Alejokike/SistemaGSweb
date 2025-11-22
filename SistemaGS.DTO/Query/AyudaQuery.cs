@@ -7,6 +7,7 @@
         public string buscar { get; set; } = "";
         public int solicitante { get; set; } = 0;
         public int funcionario { get; set; } = 0;
+        public string Estado { get; set; } = "";
         public DateTime? FechaIni { get; set; } = null;
         public DateTime? FechaFin { get; set; } = null;
         //propiedades paginación

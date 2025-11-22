@@ -1,5 +1,4 @@
 ﻿@inject IListaService listaService
-@* @implements IDisposable *@
 @inject SweetAlertService swat;
 @inject NavigationManager navigationManager;
 @using SistemaGS.WebAssembly.Extensiones;
@@ -21,24 +20,24 @@
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
                 <!---->
-                <i class="bi bi-house-door-fill p-2" aria-hidden="true"></i>Home
+                <i class="bi bi-house-door-fill me-1" aria-hidden="true"></i>Home
             </NavLink>
         </div>
 
         <AuthorizeView Roles="Administrador">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="GestionarAyudas">
-                    <i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i> GestionarAyudas
+                    <i class="bi bi-clipboard2-check-fill me-1" aria-hidden="true"></i> Gestionar Ayudas
                 </NavLink>
             </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="Usuarios">
-                    <i class="bi bi-person-badge p-2" aria-hidden="true"></i> Usuarios
+                    <i class="bi bi-person-badge me-1" aria-hidden="true"></i> Usuarios
                 </NavLink>
             </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="Historico">
-                    <i class="bi bi-person-badge p-2" aria-hidden="true"></i> Historico de transacciones
+                    <i class="bi bi-clock-history me-1" aria-hidden="true"></i> Histórico de transacciones
                 </NavLink>
             </div>
         </AuthorizeView>
@@ -46,12 +45,12 @@
         <AuthorizeView Roles="Funcionario">
             <div class="nav-item px-3">
                 <NavLink class="nav-link text-center" href="Ayudas">
-                    <i class="bi bi-box2-heart-fill p-2" aria-hidden="true"></i> Gestionar Ayudas
+                    <i class="bi bi-box2-heart-fill me-1" aria-hidden="true"></i> Gestionar Ayudas
                 </NavLink>
             </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link text-center" href="Inventario">
-                    <i class="bi bi-capsule p-2" aria-hidden="true"></i> Inventario
+                    <i class="bi bi-capsule me-1" aria-hidden="true"></i> Inventario
                 </NavLink>
             </div>
         </AuthorizeView>
@@ -63,22 +62,22 @@
             }
             <div class="nav-item px-3">
                 <NavLink class="nav-link text-center" href="@($"Usuario/{@Cedula}")">
-                    <i class="oi oi-people p-2" aria-hidden="true"></i>Perfil
+                    <i class="oi oi-people me-1" aria-hidden="true"></i>Perfil
                 </NavLink>
             </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link text-center" href="@($"Solicitar/{@Cedula}")">
-                    <i class="bi bi-box2-heart-fill p-2" aria-hidden="true"></i>Solicitar Ayuda
+                    <i class="bi bi-box2-heart-fill me-1" aria-hidden="true"></i>Solicitar Ayuda
                 </NavLink>
             </div>
             <div class="nav-item px-3 text-center">
                 <NavLink class="nav-link" href="@($"Gestionar/{@Cedula}")">
-                    <i class="bi bi-box2-heart-fill p-2" aria-hidden="true"></i>Gestionar Ayudas
+                    <i class="bi bi-receipt-cutoff me-1" aria-hidden="true"></i>Gestionar Ayudas
                 </NavLink>
             </div>
             <div class="nav-item px-3 text-center">
-                <NavLink class="nav-link" href="@($"Historico/{@Cedula}")">
-                    <i class="bi bi-box2-heart-fill p-2" aria-hidden="true"></i>
+                <NavLink class="nav-link" href="@($"Historial/{@Cedula}")">
+                    <i class="bi bi-calendar2-heart-fill me-1" aria-hidden="true"></i>Histórico Ayudas
                 </NavLink>
             </div>
         </AuthorizeView>

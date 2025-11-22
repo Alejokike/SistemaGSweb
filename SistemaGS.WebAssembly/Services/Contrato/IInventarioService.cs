@@ -10,7 +10,7 @@ namespace SistemaGS.WebAssembly.Services.Contrato
         Task<ResponseDTO<List<InventarioDTO>>> Lista(InventarioQuery filtro);
         Task<ResponseDTO<InventarioDTO>> Obtener(int IdTransaccion);
         Task<ResponseDTO<InventarioRespuesta>> ListarInventario(ItemQuery filtro);
-        Task<ResponseDTO<ItemDTO>> ObtenerItem(int IdItem);
+        Task<ResponseDTO<ItemDTO>> ObtenerItem(int IdItem, string nombre = "NA");
         Task<ResponseDTO<InventarioDTO>> Registrar(InventarioDTO Transaccion);
         Task<ResponseDTO<bool>> Desbloquear(List<InventarioDTO> movimientos, int idAyuda);
     }

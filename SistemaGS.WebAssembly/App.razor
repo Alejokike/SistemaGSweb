@@ -10,16 +10,16 @@
                         if (context.User.Identity?.IsAuthenticated != true) navManager.NavigateTo("/login");
                         else
                         {
-                            <p class="alert alert-danger">No esta autorizado para ver esta página</p>
+                            <h1 class="alert alert-danger m-5">No esta autorizado para ver esta página</h1>
                         }
                     }
                 </NotAuthorized>
             </AuthorizeRouteView>
         </Found>
         <NotFound>
-            <PageTitle>Not found</PageTitle>
+            <PageTitle>No econtrado</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">No existe esta págia.</p>
+                <h1 class="alert alert-warning m-5" role="alert">ERROR 404: No existe esta página.</h1>
             </LayoutView>
         </NotFound>
     </Router>
