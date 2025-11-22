@@ -3,7 +3,7 @@
 
 @using Newtonsoft.Json;
 @inject IInventarioService inventarioService;
-@inject IListaService listaService;
+@inject IListaAyudaService listaAyuda;
 @inject IToastService toastService;
 @inject NavigationManager _navService;
 @inject AuthenticationStateProvider authenticationStateProvider;
@@ -198,9 +198,9 @@
                         </thead>
                         <tbody>
 
-                            @if (lista.Any())
+                            @if (Ayuda.ListaItems.Any())
                             {
-                                foreach (var item in lista)
+                                foreach (var item in Ayuda.ListaItems)
                                 {
                                     <tr>
                                         <td valign="middle">@item.IdLista</td>
@@ -263,9 +263,10 @@
 
     List<ItemDTO> inventario = new List<ItemDTO>();
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         Ayuda.Solicitante = ID;
+        Ayuda.ListaItems = new List<ListaItemDTO>();
         Ayuda.Estado = "Por Aprobar";
         Ayuda.FechaSolicitud = DateTime.Today;
 
@@ -301,43 +302,32 @@
                 Descripcion = "Exámenes para diagnóstico",
                 Unidad = "MU"
             });
-
-        lista = await listaService.Listar();
     }
 
-    private async Task AgregarItem(ItemDTO i)
-    {
-        item = i;
-        await AgregarItemLista();
-        item = new ItemDTO()
-            {
-                Unidad = "EU"
-            };
-    }
-    private async Task EliminarItem(int id)
-    {
-        await listaService.EliminarLista(id);
-        lista = await listaService.Listar();
-    }
-
-    #region Funcionalidad Solicitar Ayuda
-
+    #region Solicitar Ayuda
     private AyudaDTO Ayuda = new AyudaDTO();
-    private List<ListaItemDTO> lista = new List<ListaItemDTO>();
 
-    private void SolicitarAyuda()
+    private async Task SolicitarAyuda()
     {
-        if (!lista.Any())
+        if (!Ayuda.ListaItems.Any())
         {
             toastService.ShowWarning("La ayuda no contiene ningún ítem");
             return;
         }
-        if (lista.Any(i => i.CantidadSolicitada == 0))
+        if (Ayuda.ListaItems.Any(i => i.CantidadSolicitada == 0))
         {
             toastService.ShowWarning("La ayuda contiene ítems en cero");
             return;
         }
 
+        int id = 0;
+        var ayudas = await listaAyuda.Listar();
+        if (ayudas.Any()) id = ayudas.Max(i => i.IdAyuda);
+        else id = 0;
+
+        Ayuda.IdAyuda = id + 1;
+
+        await listaAyuda.AgregarLista(Ayuda);
     }
     #endregion
 
@@ -347,10 +337,18 @@
     {
         Unidad = "EU"
     };
-
-    private async Task AgregarItemLista()
+    private void AgregarItem(ItemDTO Item)
     {
-        if (lista.Any(i => (i.ItemLista!.Nombre ?? "").ToLower() == item.Nombre.ToLower()))
+        item = Item;
+        AgregarItemLista();
+        item = new ItemDTO()
+        {
+            Unidad = "EU"
+        };
+    }
+    private void AgregarItemLista()
+    {
+        if (Ayuda.ListaItems.Any(i => (i.ItemLista!.Nombre ?? "").ToLower() == item.Nombre.ToLower()))
         {
             toastService.ShowError("El ítem ya esta en la lista");
             return;
@@ -358,20 +356,24 @@
 
         int id = 0;
 
-        if (!lista.Any())
+        if (!Ayuda.ListaItems.Any())
         {
             id = 0;
         }
-        else id = (await listaService.Listar()).Max(i => i.IdLista);
+        else id = Ayuda.ListaItems.Max(i => i.IdLista);
 
-        await listaService.AgregarLista(new ListaItemDTO()
+        Ayuda.ListaItems.Add(new ListaItemDTO()
             {
                 IdLista = (id + 1),
                 ItemLista = item
             });
-        lista = await listaService.Listar();
     }
-    
+    private void EliminarItem(int id)
+    {
+        var response = Ayuda.ListaItems.FirstOrDefault(i => i.IdLista == id);
+        if (response != null) Ayuda.ListaItems.Remove(response);
+    }
+
     private void LimpiarItem()
     {
         item = new ItemDTO()

@@ -2,6 +2,7 @@
 @page "/Ayuda/{IDAyuda:int}"
 
 @inject IAyudaService ayudaService;
+@inject IListaAyudaService listaAyuda;
 @inject IToastService toastService;
 @inject NavigationManager navigationManager;
 
@@ -43,7 +44,17 @@
                         <label class="form-label">Categoría de la ayuda</label>
                         <InputSelect class="form-select" @bind-value="ayuda.Categoria">
                             <option value="" selected>--Seleccione una categoría</option>
-                            <option value="Otros" selected>Otros</option>
+                            <option value="Medicamentos">Medicamentos</option>
+                            <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
+                            <option value="Citas para exámenes de laboratorio">Citas para exámenes de laboratorio</option>
+                            <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
+                            <option value="Prótesis">Prótesis</option>
+                            <option value="Apoyo financiero para cirugías">Apoyo financiero para cirugías</option>
+                            <option value="Utiles escolares">Utiles escolares</option>
+                            <option value="Alimentos">Alimentos</option>
+                            <option value="Financiamiento deportivo">Financiamiento deportivo</option>
+                            <option value="Ayudas funerarias">Ayudas funerarias</option>
+                            <option value="Otros">Otros</option>
                         </InputSelect>
                         <ValidationMessage For="@(() => ayuda.Categoria)" />
                     </div>
@@ -66,16 +77,101 @@
     <div class="col-sm-12">
         <div class="card mb-3">
 
-            <div class="card-header">
-                <div class="text-center text-black">
-                    Seleccione ítems para agregar a la ayuda
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="text-center text-black">
+                        Seleccione ítems para agregar a la ayuda
+                    </div>
+                </div>
+
+                <div class="table-responsive mt-2">
+                    <table class="table table-sm bg-light table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Categoria</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (inventario.Any())
+                            {
+                                int i = 1;
+                                foreach (var item in inventario)
+                                {
+                                    <tr>
+                                        <td valign="middle">@(i++)</td>
+                                        <td valign="middle">@item.Nombre</td>
+                                        <td valign="middle">@item.Categoria</td>
+
+                                        <td valign="middle" align="center">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-outline-dark" @onclick="(() => AgregarItem(item))">
+                                                    <i class="oi oi-plus"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="alert alert-warning" role="alert">
+                                            No hay ítems para mostrar
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="card-body">
-                <SolicitarItem @bind-lista="ayuda.ListaItems" />
-            </div>
+            <div class="card-footer">
 
+                <div class="text-center">
+                    <span class="text-info">¿No encuentras lo que estas buscando?</span>
+                    <button class="btn-outline-secondary" @onclick="(() => agregar = !agregar)">Añadir ítem</button>
+                </div>
+
+                @if (agregar)
+                {
+                    <EditForm Model="item" OnValidSubmit="AgregarItemLista">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="input-group mt-2">
+                            <span class="input-group-text bg-light" id="basic-addon3">Nombre</span>
+                            <InputText class="form-control" @bind-value="item.Nombre" />
+                        </div>
+                        <ValidationMessage For="@(() => item.Nombre)" />
+
+                        <div class="input-group mt-2">
+                            <label class="input-group-text bg-light">Categoría</label>
+                            <InputSelect class="form-select" @bind-value="item.Categoria">
+                                <option value="" selected>--Seleccione una categoría</option>
+                                <option value="Otros">Otros</option>
+                            </InputSelect>
+                        </div>
+                        <ValidationMessage For="@(() => item.Categoria)" />
+
+                        <div class="input-group mt-2">
+                            <span class="input-group-text bg-light" id="basic-addon3">Descripción</span>
+                            <InputTextArea class="form-control" @bind-value="item.Descripcion" />
+                        </div>
+                        <ValidationMessage For="@(() => item.Descripcion)" />
+
+                        <div class="mt-2">
+                            <button type="submit" class="btn btn-primary">Agregar</button>
+                            <button type="reset" class="btn btn-secondary" @onclick="LimpiarItem">Cancelar</button>
+                        </div>
+
+                    </EditForm>
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -134,7 +230,7 @@
                                         </td>
 
                                         <td valign="middle">
-                                            <button type="button" class="btn btn-outline-dark" @onclick="(async () => ayuda.ListaItems.Remove(item))">
+                                            <button type="button" class="btn btn-outline-dark" @onclick="(() => EliminarItem(item.IdLista))">
                                                 <i class="oi oi-trash"></i>
                                             </button>
                                         </td>
@@ -167,41 +263,115 @@
     [Parameter]
     public int IDAyuda { get; set; }
 
-    AyudaQuery filtro = new AyudaQuery();
     AyudaDTO ayuda = new AyudaDTO();
 
     protected override async Task OnParametersSetAsync()
     {
+        /*
         var response = await ayudaService.Obtener(IDAyuda);
         if (response.EsCorrecto) ayuda = response.Resultado!;
         else toastService.ShowError($"Error: {response.Mensaje}");
+        */
 
-        ayuda = new AyudaDTO()
-            {
-                Funcionario = 1,
-                Solicitante = 20159753,
-                Detalle = "Lorem Ipsum Dolor Sit Amet",
-                Categoria = "Otros",
-                ListaItems = new List<ListaItemDTO>(),
-                Estado = "¿¿¿???",
-                FechaSolicitud = DateTime.Today
-            };
+        inventario.Add(new ItemDTO()
+        {
+            IdItem = 1,
+            Nombre = "Financiamiento",
+            Categoria = "Financiamiento",
+            Descripcion = "Fondos para una actividad concreta",
+            Unidad = "VE"
+        });
+        inventario.Add(new ItemDTO()
+        {
+            IdItem = 2,
+            Nombre = "Consulta médica",
+            Categoria = "Estudios médicos",
+            Descripcion = "Consulta con un doctor de imasur",
+            Unidad = "MU"
+        });
+        inventario.Add(new ItemDTO()
+        {
+            IdItem = 3,
+            Nombre = "Exámenes de laboratorio",
+            Categoria = "Estudios médicos",
+            Descripcion = "Exámenes para estudios",
+            Unidad = "MU"
+        });
+        inventario.Add(new ItemDTO()
+        {
+            IdItem = 4,
+            Nombre = "Exámenes de diagnóstico",
+            Categoria = "Estudios médicos",
+            Descripcion = "Exámenes para diagnóstico",
+            Unidad = "MU"
+        });
+
+        var response = await listaAyuda.Listar();
+        if (response == null)
+        {
+            navigationManager.NavigateTo("/");
+            return;
+        } 
+
+        if (response!.Any(a => a.IdAyuda == IDAyuda)) ayuda = response!.FirstOrDefault(a => a.IdAyuda == IDAyuda)!;
+        else navigationManager.NavigateTo("/");
+    }
+    #region Inventario
+
+    List<ItemDTO> inventario = new List<ItemDTO>();
+
+    #endregion
+    #region item
+    private bool agregar = false;
+    ItemDTO item = new ItemDTO()
+    {
+        Unidad = "EU"
+    };
+    private void AgregarItem(ItemDTO i)
+    {
+        item = i;
+        AgregarItemLista();
+        item = new ItemDTO()
+        {
+            Unidad = "EU"
+        };
+    }
+    private void EliminarItem(int id)
+    {
+        var response = ayuda.ListaItems.FirstOrDefault(i => i.IdLista == id);
+        if (response != null) ayuda.ListaItems.Remove(response);
+    }
+    private void AgregarItemLista()
+    {
+        if (ayuda.ListaItems.Any(i => (i.ItemLista!.Nombre ?? "").ToLower() == item.Nombre.ToLower()))
+        {
+            toastService.ShowError("El ítem ya esta en la lista");
+            return;
+        }
+
+        int id = 0;
+
+        if (!ayuda.ListaItems.Any())
+        {
+            id = 0;
+        }
+        else id = ayuda.ListaItems.Max(i => i.IdLista);
+
         ayuda.ListaItems.Add(new ListaItemDTO()
         {
-            IdLista = 1,
-            CantidadEntregada = 0,
-            CantidadSolicitada = 1,
-            ItemLista = (new ItemDTO()
-            {
-                IdItem = 1,
-                Nombre = "Sal",
-                Descripcion = "String",
-                Categoria = "Otros",
-                Unidad = "EU"
-            })
+            IdLista = (id + 1),
+            ItemLista = item
         });
     }
 
+    private void LimpiarItem()
+    {
+        item = new ItemDTO()
+        {
+            Unidad = "EU"
+        };
+        agregar = !agregar;
+    }
     private decimal Limitar(ChangeEventArgs e, ListaItemDTO item)
     {
         if (decimal.TryParse(e.Value?.ToString(), out decimal valor))
@@ -210,6 +380,8 @@
         }
         return 0;
     }
+    #endregion
+    #region Ayuda
     private async Task EditarAyuda()
     {
         if (!ayuda.ListaItems.Any())
@@ -218,8 +390,13 @@
             return;
         }
 
+        await listaAyuda.AgregarLista(ayuda);
+
+        /*
         var response = await ayudaService.Editar(ayuda);
         if (response.EsCorrecto) toastService.ShowSuccess("Ayuda editada correctamente");
         else toastService.ShowWarning($"Error: {response.Mensaje}");
+        */
     }
+    #endregion
 }

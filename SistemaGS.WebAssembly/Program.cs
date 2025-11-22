@@ -29,6 +29,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IAyudaService, AyudaService>();
 builder.Services.AddScoped<IListaService, ListaService>();
+builder.Services.AddScoped<IListaAyudaService, ListaAyudaService>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, AutExt>();

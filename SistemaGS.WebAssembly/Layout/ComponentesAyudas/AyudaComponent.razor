@@ -1,4 +1,5 @@
 ﻿@inject IAyudaService ayudaService;
+@inject IListaAyudaService listaAyuda;
 @inject IToastService toastService;
 @inject NavigationManager navigationManager;
 @inject SweetAlertService Swat;
@@ -22,11 +23,10 @@
     
             @if (ayudas.Any())
             {
-                int i = 1;
                 foreach (var item in ayudas)
                 {
                     <tr>
-                        <td valign="middle" align="center">@(i++)</td>
+                        <td valign="middle" align="center">@item.IdAyuda</td>
                         <td valign="middle" align="center">@item.Solicitante</td>
                         <td valign="middle" align="center">@item.Funcionario</td>
                         <td valign="middle" align="center">@item.Categoria</td>
@@ -44,7 +44,10 @@
 
                         <td valign="middle" align="center">
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-outline-dark" @onclick="() => Eliminar(item.IdAyuda)">
+                                @{
+                                    bool? disable = item.Estado == "Por Aprobar" ? null : true;
+                                }
+                                <button type="button" class="btn btn-outline-dark" disabled="@disable" @onclick="() => Eliminar(item.IdAyuda)">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -69,37 +72,7 @@
 
 @code {
     [Parameter] public List<AyudaDTO> ayudas { get; set; } = new List<AyudaDTO>();
-    //[Parameter] public AyudaQuery filtro { get; set; } = new AyudaQuery();
 
-    protected override void OnParametersSet()
-    {
-        ayudas.Add(new AyudaDTO()
-            {
-                IdAyuda = 1,
-                Funcionario = 1,
-                Solicitante = 20159753,
-                Detalle = "Lorem Ipsum Dolor Sit Amet",
-                Categoria = "otros",
-                ListaItems = new List<ListaItemDTO>(),
-                Estado = "¿¿¿???",
-                FechaSolicitud = DateTime.Today
-            });
-
-        ayudas.ForEach(ayuda => ayuda.ListaItems.Add(new ListaItemDTO()
-        {
-            IdLista = 1,
-            CantidadEntregada = 0,
-            CantidadSolicitada = 1,
-            ItemLista = (new ItemDTO()
-            {
-                IdItem = 1,
-                Nombre = "Sal",
-                Descripcion = "String",
-                Categoria = "Otros",
-                Unidad = "EU"
-            })
-        }));
-    }
     private void CargarAyuda(int idAyuda)
     {
         navigationManager.NavigateTo($"/Ayuda/{idAyuda}");
@@ -117,9 +90,12 @@
         });
         if (result.IsConfirmed)
         {
+            await listaAyuda.EliminarLista(idAyuda);
+            /*
             var response = await ayudaService.Eliminar(idAyuda);
             if (response.EsCorrecto) toastService.ShowSuccess("La solicitud fué eliminada");
             else toastService.ShowWarning($"Error: {response.Mensaje}");
+            */
         }
     }
 }
