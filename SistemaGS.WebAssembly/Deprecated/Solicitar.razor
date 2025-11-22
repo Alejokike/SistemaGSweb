@@ -1,5 +1,5 @@
-﻿@page "/Solicitar"
-@page "/Solicitar/{ID:int}"
+﻿@page "/DSolicitar"
+@page "/DSolicitar/{ID:int}"
 
 @using Newtonsoft.Json;
 @inject IInventarioService inventarioService;
@@ -39,21 +39,12 @@
                         <InputTextArea class="form-control form-control-sm" placeholder="Ingrese la necesidad para ortorgar esta ayuda" @bind-value="Ayuda.Detalle"/>
                         <ValidationMessage For="@(() => Ayuda.Detalle)" />
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Categoría de la ayuda</label>
                         <InputSelect class="form-select" @bind-value="Ayuda.Categoria">
                             <option value="" selected>--Seleccione una categoría</option>
-                            <option value="Medicamentos">Medicamentos</option>
-                            <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
-                            <option value="Citas para exámenes de laboratorio">Citas para exámenes de laboratorio</option>
-                            <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
-                            <option value="Prótesis">Prótesis</option>
-                            <option value="Apoyo financiero para cirugías">Apoyo financiero para cirugías</option>
-                            <option value="Utiles escolares">Utiles escolares</option>
-                            <option value="Alimentos">Alimentos</option>
-                            <option value="Financiamiento deportivo">Financiamiento deportivo</option>
-                            <option value="Ayudas funerarias">Ayudas funerarias</option>
-                            <option value="Otros">Otros</option>
+                            <option value="Otros" selected>Otros</option>
                         </InputSelect>
                         <ValidationMessage For="@(() => Ayuda.Categoria)" />
                     </div>
@@ -82,52 +73,143 @@
                 </div>
             </div>
 
-            <div class="table-responsive mt-2">
-                <table class="table table-sm bg-light table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Categoria</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (inventario.Any())
-                        {
-                            int i = 1;
-                            foreach (var item in inventario)
+            <div class="card-body">
+                <EditForm Model="filtro" OnValidSubmit="ListarInventario">
+                <div class="d-flex gap-3 mt-3">
+                    <div class="form-row mt-1">
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Nombre</label>
+                            <InputText class="form-control" @bind-value="filtro.Nombre">
+                            </InputText>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Categoria)" />
+
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Categoría</label>
+                            <InputSelect class="form-select" @bind-value="filtro.Categoria">
+                                <option value="" selected>--Cualquiera</option>
+                                <option value="Otros">Otros</option>
+                            </InputSelect>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Categoria)" />
+                    </div>
+
+                    <div class="form-row mt-1">
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Descripción</label>
+                            <InputText class="form-control" @bind-value="filtro.Buscar">
+                            </InputText>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Buscar)" />
+
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Unidad</label>
+                            <InputSelect class="form-select" @bind-value="filtro.Unidad">
+                                <option value="" selected>--Cualquiera</option>
+                                <option value="EU">Unidad Estándar</option>
+                                <option value="MU">Unidad Médica</option>
+                                <option value="VE">Bolívares Fuertes</option>
+                            </InputSelect>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Unidad)" />
+                    </div>
+
+                    <div class="form-row mt-1">
+                        <InputRadioGroup class="d-flex gap-3" @bind-value="filtro.Ascendente">
+                            <div class="form-check form-check-inline">
+                                <InputRadio class="form-check-input" value="true" />
+                                <label class="form-check-label">ascendente</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <InputRadio class="form-check-input" value="false" />
+                                <label class="form-check-label">descendente</label>
+                            </div>
+                        </InputRadioGroup>
+                        <ValidationMessage For="@(() => filtro.Ascendente)" />
+
+                        <div class="input-group mt-1">
+                            <label class="input-group-text bg-light">Ordenar por</label>
+                            <InputSelect class="form-select" @bind-value="filtro.Unidad">
+                                <option value="" selected>--Cualquiera</option>
+                                <option value="Nombre">Nombre</option>
+                                <option value="Categoria">Categoría</option>
+                                <option value="Buscar">Descripción</option>
+                                <option value="Unidad">Unidad</option>
+                            </InputSelect>
+                        </div>
+                        <ValidationMessage For="@(() => filtro.Unidad)" />
+                    </div>
+                </div>
+                <div class="flex-xxl-column gap-3 mt-3">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="oi oi-magnifying-glass"></i> Aplicar filtros
+                    </button>
+                    @**@
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-dark" type="button" @onclick="(() => {if(filtro.Pagina > 1) filtro.Pagina--;})">
+                            <i class="bi bi-arrow-left-short"></i>Atrás
+                        </button>
+                        <input class="form-control text-center" type="number" style="width:50px" readonly @bind="filtro.Pagina" />
+                        <button class="btn btn-outline-dark" type="button" @onclick="(() => {if(filtro.Pagina < (Contador/filtro.PageSize)) filtro.Pagina++;})">
+                            Siguiente<i class="bi bi-arrow-right-short"></i>
+                        </button>
+                    </div>
+                </div>
+                </EditForm>
+
+                <div class="table-responsive mt-2">
+                    <table class="table table-sm bg-light table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Categoria</th>
+                                <th>Unidad</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @if (inventario.Any())
+                            {
+                                int i = 1;
+                                foreach (var item in inventario)
+                                {
+                                    <tr>
+                                        <td valign="middle">@(i++)</td>
+                                        <td valign="middle">@item.Nombre</td>
+                                        <td valign="middle">@item.Categoria</td>
+                                        <td valign="middle">@item.Unidad</td>
+
+                                        <td valign="middle" align="center">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-outline-dark" @onclick="(() => {
+                                                    lista.Add(
+                                                        new ListaItemDTO(){
+                                                        ItemLista = item
+                                                    });
+                                                })">
+                                                <i class="oi oi-plus"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
                             {
                                 <tr>
-                                    <td valign="middle">@(i++)</td>
-                                    <td valign="middle">@item.Nombre</td>
-                                    <td valign="middle">@item.Categoria</td>
-
-                                    <td valign="middle" align="center">
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-outline-dark" @onclick="(() => AgregarItem(item))">
-                                            <i class="oi oi-plus"></i>
-                                            </button>
+                                    <td colspan="5">
+                                        <div class="alert alert-warning" role="alert">
+                                            No hay ítems para mostrar
                                         </div>
                                     </td>
                                 </tr>
                             }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="4">
-                                    <div class="alert alert-warning" role="alert">
-                                        No hay ítems para mostrar
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
-        </div>
 
             <div class="card-footer">
             
@@ -151,8 +233,7 @@
                         <div class="input-group mt-2">
                             <label class="input-group-text bg-light">Categoría</label>
                             <InputSelect class="form-select" @bind-value="item.Categoria">
-                                <option value="" selected>--Seleccione una categoría</option>
-                                <option value="Otros">Otros</option>
+                                <option value="Otros" selected>Otros</option>
                             </InputSelect>
                         </div>
                         <ValidationMessage For="@(() => item.Categoria)" />
@@ -171,8 +252,9 @@
                     </EditForm>
                 }
 
-        </div>
+            </div>
 
+        </div>
     </div>
 </div>
 
@@ -200,8 +282,10 @@
 
                             @if (lista.Any())
                             {
+                                int i = 1;
                                 foreach (var item in lista)
                                 {
+                                    item.IdLista = i++;
                                     <tr>
                                         <td valign="middle">@item.IdLista</td>
                                         <td valign="middle">@item.ItemLista!.Nombre</td>
@@ -228,7 +312,7 @@
                                         </td>
 
                                         <td valign="middle">
-                                            <button type="button" class="btn btn-outline-dark" @onclick="(() => EliminarItem(item.IdLista))">
+                                            <button type="button" class="btn btn-outline-dark" @onclick="(async () => lista.Remove(item))">
                                                 <i class="oi oi-trash"></i>
                                             </button>
                                         </td>
@@ -261,7 +345,7 @@
     [Parameter]
     public int ID { get; set; }
 
-    List<ItemDTO> inventario = new List<ItemDTO>();
+    private UsuarioDTO model = new UsuarioDTO();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -269,62 +353,50 @@
         Ayuda.Estado = "Por Aprobar";
         Ayuda.FechaSolicitud = DateTime.Today;
 
-        inventario.Add(new ItemDTO()
-            {
-                IdItem = 1,
-                Nombre = "Financiamiento",
-                Categoria = "Financiamiento",
-                Descripcion = "Fondos para una actividad concreta",
-                Unidad = "VE"
-            });
-        inventario.Add(new ItemDTO()
-            {
-                IdItem = 2,
-                Nombre = "Consulta médica",
-                Categoria = "Estudios médicos",
-                Descripcion = "Consulta con un doctor de imasur",
-                Unidad = "MU"
-            });
-        inventario.Add(new ItemDTO()
-            {
-                IdItem = 3,
-                Nombre = "Exámenes de laboratorio",
-                Categoria = "Estudios médicos",
-                Descripcion = "Exámenes para estudios",
-                Unidad = "MU"
-            });
-        inventario.Add(new ItemDTO()
-            {
-                IdItem = 4,
-                Nombre = "Exámenes de diagnóstico",
-                Categoria = "Estudios médicos",
-                Descripcion = "Exámenes para diagnóstico",
-                Unidad = "MU"
-            });
-
-        lista = await listaService.Listar();
+        await ListarInventario();
     }
 
-    private async Task AgregarItem(ItemDTO i)
-    {
-        item = i;
-        await AgregarItemLista();
-        item = new ItemDTO()
-            {
-                Unidad = "EU"
-            };
-    }
-    private async Task EliminarItem(int id)
-    {
-        await listaService.EliminarLista(id);
-        lista = await listaService.Listar();
-    }
-
-    #region Funcionalidad Solicitar Ayuda
-
+    //Elementos formulario ayuda
     private AyudaDTO Ayuda = new AyudaDTO();
     private List<ListaItemDTO> lista = new List<ListaItemDTO>();
 
+    #region Query Item
+
+    private List<ItemDTO> inventario = new List<ItemDTO>();
+    private int Contador = 0;
+    private ItemQuery filtro = new ItemQuery()
+    {
+       Ascendente = true,
+       Pagina = 1,
+       PageSize = 20
+    };
+
+    private async Task ListarInventario()
+    {
+        var respuesta = await inventarioService.ListarInventario(filtro);
+        if (respuesta.EsCorrecto)
+        {
+            if (respuesta.Resultado!.contador == 0) return;
+            inventario = JsonConvert.DeserializeObject<List<Item>>(respuesta.Resultado.contenido)!
+            .Select(i => new ItemDTO()
+            {
+                IdItem = i.IdItem,
+                Nombre = i.Nombre,
+                Categoria = i.Categoria,
+                Descripcion = i.Descripcion,
+                Unidad = i.Unidad
+            }).ToList();
+            Contador = respuesta.Resultado.contador;
+            double total = ((double)Contador / (double)filtro.PageSize);
+            total = Math.Ceiling(total);
+            filtro.Pagina = 1;
+        }
+    }
+
+    #endregion
+
+    #region Funcionalidad Solicitar Ayuda
+    
     private void SolicitarAyuda()
     {
         if (!lista.Any())
@@ -334,44 +406,33 @@
         }
         if (lista.Any(i => i.CantidadSolicitada == 0))
         {
-            toastService.ShowWarning("La ayuda contiene ítems en cero");
+            toastService.ShowWarning("La ayuda no contiene ítems en cero");
             return;
         }
-
     }
-    #endregion
+   #endregion
 
-    #region Item
+   #region Item
+   //Elementos formulario item
     private bool agregar = false;
     ItemDTO item = new ItemDTO()
     {
         Unidad = "EU"
     };
 
-    private async Task AgregarItemLista()
+    //Logia formulario ítem
+    private void AgregarItemLista()
     {
         if (lista.Any(i => (i.ItemLista!.Nombre ?? "").ToLower() == item.Nombre.ToLower()))
         {
             toastService.ShowError("El ítem ya esta en la lista");
             return;
         }
-
-        int id = 0;
-
-        if (!lista.Any())
-        {
-            id = 0;
-        }
-        else id = (await listaService.Listar()).Max(i => i.IdLista);
-
-        await listaService.AgregarLista(new ListaItemDTO()
-            {
-                IdLista = (id + 1),
-                ItemLista = item
-            });
-        lista = await listaService.Listar();
+        lista.Add(new ListaItemDTO() 
+        { 
+            ItemLista = item 
+        });
     }
-    
     private void LimpiarItem()
     {
         item = new ItemDTO()
@@ -389,4 +450,14 @@
         return 0;
     }
     #endregion
+
+    public partial class Item
+    {
+        public int IdItem { get; set; }
+        public string Nombre { get; set; } = null!;
+        public string? Categoria { get; set; }
+        public string Descripcion { get; set; } = null!;
+        public string? Unidad { get; set; }
+        public decimal? Cantidad { get; set; }
+    }
 }

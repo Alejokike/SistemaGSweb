@@ -18,7 +18,7 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
             _toastService = toastService;
         }
 
-        public event Action MostrarItems;
+        //public event Action MostrarItems;
 
         public async Task AgregarLista(ListaItemDTO item)
         {
@@ -27,7 +27,8 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
                 List<ListaItemDTO>? lista = await _localStorageService.GetItemAsync<List<ListaItemDTO>>("Lista");
                 if (lista == null) lista = new List<ListaItemDTO>();
 
-                var encontrado = lista.FirstOrDefault(i => i.ItemLista!.IdItem == item.ItemLista!.IdItem);
+                //var encontrado = lista.FirstOrDefault(i => i.ItemLista!.IdItem == item.ItemLista!.IdItem);
+                var encontrado = lista.FirstOrDefault(i => i.IdLista == item.IdLista);
 
                 if (encontrado != null) lista.Remove(encontrado);
 
@@ -37,7 +38,7 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
                 if (encontrado != null) _toastService.ShowSuccess("El ítem fué actualizado en la lista");
                 else _toastService.ShowSuccess("El ítem fué añadido en la lista");
 
-                MostrarItems.Invoke();
+                //MostrarItems.Invoke();
             }
             catch (Exception ex)
             {
@@ -64,9 +65,8 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
                         lista.Remove(item);
                         await _localStorageService.SetItemAsync("Lista", lista);
                         _toastService.ShowSuccess("El ítem fué eliminado de la lista");
-                        MostrarItems.Invoke();
+                        //MostrarItems.Invoke();
                     } 
-                    
                 }
             }
             catch (Exception ex)
@@ -78,7 +78,7 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         public async Task LimpiarLista()
         {
             await _localStorageService.RemoveItemAsync("Lista");
-            MostrarItems.Invoke();
+            //MostrarItems.Invoke();
         }
         public async Task<List<ListaItemDTO>> Listar()
         {

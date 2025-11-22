@@ -4,7 +4,7 @@ namespace SistemaGS.WebAssembly.Services.Contrato
 {
     public interface IListaService
     {
-        event Action MostrarItems;
+        //event Action MostrarItems;
         int CantidadItems();
         Task AgregarLista(ListaItemDTO item);
         Task EliminarLista(int idLista);
