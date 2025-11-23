@@ -1,4 +1,4 @@
-﻿using SistemaGS.DTO;
+﻿using SistemaGS.DTO.Responses;
 
 namespace SistemaGS.WebAssembly.Services.Contrato
 {
@@ -6,9 +6,9 @@ namespace SistemaGS.WebAssembly.Services.Contrato
     {
         //event Action MostrarItems;
         int CantidadItems();
-        Task AgregarLista(ListaItemDTO item);
-        Task EliminarLista(int idLista);
-        Task<List<ListaItemDTO>> Listar();
+        Task AgregarLista(ItemInventario item);
+        Task EliminarLista(int id);
+        Task<List<ItemInventario>> Listar();
         Task LimpiarLista();
     }
 }

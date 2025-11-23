@@ -46,6 +46,7 @@
                             <option value="Medicamentos">Medicamentos</option>
                             <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
                             <option value="Citas para exámenes de laboratorio">Citas para exámenes de laboratorio</option>
+                            <option value="Citas para exámenes de diagnóstico">Citas para exámenes de diagnóstico</option>
                             <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
                             <option value="Prótesis">Prótesis</option>
                             <option value="Apoyo financiero para cirugías">Apoyo financiero para cirugías</option>
@@ -314,9 +315,9 @@
             toastService.ShowWarning("La ayuda no contiene ningún ítem");
             return;
         }
-        if (Ayuda.ListaItems.Any(i => i.CantidadSolicitada == 0))
+        if (Ayuda.ListaItems.Any(i => i.CantidadSolicitada <= 0))
         {
-            toastService.ShowWarning("La ayuda contiene ítems en cero");
+            toastService.ShowWarning("La ayuda contiene ítems en cero o en negativo");
             return;
         }
 
@@ -328,6 +329,8 @@
         Ayuda.IdAyuda = id + 1;
 
         await listaAyuda.AgregarLista(Ayuda);
+
+        _navService.NavigateTo("/");
     }
     #endregion
 
@@ -386,7 +389,8 @@
     {
         if(decimal.TryParse(e.Value?.ToString(), out decimal valor))
         {
-            return Math.Round(valor, 2);
+            decimal val = Math.Round(valor, 2);
+            return val > 0 ? val : -val;
         }
         return 0;
     }

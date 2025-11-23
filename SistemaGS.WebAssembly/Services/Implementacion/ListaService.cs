@@ -1,6 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.Toast.Services;
-using SistemaGS.DTO;
+using SistemaGS.DTO.Responses;
 using SistemaGS.WebAssembly.Services.Contrato;
 
 namespace SistemaGS.WebAssembly.Services.Implementacion
@@ -20,15 +20,15 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
 
         //public event Action MostrarItems;
 
-        public async Task AgregarLista(ListaItemDTO item)
+        public async Task AgregarLista(ItemInventario item)
         {
             try
             {
-                List<ListaItemDTO>? lista = await _localStorageService.GetItemAsync<List<ListaItemDTO>>("Lista");
-                if (lista == null) lista = new List<ListaItemDTO>();
+                List<ItemInventario>? lista = await _localStorageService.GetItemAsync<List<ItemInventario>>("Lista");
+                if (lista == null) lista = new List<ItemInventario>();
 
                 //var encontrado = lista.FirstOrDefault(i => i.ItemLista!.IdItem == item.ItemLista!.IdItem);
-                var encontrado = lista.FirstOrDefault(i => i.IdLista == item.IdLista);
+                var encontrado = lista.FirstOrDefault(i => i.IdItem == item.IdItem);
 
                 if (encontrado != null) lista.Remove(encontrado);
 
@@ -49,17 +49,17 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         }
         public int CantidadItems()
         {
-            var lista = _syncLocalStorageService.GetItem<List<ListaItemDTO>>("Lista");
+            var lista = _syncLocalStorageService.GetItem<List<ItemInventario>>("Lista");
             return lista == null ? 0 : lista.Count();
         }
         public async Task EliminarLista(int idLista)
         {
             try
             {
-                var lista = await _localStorageService.GetItemAsync<List<ListaItemDTO>>("Lista");
+                var lista = await _localStorageService.GetItemAsync<List<ItemInventario>>("Lista");
                 if (lista != null)
                 {
-                    var item = lista.FirstOrDefault(i => i.IdLista == idLista);
+                    var item = lista.FirstOrDefault(i => i.IdItem == idLista);
                     if (item != null)
                     {
                         lista.Remove(item);
@@ -80,10 +80,10 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
             await _localStorageService.RemoveItemAsync("Lista");
             //MostrarItems.Invoke();
         }
-        public async Task<List<ListaItemDTO>> Listar()
+        public async Task<List<ItemInventario>> Listar()
         {
-            var lista = await _localStorageService.GetItemAsync<List<ListaItemDTO>>("Lista");
-            if (lista == null) lista = new List<ListaItemDTO>();
+            var lista = await _localStorageService.GetItemAsync<List<ItemInventario>>("Lista");
+            if (lista == null) lista = new List<ItemInventario>();
             return lista;
         }
     }

@@ -8,18 +8,14 @@
 
 @using SistemaGS.WebAssembly.Pages.Solicitante.ComponentesSolicitante;
 
-@attribute [Authorize(Roles = "Administrador, Funcionario, Solicitante")]
+@attribute [Authorize(Roles = "Funcionario, Solicitante")]
 
 <PageTitle>Ayuda</PageTitle>
 
 <AuthorizeView>
     <Authorized>
         @{
-            int IdLogged = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
-            string rolLogged = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)!.Value ?? "";
-            bool ValFun = rolLogged == "Funcionario" && IdLogged == ayuda.Funcionario;
-            bool ValSol = rolLogged == "Solicitante" && IdLogged == ayuda.Solicitante;
-            if (!ValFun && !ValSol) navigationManager.NavigateTo($"/Usuario/{IdLogged}");
+            cedula = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
         }
     </Authorized>
 </AuthorizeView>
@@ -61,7 +57,7 @@
 
                     <div class="mt-3">
                         <div class="d-grid gap-1">
-                            <button class="btn btn-outline-primary float-end" type="submit">Editar</button>
+                            <button class="btn btn-outline-primary float-end" type="submit" disabled="@disable">Editar</button>
                         </div>
                     </div>
 
@@ -197,7 +193,6 @@
                             </tr>
                         </thead>
                         <tbody>
-
                             @if (ayuda.ListaItems.Any())
                             {
                                 int i = 1;
@@ -248,7 +243,6 @@
                                     </td>
                                 </tr>
                             }
-
                         </tbody>
                     </table>
                 </div>
@@ -263,9 +257,15 @@
     [Parameter]
     public int IDAyuda { get; set; }
 
-    AyudaDTO ayuda = new AyudaDTO();
+    int cedula = 0;
+    string? disable = "true";
 
-    protected override async Task OnParametersSetAsync()
+    AyudaDTO ayuda = new AyudaDTO()
+    {
+        ListaItems = new List<ListaItemDTO>()    
+    };
+
+    protected override async Task OnInitializedAsync()
     {
         /*
         var response = await ayudaService.Obtener(IDAyuda);
@@ -273,7 +273,7 @@
         else toastService.ShowError($"Error: {response.Mensaje}");
         */
 
-        inventario.Add(new ItemDTO()
+                        inventario.Add(new ItemDTO()
         {
             IdItem = 1,
             Nombre = "Financiamiento",
@@ -307,14 +307,15 @@
         });
 
         var response = await listaAyuda.Listar();
-        if (response == null)
-        {
-            navigationManager.NavigateTo("/");
-            return;
-        } 
-
         if (response!.Any(a => a.IdAyuda == IDAyuda)) ayuda = response!.FirstOrDefault(a => a.IdAyuda == IDAyuda)!;
         else navigationManager.NavigateTo("/");
+
+        bool ValFun = ayuda.Funcionario == cedula;
+        bool ValSol = ayuda.Solicitante == cedula;
+        if (!ValFun && !ValSol) navigationManager.NavigateTo("/");
+
+        disable = ayuda.Estado != "Por Aprobar" ? "true" : null;
+
     }
     #region Inventario
 
@@ -376,7 +377,8 @@
     {
         if (decimal.TryParse(e.Value?.ToString(), out decimal valor))
         {
-            return Math.Round(valor, 2);
+            decimal val = Math.Round(valor, 2);
+            return val > 0 ? val : -val;
         }
         return 0;
     }
@@ -384,14 +386,24 @@
     #region Ayuda
     private async Task EditarAyuda()
     {
+        if(ayuda.Estado != "Por Aprobar")
+        {
+            toastService.ShowInfo("¿Que esperabas que sucediera?");
+            return;
+        }
         if (!ayuda.ListaItems.Any())
         {
             toastService.ShowWarning("No hay ningún ítem en la lista");
             return;
         }
-
+        if (ayuda.ListaItems.Any(i => i.CantidadSolicitada <= 0))
+        {
+            toastService.ShowWarning("La ayuda contiene ítems en cero o en negativo");
+            return;
+        }
         await listaAyuda.AgregarLista(ayuda);
 
+        navigationManager.NavigateTo($"/Gestionar/{cedula}");
         /*
         var response = await ayudaService.Editar(ayuda);
         if (response.EsCorrecto) toastService.ShowSuccess("Ayuda editada correctamente");

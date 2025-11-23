@@ -1,5 +1,219 @@
-﻿<h3>Aprobar</h3>
+﻿@page "/Aprobar"
+@page "/Aprobar/{IDAyuda:int}"
+
+@inject IUsuarioService usuarioService;
+@inject IAyudaService ayudaService;
+@inject IListaAyudaService listaAyuda;
+@inject IToastService toastService;
+@inject NavigationManager navigationManager;
+@inject SweetAlertService Swat;
+
+<div class="d-flex flex-column min-vh-90">
+@* Formulario Ayuda *@
+    <div class="flex-grow-1">
+        <div class="row-cols-12 mt-3">
+            <div class="col-sm-12">
+                <div class="card mb-3">
+                    <div class="card-body">
+        
+                        <div>
+        
+                            <div class="mb-3">
+                                <label class="form-label">Detalle y observaciones de la ayuda</label>
+                                <div class="form-control">@ayuda.Detalle</div>
+                            </div>
+        
+                            <div class="mb-3">
+                                <label class="form-label">Categoría de la ayuda</label>
+                                <InputSelect class="form-select" @bind-value="ayuda.Categoria">
+                                    <option value="" selected>--Seleccione una categoría</option>
+                                    <option value="Medicamentos">Medicamentos</option>
+                                    <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
+                                    <option value="Citas para exámenes de laboratorio">Citas para exámenes de laboratorio</option>
+                                    <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
+                                    <option value="Prótesis">Prótesis</option>
+                                    <option value="Apoyo financiero para cirugías">Apoyo financiero para cirugías</option>
+                                    <option value="Utiles escolares">Utiles escolares</option>
+                                    <option value="Alimentos">Alimentos</option>
+                                    <option value="Financiamiento deportivo">Financiamiento deportivo</option>
+                                    <option value="Ayudas funerarias">Ayudas funerarias</option>
+                                    <option value="Otros">Otros</option>
+                                </InputSelect>
+                            </div>
+
+                            <div class="mb=3">
+                                <label class="form-label">Funcionario a cargo</label>
+                                <InputNumber class="form-control" placeholder="Ingrese la cédula del funcionario que se va a encargar de procesar la ayuda" @bind-value="ayuda.Funcionario" />
+                            </div>
+        
+                        </div>
+        
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        @* Lista Items *@
+        
+        <div class="row-cols-12 mt-4">
+        
+            <div class="col-sm-12">
+                <div class="card mb-3">
+        
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm bg-light table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th class="text-center">ID</th>
+                                        <th class="text-center">Nombre</th>
+                                        <th class="text-center">Categoria</th>
+                                        <th class="text-center">Unidad</th>
+                                        <th class="text-center">Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ayuda.ListaItems.Any())
+                                    {
+                                        int i = 1;
+                                        foreach (var item in ayuda.ListaItems)
+                                        {
+                                            item.IdLista = i++;
+                                            <tr>
+                                                <td valign="middle">@item.IdLista</td>
+                                                <td valign="middle">@item.ItemLista!.Nombre</td>
+                                                <td valign="middle">@item.ItemLista!.Categoria</td>
+                                                <td valign="middle">@item.ItemLista!.Unidad</td>
+                                                <td valign="middle" align="center">@item.CantidadSolicitada</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="5">
+                                                <div class="alert alert-warning" role="alert">
+                                                    No hay productos en la lista
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+        
+                </div>
+            </div>
+        
+        </div>
+    </div>
+
+    <div class="bg-light p-3 mt-5">
+        <div class="d-flex justify-content-center align-items-center gap-5">
+            <button class="btn btn-success" style="width: 500px" @onclick="AprobarAyuda">@boton</button>
+            <button class="btn btn-danger" style="width: 500px" @onclick="RechazarAyuda">Rechazar</button>
+        </div>
+    </div>
+
+</div>
 
 @code {
+    [Parameter]
+    public int IDAyuda { get; set; }
 
+    string boton = "Aprobar";
+
+    AyudaDTO ayuda = new AyudaDTO();
+
+    protected override void OnInitialized()
+    {
+        ayuda.ListaItems = new List<ListaItemDTO>();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var lista = await listaAyuda.Listar();
+        if (!lista.Any(a => a.IdAyuda == IDAyuda))
+        {
+            navigationManager.NavigateTo("/Ayudas");
+            return;
+        }
+        var response = lista.FirstOrDefault(a => a.IdAyuda == IDAyuda);
+        if (response != null) ayuda = response;
+        else navigationManager.NavigateTo("/Ayudas");
+
+        boton = ayuda.Estado == "Por Aprobar" ? "Aprobar" : "Revocar Aprobación";
+    }
+
+    private async Task AprobarAyuda()
+    {
+        ayuda.Estado = ayuda.Estado == "Por Aprobar" ? "En Proceso" : "Por Aprobar";
+        if(ayuda.Estado == "En Proceso")
+        {
+            var response = await usuarioService.Obtener(ayuda.Funcionario);
+            if (response.Resultado != null)
+            {
+                var funcionario = response.Resultado;
+                if (funcionario.Rol.IdRol == 2 && funcionario.Activo) ayuda.Funcionario = response.Resultado!.Cedula;
+                else
+                {
+                    toastService.ShowWarning("La ayuda debe de ser asignada a un funcionario activo");
+                    return;
+                } 
+                await listaAyuda.AgregarLista(ayuda);
+                navigationManager.NavigateTo("/Ayudas");
+                return;
+            }
+            toastService.ShowWarning("El usuario ingresado no existe");
+            return;
+        }
+        if(ayuda.ListaItems.Any(a => a.CantidadEntregada > 0))
+        {
+            toastService.ShowWarning("No se puede revocar la aprobación de una ayuda con stock");
+            return;
+        }
+        ayuda.Funcionario = 0;
+        await listaAyuda.AgregarLista(ayuda);
+        navigationManager.NavigateTo("/Ayudas");
+    }
+    private async Task RechazarAyuda()
+    {
+        if (ayuda.Estado == "Por Aprobar")
+        {
+            SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+            {
+                Title = "Aviso",
+                Text = $"¿Rechazar solicitud? Esta acción no se puede deshacer",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Si",
+                CancelButtonText = "No"
+            });
+            if (result.IsConfirmed)
+            {
+                ayuda.Estado = "Rechazada";
+                ayuda.FechaEntrega = DateTime.Today;
+                await listaAyuda.AgregarLista(ayuda);
+                navigationManager.NavigateTo("/Ayudas");
+                return;
+                /*
+                var response = await ayudaService.Eliminar(idAyuda);
+                if (response.EsCorrecto) toastService.ShowSuccess("La solicitud fué eliminada");
+                else toastService.ShowWarning($"Error: {response.Mensaje}");
+                */
+            }
+        }
+        else
+        {
+            SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+            {
+                Title = "Error",
+                Text = $"No puede rechazar una ayuda en proceso, comuniquese con el funcionario a cargo",
+                Icon = SweetAlertIcon.Error,
+                ShowCancelButton = false,
+                ConfirmButtonText = "Cerrar"
+            });
+        }
+    }
 }
