@@ -1,6 +1,7 @@
 ﻿@page "/Register"
 @layout LoginLayout
 
+@inject IListaService listaUsuarios;
 @inject IUsuarioService _usuarioService;
 @inject NavigationManager navManager;
 @inject IToastService _toastService;
@@ -191,6 +192,7 @@
 
         if (response.EsCorrecto)
         {
+            await listaUsuarios.AgregarLista(model);
             _toastService.ShowSuccess("Su cuenta ha sido Creada");
             navManager.NavigateTo("/login");
         }

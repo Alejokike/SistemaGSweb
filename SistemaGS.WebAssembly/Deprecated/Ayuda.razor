@@ -1,11 +1,10 @@
 ﻿@page "/DAyuda"
 @page "/DAyuda/{IDAyuda:int}"
+@using SistemaGS.WebAssembly.Services.RealServices
 
 @inject IAyudaService ayudaService;
 @inject IToastService toastService;
 @inject NavigationManager navigationManager;
-
-@using SistemaGS.WebAssembly.Pages.Solicitante.ComponentesSolicitante;
 
 @attribute [Authorize(Roles = "Administrador, Funcionario, Solicitante")]
 
@@ -73,7 +72,6 @@
             </div>
 
             <div class="card-body">
-                <SolicitarItem @bind-lista="ayuda.ListaItems" />
             </div>
 
         </div>

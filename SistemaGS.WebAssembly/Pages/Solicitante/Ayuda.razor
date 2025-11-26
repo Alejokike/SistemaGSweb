@@ -1,12 +1,11 @@
 ﻿@page "/Ayuda"
 @page "/Ayuda/{IDAyuda:int}"
+@using SistemaGS.WebAssembly.Services.RealServices
 
 @inject IAyudaService ayudaService;
 @inject IListaAyudaService listaAyuda;
 @inject IToastService toastService;
 @inject NavigationManager navigationManager;
-
-@using SistemaGS.WebAssembly.Pages.Solicitante.ComponentesSolicitante;
 
 @attribute [Authorize(Roles = "Funcionario, Solicitante")]
 
@@ -273,7 +272,7 @@
         else toastService.ShowError($"Error: {response.Mensaje}");
         */
 
-                        inventario.Add(new ItemDTO()
+        inventario.Add(new ItemDTO()
         {
             IdItem = 1,
             Nombre = "Financiamiento",

@@ -2,6 +2,7 @@
 
 @inject IUsuarioService usuarioService
 @inject IToastService toastService;
+@inject IListaService listaUsuarios;
 @inject SweetAlertService swat;
 @inject AuthenticationStateProvider authenticationStateProvider;
 
@@ -100,6 +101,8 @@
         var response = await usuarioService.Lista(rol, valor);
         if (response.EsCorrecto) Lista = (List<UsuarioDTO>) response.Resultado!;
         else Lista = new List<UsuarioDTO>();
+
+        await listaUsuarios.CargarLista(Lista);
     }
 
     protected override async Task OnInitializedAsync()
@@ -130,6 +133,7 @@
             var response = await usuarioService.Eliminar(model.Cedula);
             if (response.EsCorrecto)
             {
+                await listaUsuarios.EliminarLista(model.Cedula);
                 await ObtenerUsuarios();
                 toastService.ShowSuccess("Usuario eliminado");
             }

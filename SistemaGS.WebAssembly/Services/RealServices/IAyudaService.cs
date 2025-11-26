@@ -2,7 +2,7 @@
 using SistemaGS.DTO;
 using SistemaGS.DTO.Query;
 
-namespace SistemaGS.WebAssembly.Services.Contrato
+namespace SistemaGS.WebAssembly.Services.RealServices
 {
     public interface IAyudaService
     {

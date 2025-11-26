@@ -1,32 +1,36 @@
-﻿@page "/Aprobar"
-@page "/Aprobar/{IDAyuda:int}"
-@using SistemaGS.WebAssembly.Services.RealServices
+﻿@page "/ValidarAyuda"
+@page "/ValidarAyuda/{idAyuda:int}"
 
-@inject IUsuarioService usuarioService;
-@inject IAyudaService ayudaService;
+@using SistemaGS.WebAssembly.Extensiones;
+
 @inject IListaAyudaService listaAyuda;
-@inject IToastService toastService;
+@inject IListaInventarioService inventarioService;
 @inject NavigationManager navigationManager;
+@inject IToastService toastService;
 @inject SweetAlertService Swat;
 
+<PageTitle>Validar Ayuda</PageTitle>
+
+<h3>Validar Ayuda</h3>
+
 <div class="d-flex flex-column min-vh-90">
-@* Formulario Ayuda *@
+    @* Formulario Ayuda *@
     <div class="flex-grow-1">
         <div class="row-cols-12 mt-3">
             <div class="col-sm-12">
                 <div class="card mb-3">
                     <div class="card-body">
-        
+
                         <div>
-        
+
                             <div class="mb-3">
                                 <label class="form-label">Detalle y observaciones de la ayuda</label>
-                                <div class="form-control">@ayuda.Detalle</div>
+                                <InputTextArea class="form-control" @bind-value="ayuda.Detalle"/>
                             </div>
-        
+
                             <div class="mb-3">
                                 <label class="form-label">Categoría de la ayuda</label>
-                                <InputSelect class="form-select" @bind-value="ayuda.Categoria">
+                                <InputSelect class="form-select" readonly @bind-value="ayuda.Categoria">
                                     <option value="" selected>--Seleccione una categoría</option>
                                     <option value="Medicamentos">Medicamentos</option>
                                     <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
@@ -46,31 +50,33 @@
                                 <label class="form-label">Funcionario a cargo</label>
                                 <InputNumber class="form-control" min="0" placeholder="Ingrese la cédula del funcionario que se va a encargar de procesar la ayuda" @bind-value="ayuda.Funcionario" />
                             </div>
-        
+
                         </div>
-        
+
                     </div>
                 </div>
             </div>
         </div>
-        
+
         @* Lista Items *@
-        
+
         <div class="row-cols-12 mt-4">
-        
+
             <div class="col-sm-12">
                 <div class="card mb-3">
-        
+
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-sm bg-light table-bordered">
                                 <thead class="table-dark">
                                     <tr>
                                         <th class="text-center">ID</th>
+                                        <th class="text-center">Código ítem</th>
                                         <th class="text-center">Nombre</th>
                                         <th class="text-center">Categoria</th>
                                         <th class="text-center">Unidad</th>
                                         <th class="text-center">Cantidad</th>
+                                        <th class="text-center">Validar</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -82,10 +88,19 @@
                                             item.IdLista = i++;
                                             <tr>
                                                 <td valign="middle">@item.IdLista</td>
+                                                <td valign="middle">
+                                                    <InputNumber min="0" @bind-value="item.ItemLista!.IdItem" />
+                                                </td>
                                                 <td valign="middle">@item.ItemLista!.Nombre</td>
                                                 <td valign="middle">@item.ItemLista!.Categoria</td>
                                                 <td valign="middle">@item.ItemLista!.Unidad</td>
                                                 <td valign="middle" align="center">@item.CantidadSolicitada</td>
+
+                                                <td align="center">
+                                                    <button @onclick="() => ValidarItem(item)">
+                                                        <i class="bi bi-cloud-check"></i>
+                                                    </button>
+                                                </td>
                                             </tr>
                                         }
                                     }
@@ -103,17 +118,16 @@
                             </table>
                         </div>
                     </div>
-        
+
                 </div>
             </div>
-        
+
         </div>
     </div>
 
     <div class="bg-light p-3 mt-5">
         <div class="d-flex justify-content-center align-items-center gap-5">
-            <button class="@color" style="width: 500px" @onclick="AprobarAyuda">@boton</button>
-            <button class="btn btn-danger" style="width: 500px" @onclick="RechazarAyuda">Rechazar</button>
+            <button class="btn btn-info" style="width: 500px" @onclick="Guardar">Reasignar ítems</button>
         </div>
     </div>
 
@@ -121,10 +135,7 @@
 
 @code {
     [Parameter]
-    public int IDAyuda { get; set; }
-
-    string boton = "Aprobar";
-    string color = "btn btn-success";
+    public int idAyuda { get; set; }
 
     AyudaDTO ayuda = new AyudaDTO();
 
@@ -136,102 +147,64 @@
     protected override async Task OnParametersSetAsync()
     {
         var lista = await listaAyuda.Listar();
-        if (!lista.Any(a => a.IdAyuda == IDAyuda))
-        {
-            navigationManager.NavigateTo("/Ayudas");
-            return;
-        }
-        var response = lista.FirstOrDefault(a => a.IdAyuda == IDAyuda);
-        if (response != null) ayuda = response;
-        else navigationManager.NavigateTo("/Ayudas");
+        if (lista == null) navigationManager.NavigateTo("/");
+        var response = lista!.FirstOrDefault();
+        if (response == null) navigationManager.NavigateTo("/");
 
-        if (ayuda.Estado == "Por Aprobar")
-        {
-            boton = "Aprobar";
-            color = "btn btn-success";
-        }
-        else
-        {
-            boton = "Revocar Aprobación";
-            color = "btn btn-primary";
-        }
+        ayuda = response!;
     }
 
-    private async Task AprobarAyuda()
+    private async Task ValidarItem(ListaItemDTO item)
     {
-        ayuda.Estado = ayuda.Estado == "Por Aprobar" ? "En Proceso" : "Por Aprobar";
-        if(ayuda.Estado == "En Proceso")
-        {
-            /*var response = await usuarioService.Obtener(ayuda.Funcionario);
-            if (response.Resultado != null)
-            {
-                var funcionario = response.Resultado;
-                if (funcionario.Rol.IdRol == 2 && funcionario.Activo) ayuda.Funcionario = response.Resultado!.Cedula;
-                else
-                {
-                    toastService.ShowWarning("La ayuda debe de ser asignada a un funcionario activo");
-                    return;
-                    }*/ 
-                if(ayuda.Funcionario == 0)
-                {
-                    ayuda.Estado = "Por Aprobar";
-                    toastService.ShowWarning("El funcionario ingresado no existe");
-                    return;
-                }
-                await listaAyuda.AgregarLista(ayuda);
-                navigationManager.NavigateTo("/Ayudas");
-                return;
-            //}
-            //toastService.ShowWarning("El funcionario ingresado no existe");
-            //return;
-        }
-        if(ayuda.ListaItems.Any(a => a.CantidadEntregada > 0))
-        {
-            ayuda.Estado = "En Proceso";
-            toastService.ShowWarning("No se puede revocar la aprobación de una ayuda con stock");
-            return;
-        }
-        ayuda.Funcionario = 0;
-        await listaAyuda.AgregarLista(ayuda);
-        navigationManager.NavigateTo("/Ayudas");
-    }
-    private async Task RechazarAyuda()
-    {
-        if (ayuda.Estado == "Por Aprobar")
+        var inventario = await inventarioService.ListarInventario();
+
+        var Recuperado = inventario
+        .OrderBy(i => Utilidades.CalcularDistanciaLevenshtein(i.Nombre.ToLower(), item.ItemLista!.Nombre))
+        .FirstOrDefault();
+
+        if(Recuperado == null)
         {
             SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
             {
-                Title = "Aviso",
-                Text = $"¿Rechazar solicitud? Esta acción no se puede deshacer",
-                Icon = SweetAlertIcon.Warning,
+                Title = "No se encontraron coincidencias",
+                Text = $"Valide su inventario o cree una instancia nueva del ítem",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = false,
+                ConfirmButtonText = "Cerrar",
+            });
+        }
+        else
+        {
+            SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+            {
+                Title = "Existe una coincidencia en el inventario",
+                Html = $"Corregir ítem con:<br/>Nombre: {Recuperado.Nombre}<br/>Categoría: {Recuperado.Categoria}",
                 ShowCancelButton = true,
-                ConfirmButtonText = "Si",
-                CancelButtonText = "No"
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar"
             });
             if (result.IsConfirmed)
             {
-                ayuda.Estado = "Rechazada";
-                ayuda.FechaEntrega = DateTime.Today;
-                await listaAyuda.AgregarLista(ayuda);
-                navigationManager.NavigateTo("/Ayudas");
-                return;
-                /*
-                var response = await ayudaService.Eliminar(idAyuda);
-                if (response.EsCorrecto) toastService.ShowSuccess("La solicitud fué eliminada");
-                else toastService.ShowWarning($"Error: {response.Mensaje}");
-                */
+                ayuda.ListaItems.Remove(item);
+                ayuda.ListaItems.Add(new ListaItemDTO
+                {
+                    IdLista = item.IdLista,
+                    ItemLista = new ItemDTO
+                    {
+                        IdItem = Recuperado.IdItem,
+                        Nombre = Recuperado.Nombre,
+                        Categoria = Recuperado.Categoria,
+                        Unidad = Recuperado.Unidad,
+                        Descripcion = Recuperado.Descripcion
+                    },
+                    CantidadSolicitada = item.CantidadSolicitada,
+                    CantidadEntregada = item.CantidadEntregada
+                });
             }
         }
-        else
-        {
-            SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
-            {
-                Title = "Error",
-                Text = $"No puede rechazar una ayuda en proceso, comuniquese con el funcionario a cargo",
-                Icon = SweetAlertIcon.Error,
-                ShowCancelButton = false,
-                ConfirmButtonText = "Cerrar"
-            });
-        }
+    }
+    private void Guardar()
+    {
+        
     }
 }

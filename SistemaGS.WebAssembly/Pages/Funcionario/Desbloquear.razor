@@ -1,0 +1,19 @@
+﻿@page "/Desbloquear"
+@page "/Desbloquear/{IDAyuda:int}"
+<h3>Desbloquear</h3>
+
+@code {
+    [Parameter]
+    public int IDAyuda { get; set; }
+
+    AyudaDTO ayuda = new AyudaDTO();
+
+    protected override void OnInitialized()
+    {
+        ayuda.ListaItems = new List<ListaItemDTO>();
+    }
+    protected override Task OnParametersSetAsync()
+    {
+        return base.OnParametersSetAsync();
+    }
+}

@@ -11,6 +11,6 @@ namespace SistemaGS.DTO.ModelDTO
         public string Categoria { get; set; } = "";
         [Required(ErrorMessage = "Ingrese más información")]
         public string Descripcion { get; set; } = null!;
-        public string? Unidad { get; set; } = "EU";
+        public string Unidad { get; set; } = "EU";
     }
 }

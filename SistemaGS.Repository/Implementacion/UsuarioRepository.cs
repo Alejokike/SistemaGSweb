@@ -137,7 +137,7 @@ namespace SistemaGS.Repository.Implementacion
                                     r
                                 }).FirstOrDefaultAsync();
 
-                    if (temp.u == null || temp.p == null || temp.r == null) throw new InvalidDataException("No hay coincidencias");
+                    if (temp!.u == null || temp.p == null || temp.r == null) throw new InvalidDataException("No hay coincidencias");
 
                     (Usuario usuario, Persona persona, Rol rol) t = (usuario: temp.u, persona: temp.p, rol: temp.r);
 

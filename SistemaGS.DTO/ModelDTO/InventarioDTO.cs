@@ -12,7 +12,7 @@ namespace SistemaGS.DTO.ModelDTO
         public string? Unidad { get; set; }
         [Required(ErrorMessage = "Ingrese una cantidad")]
         [Range(0, double.MaxValue, ErrorMessage = "El valor no puede ser negativo")]
-        public decimal? Cantidad { get; set; }
+        public decimal Cantidad { get; set; }
         [Required(ErrorMessage = "Ingrese concepto")]
         public string? Concepto { get; set; }
         public DateTime? Fecha { get; set; }

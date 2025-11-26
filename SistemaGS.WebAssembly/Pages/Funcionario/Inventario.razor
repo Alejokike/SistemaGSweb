@@ -1,6 +1,7 @@
 ﻿@page "/Inventario"
+@using SistemaGS.DTO.Responses
 
-@using System.Text.RegularExpressions
+@inject IListaInventarioService listaInventarioService;
 @inject IInventarioService inventarioService;
 @inject IToastService toastService;
 @inject NavigationManager _navService;
@@ -33,262 +34,258 @@
                 @if (activeTab == "inventario")
                 {
                     <div class="card-header">
-                <h4 class="text-center text-black">
-                    Inventario
-                </h4>
-                </div>
+                        <h4 class="text-center text-black">
+                            Inventario
+                        </h4>
+                    </div>
 
                     <div class="card-body">
-                <EditForm Model="filtro" OnValidSubmit="ListarInventario">
-                <div class="d-flex gap-3 mt-3">
-                    <div class="form-row mt-1">
-                        <div class="input-group mt-1">
-                            <label class="input-group-text bg-light">Nombre</label>
-                            <InputText class="form-control" @bind-value="filtro.Nombre">
-                            </InputText>
-                        </div>
-                        <ValidationMessage For="@(() => filtro.Categoria)" />
+                        <EditForm Model="filtro" OnValidSubmit="ListarInventario">
+                            <div class="d-flex gap-3 mt-3">
+                                <div class="form-row mt-1">
+                                    <div class="input-group mt-1">
+                                        <label class="input-group-text bg-light">Nombre</label>
+                                        <InputText class="form-control" @bind-value="filtro.Nombre" />
+                                    </div>
+                                    <ValidationMessage For="@(() => filtro.Nombre)" />
 
-                            <div class="input-group mt-1">
-                            <label class="input-group-text bg-light">Categoría</label>
-                            <InputSelect class="form-select" @bind-value="filtro.Categoria">
-                                <option value="" selected>--Cualquiera</option>
-                                <option value="Otros">Otros</option>
-                            </InputSelect>
-                        </div>
-                        <ValidationMessage For="@(() => filtro.Categoria)" />
-                    </div>
+                                    <div class="input-group mt-1">
+                                        <label class="input-group-text bg-light">Categoría</label>
+                                        <InputSelect class="form-select" @bind-value="filtro.Categoria">
+                                            <option value="" selected>--Cualquiera</option>
+                                            <option value="Otros">Otros</option>
+                                        </InputSelect>
+                                    </div>
+                                    <ValidationMessage For="@(() => filtro.Categoria)" />
+                                </div>
 
-                        <div class="form-row mt-1">
-                        <div class="input-group mt-1">
-                            <label class="input-group-text bg-light">Descripción</label>
-                            <InputText class="form-control" @bind-value="filtro.Buscar">
-                            </InputText>
-                        </div>
-                        <ValidationMessage For="@(() => filtro.Buscar)" />
+                                <div class="form-row mt-1">
+                                    <div class="input-group mt-1">
+                                        <label class="input-group-text bg-light">Descripción</label>
+                                        <InputText class="form-control" @bind-value="filtro.Buscar">
+                                        </InputText>
+                                    </div>
+                                    <ValidationMessage For="@(() => filtro.Buscar)" />
 
-                            <div class="input-group mt-1">
-                            <label class="input-group-text bg-light">Unidad</label>
-                            <InputSelect class="form-select" @bind-value="filtro.Unidad">
-                                <option value="" selected>--Cualquiera</option>
-                                <option value="EU">Unidad Estándar</option>
-                                <option value="MU">Unidad Médica</option>
-                                <option value="VE">Bolívares Fuertes</option>
-                            </InputSelect>
-                        </div>
-                        <ValidationMessage For="@(() => filtro.Unidad)" />
-                    </div>
+                                    
+                                    <div class="input-group mt-1">
+                                        <label class="input-group-text bg-light">Unidad</label>
+                                        <InputSelect class="form-select" @bind-value="filtro.Unidad">
+                                            <option value="" selected>--Cualquiera</option>
+                                            <option value="EU">Unidad Estándar</option>
+                                            <option value="MU">Unidad Médica</option>
+                                            <option value="VE">Bolívares Fuertes</option>
+                                        </InputSelect>
+                                    </div>
+                                    <ValidationMessage For="@(() => filtro.Unidad)" />
+                                </div>
 
-                        <div class="form-row mt-1">
-                        <InputRadioGroup class="d-flex gap-3" @bind-value="filtro.Ascendente">
-                            <div class="form-check form-check-inline">
-                                <InputRadio class="form-check-input" value="true" />
-                                <label class="form-check-label">ascendente</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <InputRadio class="form-check-input" value="false" />
-                                <label class="form-check-label">descendente</label>
-                            </div>
-                        </InputRadioGroup>
-                        <ValidationMessage For="@(() => filtro.Ascendente)" />
-
-                            <div class="input-group mt-1">
-                            <label class="input-group-text bg-light">Ordenar por</label>
-                            <InputSelect class="form-select" @bind-value="filtro.Unidad">
-                                <option value="" selected>--Cualquiera</option>
-                                <option value="Nombre">Nombre</option>
-                                <option value="Categoria">Categoría</option>
-                                <option value="Buscar">Descripción</option>
-                                <option value="Unidad">Unidad</option>
-                            </InputSelect>
-                        </div>
-                        <ValidationMessage For="@(() => filtro.Unidad)" />
-                    </div>
-                </div>
-
-                <div class="flex-xxl-column gap-3 mt-3 mb-3">
-                    <button class="btn btn-outline-secondary" type="submit">
-                        <i class="oi oi-magnifying-glass"></i> Aplicar filtros
-                    </button>
-
-                    <div class="btn-group" role="group">
-                        <button class="btn btn-outline-dark" type="button" @onclick="() => paginacion(true)">
-                            <i class="bi bi-arrow-left-short"></i>Atrás
-                        </button>
-                        <input class="form-control text-center" type="number" style="width:100px" readonly @bind="filtro.Pagina" />
-                        <button class="btn btn-outline-dark" type="button" @onclick="() => paginacion(false)">
-                            Siguiente<i class="bi bi-arrow-right-short"></i>
-                        </button>
-                    </div>
-                </div>
-
-                </EditForm>
-
-                    <div class="table-responsive mt-2">
-                    <table class="table table-sm bg-light table-bordered">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Categoria</th>
-                                <th>Unidad</th>
-                                <th>Cantidad</th>
-                                <th>Añadir</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                                @if (inventario.Any())
-                            {
-                                foreach (var item in inventario)
-                                {
-                                    <tr>
-                                        <td valign="middle">@item.IdItem</td>
-                                        <td valign="middle">@item.Nombre</td>
-                                        <td valign="middle">@item.Categoria</td>
-                                        <td valign="middle">@item.Unidad</td>
-                                        <td valign="middle" align="center">@(item.Unidad=="VE" ? Math.Round((decimal) item.Cantidad!, 2) : Math.Round((decimal) item.Cantidad!, 0))</td>
-                                        <td valign="middle" align="center">
-                                            <button type="button" class="btn btn-outline-dark" 
-                                            @onclick="@(
-                                                () => {
-                                                    itemMovimiento = new ItemDTO() {
-                                                    IdItem = item.IdItem,
-                                                    Nombre = item.Nombre,
-                                                    Categoria = item.Categoria,
-                                                    Unidad = item.Unidad,
-                                                    Descripcion = item.Descripcion
-                                                    };
-                                                    agregar = false; toastService.ShowSuccess("Datos Cargados");
-                                                })">
-                                                <i class="bi bi-pencil-square text-primary fs-5"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="6">
-                                        <div class="alert alert-warning" role="alert">
-                                            No hay ítems para mostrar
+                                <div class="form-row mt-1">
+                                    <InputRadioGroup class="d-flex gap-3" @bind-value="filtro.Ascendente">
+                                        <div class="form-check form-check-inline">
+                                            <InputRadio class="form-check-input" value="true" />
+                                            <label class="form-check-label">ascendente</label>
                                         </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                                        <div class="form-check form-check-inline">
+                                            <InputRadio class="form-check-input" value="false" />
+                                            <label class="form-check-label">descendente</label>
+                                        </div>
+                                    </InputRadioGroup>
+                                    <ValidationMessage For="@(() => filtro.Ascendente)" />
 
-                </div>
+                                    <div class="input-group mt-1">
+                                        <label class="input-group-text bg-light">Ordenar por</label>
+                                        <InputSelect class="form-select" @bind-value="filtro.Unidad">
+                                            <option value="" selected>--Cualquiera</option>
+                                            <option value="Nombre">Nombre</option>
+                                            <option value="Categoria">Categoría</option>
+                                            <option value="Buscar">Descripción</option>
+                                            <option value="Unidad">Unidad</option>
+                                        </InputSelect>
+                                    </div>
+                                    <ValidationMessage For="@(() => filtro.Unidad)" />
+                                </div>
+                            </div>
+
+                            <div class="flex-column gap-3 mt-3 mb-3">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="oi oi-magnifying-glass"></i> Aplicar filtros
+                                </button>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-outline-dark" type="button" @onclick="() => paginacion(true)">
+                                        <i class="bi bi-arrow-left-short"></i>Atrás
+                                    </button>
+                                    <input class="form-control text-center" type="number" style="width:100px" readonly @bind="filtro.Pagina" />
+                                    <button class="btn btn-outline-dark" type="button" @onclick="() => paginacion(false)">
+                                        Siguiente<i class="bi bi-arrow-right-short"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </EditForm>
+
+                        <div class="table-responsive mt-2">
+                            <table class="table table-sm bg-light table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Categoria</th>
+                                        <th>Unidad</th>
+                                        <th>Cantidad</th>
+                                        <th>Añadir</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                        @if (inventario.Any())
+                                    {
+                                        foreach (var item in inventario)
+                                        {
+                                            <tr>
+                                                <td valign="middle">@item.IdItem</td>
+                                                <td valign="middle">@item.Nombre</td>
+                                                <td valign="middle">@item.Categoria</td>
+                                                <td valign="middle">@item.Unidad</td>
+                                                <td valign="middle" align="center">@(item.Unidad=="VE" ? Math.Round((decimal) item.Cantidad!, 2) : Math.Round((decimal) item.Cantidad!, 0))</td>
+                                                <td valign="middle" align="center">
+                                                    <button type="button" class="btn btn-outline-dark" 
+                                                    @onclick="@(
+                                                        () => {
+                                                            itemMovimiento = new ItemDTO() {
+                                                            IdItem = item.IdItem,
+                                                            Nombre = item.Nombre,
+                                                            Categoria = item.Categoria!,
+                                                            Unidad = item.Unidad,
+                                                            Descripcion = item.Descripcion
+                                                            };
+                                                            agregar = false; toastService.ShowSuccess("Datos Cargados");
+                                                        })">
+                                                        <i class="bi bi-pencil-square text-primary fs-5"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="6">
+                                                <div class="alert alert-warning" role="alert">
+                                                    No hay ítems para mostrar
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
                 }
                 else
                 {
                     <div class="card-header">
-                    <h4 class="text-center text-black">
-                        Histórico Inventario
-                    </h4>
+                        <h4 class="text-center text-black">
+                            Histórico Inventario
+                        </h4>
                     </div>
 
                     <div class="card-body">
-                    <EditForm Model="busqueda" OnValidSubmit="HistoricoInventario">
+                        <EditForm Model="busqueda" OnValidSubmit="HistoricoInventario">
 
-                        <div class="form-row mt-2">
-                            <div class="input-group col-md-6 mt-1">
-                                <label class="input-group-text bg-light">ID ítem</label>
-                                <InputNumber min="0" class="form-control" @bind-value="busqueda.IdItem" />
+                            <div class="form-row mt-2">
+                                <div class="input-group col-md-6 mt-1">
+                                    <label class="input-group-text bg-light">ID ítem</label>
+                                    <InputNumber min="0" class="form-control" @bind-value="busqueda.IdItem" />
+                                </div>
+                                <ValidationMessage For="@(() => busqueda.IdItem)" />
+                                <div class="input-group col-md-6 mt-1">
+                                    <label class="input-group-text bg-light">Tipo de operación</label>
+                                    <InputSelect class="form-select" @bind-value="busqueda.filtro">
+                                        <option value="" selected>--Cualquiera</option>
+                                        <option value="REC">Recarga</option>
+                                        <option value="DEV">Devolución</option>
+                                        <option value="ASI">Asignación</option>
+                                        <option value="RET">Retiro</option>
+                                    </InputSelect>
+                                </div>
+                                <ValidationMessage For="@(() => busqueda.filtro)" />
                             </div>
-                            <ValidationMessage For="@(() => busqueda.IdItem)" />
 
-                            <div class="input-group col-md-6 mt-1">
-                                <label class="input-group-text bg-light">Tipo de operación</label>
-                                <InputSelect class="form-select" @bind-value="busqueda.filtro">
-                                    <option value="" selected>--Cualquiera</option>
-                                    <option value="REC">Recarga</option>
-                                    <option value="DEV">Devolución</option>
-                                    <option value="ASI">Asignación</option>
-                                    <option value="RET">Retiro</option>
-                                </InputSelect>
+                            <div class="form-row mt-2">
+                                <div class="input-group col-md-6 mt-1">
+                                    <label class="input-group-text bg-light">Fecha inicial</label>
+                                    <InputDate class="form-control" @bind-value="busqueda.FechaIni" />
+                                </div>
+                                <ValidationMessage For="@(() => busqueda.FechaIni)" />
+                                <div class="input-group col-md-6 mt-1">
+                                    <label class="input-group-text bg-light">Fecha final</label>
+                                    <InputDate class="form-control" @bind-value="busqueda.FechaFin" />
+                                </div>
+                                <ValidationMessage For="@(() => busqueda.FechaIni)" />
                             </div>
-                            <ValidationMessage For="@(() => busqueda.filtro)" />
-                        </div>
 
-                        <div class="form-row mt-2">
-                            <div class="input-group col-md-6 mt-1">
-                                <label class="input-group-text bg-light">Fecha inicial</label>
-                                <InputDate class="form-control" @bind-value="busqueda.FechaIni" />
+                            <div class="input-group col-md-12 mt-3 mb-3">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="oi oi-magnifying-glass"></i> Aplicar filtros
+                                </button>
                             </div>
-                            <ValidationMessage For="@(() => busqueda.FechaIni)" />
 
-                            <div class="input-group col-md-6 mt-1">
-                                <label class="input-group-text bg-light">Fecha final</label>
-                                <InputDate class="form-control" @bind-value="busqueda.FechaFin" />
-                            </div>
-                            <ValidationMessage For="@(() => busqueda.FechaIni)" />
-                        </div>
-
-                        <div class="input-group col-md-12 mt-3 mb-3">
-                            <button class="btn btn-outline-secondary" type="submit">
-                                <i class="oi oi-magnifying-glass"></i> Aplicar filtros
-                            </button>
-                        </div>
-
-                    </EditForm>
+                        </EditForm>
 
                         <div class="table-responsive mt-2">
-                        <table class="table table-sm bg-light table-bordered">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ID Transacción</th>
-                                    <th>Tipo Operación</th>
-                                    <th>ID ítem</th>
-                                    <th>Nombre</th>
-                                    <th>Categoria</th>
-                                    <th>Unidad</th>
-                                    <th>Cantidad</th>
-                                    <th>Concepto</th>
-                                    <th>Fecha Operación</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                            <table class="table table-sm bg-light table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID Transacción</th>
+                                        <th>Tipo Operación</th>
+                                        <th>ID ítem</th>
+                                        <th>Nombre</th>
+                                        <th>Categoria</th>
+                                        <th>Unidad</th>
+                                        <th>Cantidad</th>
+                                        <th>Concepto</th>
+                                        <th>Fecha Operación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
 
-                                @if (Movimientos.Any())
-                                {
-                                    foreach (var item in Movimientos)
+                                    @if (Movimientos.Any())
+                                    {
+                                        foreach (var item in Movimientos)
+                                        {
+                                            <tr>
+                                                <td valign="middle">@item.IdTransaccion</td>
+                                                <td valign="middle">@item.TipoOperacion</td>
+                                                <td valign="middle">@item.Item.IdItem</td>
+                                                <td valign="middle">@item.Item.Nombre</td>
+                                                <td valign="middle">@item.Item.Categoria</td>
+                                                <td valign="middle">@item.Unidad</td>
+                                                <td valign="middle" align="center">@(item.Unidad=="VE" ? Math.Round((decimal) item.Cantidad!, 2) : Math.Round((decimal) item.Cantidad!, 0))</td>  
+                                                <td valign="middle">@item.Concepto</td>
+                                                <td valign="middle">@(item.Fecha.HasValue ? item.Fecha.Value.ToString("dd/MM/yyyy") : "N/A")</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
                                     {
                                         <tr>
-                                            <td valign="middle">@item.IdTransaccion</td>
-                                            <td valign="middle">@item.TipoOperacion</td>
-                                            <td valign="middle">@item.Item.IdItem</td>
-                                            <td valign="middle">@item.Item.Nombre</td>
-                                            <td valign="middle">@item.Item.Categoria</td>
-                                            <td valign="middle">@item.Unidad</td>
-                                            <td valign="middle" align="center">@(item.Unidad=="VE" ? Math.Round((decimal) item.Cantidad!, 2) : Math.Round((decimal) item.Cantidad!, 0))</td>  
-                                            <td valign="middle">@item.Concepto</td>
-                                            <td valign="middle">@(item.Fecha.HasValue ? item.Fecha.Value.ToString("dd/MM/yyyy") : "N/A")</td>
+                                            <td colspan="9">
+                                                <div class="alert alert-warning" role="alert">
+                                                    No hay ítems para mostrar
+                                                </div>
+                                            </td>
                                         </tr>
                                     }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="9">
-                                            <div class="alert alert-warning" role="alert">
-                                                No hay ítems para mostrar
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
+                                </tbody>
 
-                        </table>
+                            </table>
 
-                    </div>
+                        </div>
 
                     </div>
                 }
-                
 
             </div>
         </div>
@@ -405,15 +402,11 @@
 
 @code{
     string activeTab = "inventario";
-    /*
-    protected override void OnInitialized()
-    {
-        activeTab = "inventario";
-        }
-    */
+
     #region Item Query
-    private List<Item> inventario = new List<Item>();
+    private List<ItemInventario> inventario = new List<ItemInventario>();
     private int Contador = 0;
+
     private ItemQuery filtro = new ItemQuery()
     {
        Ascendente = true,
@@ -426,13 +419,26 @@
         if (respuesta.EsCorrecto)
         {
             if (respuesta.Resultado!.contador == 0) return;
-            inventario = JsonConvert.DeserializeObject<List<Item>>(respuesta.Resultado.contenido)!;
+            inventario = JsonConvert.DeserializeObject<List<ItemInventario>>(respuesta.Resultado.contenido)!;
             Contador = respuesta.Resultado.contador;
             filtro.Pagina = 1;
             //double total = ((double)Contador / (double)filtro.PageSize);
             //total = Math.Ceiling(total);
             //filtro.Pagina = filtro.Pagina <= total ? filtro.Pagina : 1;
         }
+        
+        /*var lista = await listaInventarioService.ListarInventario();
+        Contador = lista.Count();
+        inventario = lista.OrderBy(i => i.IdItem)
+        .Where(
+            i => 
+            (i.Nombre.ToLower().Contains(filtro.Nombre!.ToLower()) || string.IsNullOrEmpty(filtro.Nombre)) &&
+            (i.Unidad == filtro.Unidad || string.IsNullOrEmpty(filtro.Unidad)) &&
+            (i.Categoria == filtro.Categoria || string.IsNullOrEmpty(filtro.Categoria)) && 
+            (i.Descripcion.ToLower().Contains(filtro.Buscar!.ToLower()) || string.IsNullOrEmpty(filtro.Buscar))
+        )
+        .Skip(filtro.PageSize)
+        .ToList();*/
     }
     private void paginacion(bool atras)
     {
@@ -515,14 +521,4 @@
         }
     }
     #endregion
-
-    public partial class Item
-    {
-        public int IdItem { get; set; }
-        public string Nombre { get; set; } = null!;
-        public string? Categoria { get; set; }
-        public string Descripcion { get; set; } = null!;
-        public string? Unidad { get; set; }
-        public decimal? Cantidad { get; set; }
-    }
 }

@@ -1,24 +1,16 @@
-﻿@page "/Ayudas"
+﻿@page "/GestionarAyudas"
+@page "/GestionarAyudas/{ID:int}"
 
-@inject IAyudaService ayudaService;
 @inject IListaAyudaService listaAyuda;
 @inject IToastService toastService;
 @inject NavigationManager navigationManager;
 @inject SweetAlertService Swat;
 
-@attribute [Authorize(Roles = "Administrador, Funcionario")]
+@attribute [Authorize(Roles = "Funcionario")]
 
-<PageTitle>@Titulo</PageTitle>
+<PageTitle>Gestionar Ayudas</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        @{
-            Rol = context.User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)!.Value;
-        }
-    </Authorized>
-</AuthorizeView>
-
-<h3>@Titulo</h3>
+<h3>Aprobar Ayudas</h3>
 
 <div class="table-responsive mt-2">
     <table class="table table-sm bg-light table-bordered">
@@ -32,6 +24,7 @@
                 <th>Fecha de Solicitud</th>
                 <th>Fecha de Entrega</th>
                 <th>Detalle</th>
+                <th>Cerrar</th>
             </tr>
         </thead>
         <tbody>
@@ -56,6 +49,14 @@
                                 </button>
                             </div>
                         </td>
+
+                        <td valign="middle" align="center">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-dark" @onclick="() => CargarAyuda(item.IdAyuda)">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                 }
             }
@@ -74,37 +75,26 @@
 </div>
 
 @code{
-    string Titulo = "";
-    string Rol = "";
+    [Parameter]
+    public int ID { get; set; }
 
     AyudaQuery filtro = new AyudaQuery();
     List<AyudaDTO> ListaAyudas = new List<AyudaDTO>();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        
-
         filtro = new AyudaQuery()
         {
-            Estado = "Por Aprobar"
+            Estado = "En Proceso"
         };
-        /*
-        var response = await ayudaService.Listar(filtro);
-        if (response.EsCorrecto) ListaAyudas = response.Resultado!;
-        else toastService.ShowWarning($"Error: {response.Mensaje}");
-        */
-                var response = await listaAyuda.Listar();
-        ListaAyudas = response.Where(la => la.Estado == "Por Aprobar" || la.Estado == "En Proceso").ToList();
-    }
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        Titulo = Rol == "Administrador" ? "Aprobar Ayudas" : "Gestionar Ayudas";
+        var response = await listaAyuda.Listar();
+        ListaAyudas = response.Where(la => la.Funcionario == ID && (la.Estado == "En Proceso" || la.Estado == "Lista Para Entregar")).ToList();
     }
 
     private void CargarAyuda(int idAyuda)
     {
-        navigationManager.NavigateTo($"/Aprobar/{idAyuda}");
+        navigationManager.NavigateTo($"/ValidarAyuda/{idAyuda}");
     }
     Dictionary<string, string> colores = new Dictionary<string, string>()
     {

@@ -1,9 +1,8 @@
 ﻿using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
-using SistemaGS.WebAssembly.Services.Contrato;
 
-namespace SistemaGS.WebAssembly.Services.Implementacion
+namespace SistemaGS.WebAssembly.Services.RealServices
 {
     public class AyudaService : IAyudaService
     {

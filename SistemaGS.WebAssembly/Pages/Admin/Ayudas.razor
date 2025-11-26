@@ -1,17 +1,17 @@
-﻿@page "/Gestionar"
-@page "/Gestionar/{ID:int}"
-
-@using SistemaGS.WebAssembly.Layout.ComponentesAyudas;
+﻿@page "/AyudasAprobar"
 @using SistemaGS.WebAssembly.Services.RealServices
+
 @inject IAyudaService ayudaService;
 @inject IListaAyudaService listaAyuda;
 @inject IToastService toastService;
 @inject NavigationManager navigationManager;
 @inject SweetAlertService Swat;
 
-@attribute [Authorize(Roles = "Solicitante")]
+@attribute [Authorize(Roles = "Administrador")]
 
-<PageTitle>Gestionar Ayudas</PageTitle>
+<PageTitle>Aprobar Ayudas</PageTitle>
+
+<h3>Aprobar Ayudas</h3>
 
 <div class="table-responsive mt-2">
     <table class="table table-sm bg-light table-bordered">
@@ -25,7 +25,6 @@
                 <th>Fecha de Solicitud</th>
                 <th>Fecha de Entrega</th>
                 <th>Detalle</th>
-                <th>Eliminar</th>
             </tr>
         </thead>
         <tbody>
@@ -50,18 +49,6 @@
                                 </button>
                             </div>
                         </td>
-
-                        <td valign="middle" align="center">
-                            <div class="btn-group" role="group">
-                                @{
-                                    bool? disable = item.Estado == "Por Aprobar" ? null : true;
-                                }
-                                <button type="button" class="btn btn-outline-dark" disabled="@disable" @onclick="() => Eliminar(item)">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-
                     </tr>
                 }
             }
@@ -79,66 +66,31 @@
     </table>
 </div>
 
-@code {
-    [Parameter]
-    public int ID { get; set; }
-
+@code{
     AyudaQuery filtro = new AyudaQuery();
     List<AyudaDTO> ListaAyudas = new List<AyudaDTO>();
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
+        
+
+        filtro = new AyudaQuery()
+        {
+            Estado = "Por Aprobar"
+        };
         /*
         var response = await ayudaService.Listar(filtro);
         if (response.EsCorrecto) ListaAyudas = response.Resultado!;
         else toastService.ShowWarning($"Error: {response.Mensaje}");
         */
-
-        var response = await listaAyuda.Listar();
-        ListaAyudas = response.Where(la => la.Solicitante == ID && (la.Estado != "Cerrada" && la.Estado != "Rechazada")).ToList();
+                var response = await listaAyuda.Listar();
+        ListaAyudas = response.Where(la => la.Estado == "Por Aprobar" || la.Estado == "En Proceso").ToList();
     }
+
     private void CargarAyuda(int idAyuda)
     {
-        navigationManager.NavigateTo($"/Ayuda/{idAyuda}");
+        navigationManager.NavigateTo($"/Aprobar/{idAyuda}");
     }
-    private async Task Eliminar(AyudaDTO ayuda)
-    {
-        if(ayuda.Estado == "Por Aprobar")
-        {
-            SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
-            {
-                Title = "Aviso",
-                Text = $"¿Seguro de eliminar el registro seleccionado? Esta acción no se puede deshacer",
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Si",
-                CancelButtonText = "No"
-            });
-            if (result.IsConfirmed)
-            {
-                await listaAyuda.EliminarLista(ayuda.IdAyuda);
-                ListaAyudas = await listaAyuda.Listar();
-                return;
-                /*
-                var response = await ayudaService.Eliminar(idAyuda);
-                if (response.EsCorrecto) toastService.ShowSuccess("La solicitud fué eliminada");
-                else toastService.ShowWarning($"Error: {response.Mensaje}");
-                */
-            }
-        }
-        else
-        {
-            SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
-            {
-                Title = "Error",
-                Text = $"No puede eliminar una ayuda en proceso, comuniquese con el funcionario a cargo",
-                Icon = SweetAlertIcon.Error,
-                ShowCancelButton = false,
-                ConfirmButtonText = "Cerrar"
-            });
-        }
-    }
-
     Dictionary<string, string> colores = new Dictionary<string, string>()
     {
         ["Por Aprobar"] = "bg-success text-white fw-bold",
@@ -147,5 +99,4 @@
         ["Cerrada"] = "bg-dark text-white fw-bold",
         ["Rechazada"] = "bg-danger text-white fw-bold"
     };
-
 }
