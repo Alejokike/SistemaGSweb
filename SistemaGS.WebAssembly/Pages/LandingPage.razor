@@ -1,0 +1,272 @@
+﻿@page "/FundacionGS"
+@layout LandingLayout;
+
+@using System.Timers;
+@implements IDisposable;
+
+<PageTitle>Fundación Gestión Social</PageTitle>
+
+<header id="hero" class="carousel slide carousel-fade bg-primary-custom">
+    <ol class="carousel-indicators">
+        <li type="button" class="@(CarruselActivo == 1 ? "active" : null)" data-slide-to="1"></li>
+        <li type="button" class="@(CarruselActivo == 2 ? "active" : null)" data-slide-to="2"></li>
+        <li type="button" class="@(CarruselActivo == 3 ? "active" : null)" data-slide-to="3"></li>
+    </ol>
+    <div class="carousel-inner">
+
+            <div class="carousel-item @(CarruselActivo == 1 ? "active" : null)">
+                <div class="container">
+                    <div class="carousel-caption">
+                        <h5>Empoderando Vidas, Transformando Futuros</h5>
+                        <p>Creemos en un mundo donde cada persona tiene la oportunidad de prosperar. ¡Únete a nuestra misión!</p>
+                        <p><a class="btn btn-lg btn-secondary-custom mt-3" href="#que-hacemos">Nuestros Proyectos</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="carousel-item @(CarruselActivo == 2 ? "active" : null)">
+                <div class="container">
+                    <div class="carousel-caption">
+                        <h5>Juntos, Creamos un Impacto Duradero</h5>
+                        <p>Tu apoyo nos permite llegar más lejos y cambiar más vidas. Cada acción cuenta.</p>
+                        <p><a class="btn btn-lg btn-secondary-custom mt-3" href="#voluntariado">Sé Voluntario</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="carousel-item @(CarruselActivo == 3 ? "active" : null)">
+                <div class="container">
+                    <div class="carousel-caption">
+                        <h5>Sembrando Esperanza, Cosechando Bienestar</h5>
+                        <p>Desde la educación hasta la ayuda humanitaria, estamos comprometidos con el cambio positivo.</p>
+                        <p><a class="btn btn-lg btn-secondary-custom mt-3" href="#historias">Nuestras Historias</a></p>
+                    </div>
+                </div>
+            </div>
+
+    </div>
+
+    <button class="carousel-control-prev" type="button" 
+    @onclick="@(() => 
+        {
+            if(CarruselActivo > 1) CarruselActivo--;
+            else CarruselActivo = 3;
+            _timer.Stop(); _timer.Start();
+        })">
+        <span class="carousel-control-prev-icon bg-black bg-opacity-50"></span>
+        <span class="visually-hidden">Anterior</span>
+    </button>
+    <button class="carousel-control-next" type="button" 
+    @onclick="@(() =>
+        {
+            if (CarruselActivo < 3) CarruselActivo++;
+            else CarruselActivo = 1;
+            _timer.Stop(); _timer.Start();
+        })">
+        <span class="carousel-control-next-icon bg-black bg-opacity-50"></span>
+        <span class="visually-hidden">Siguiente</span>
+    </button>
+</header>
+
+<section id="nosotros" class="section-padding">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="https://scontent.cdninstagram.com/v/t51.82787-15/583295123_18070615907590424_2068123379760039018_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ig_cache_key=Mzc2OTYyMjI3NDA5MDQyMTEwMw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjE0NDB4MTgwMC5zZHIuQzMifQ%3D%3D&_nc_ohc=ehooBex5aJ4Q7kNvwHS4YZ5&_nc_oc=Adkz_rH9f3LF0lXPpd6QFNOqf0AReeCHcohyrtw8f8keIcZ9XFCznYn0GXMAmt9nZS4&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&_nc_gid=1R5XNnsI_36gX1hl_nc2og&oh=00_AfkeGZYC9yRGAgXazsi0LgpGcVCNQPm_R0maGzlLa8VUyQ&oe=69477AD4" class="img-fluid img-rounded shadow-sm" alt="Sobre Nosotros">
+            </div>
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold mb-4">¿Quiénes Somos?</h2>
+                <p class="lead">
+                    Somos una organización sin fines de lucro, adscrita a la Alcaldía de Lechería, hemos emprendido varios programas que son pilares fundamentales en el desarrollo del bienestar de la ciudad de Lechería.
+                </p>
+                <hr/>
+                <p>
+                    <h4 class="fw-bold mb-4">Nuestra Misión</h4>
+                    Asumir una gran responsabilidad social para así optimizar la calidad de vida de nuestros vecinos y motivarlos a construir juntos el municipio modelo del oriente del país.
+                </p>
+                <p>
+                    <h4 class="fw-bold mb-4">Nuestra Visión</h4>
+                    Encaminamos nuestro trabajo para convertirnos en una institución comprometida con la comunidad, respondiendo con eficiencia y rapidez a nuestros vecinos.
+                </p>
+                <a href="#contacto" class="btn btn-secondary-custom text-center mt-3">Conoce más</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="que-hacemos" class="bg-light section-padding">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-5">Nuestros Programas de Impacto</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-book-fill feature-icon d-block mb-3 text-secondary-custom"></i>
+                        <h3 class="h4 card-title text-primary-custom">Educarte</h3>
+                        <p class="card-text">Actividades deportivas y cuenta cuentos en los colegios de Lechería. Ofrecemos becas, materiales y programas de tutoría para garantizar que ningún niño se quede sin aprender.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-hospital-fill feature-icon d-block mb-3 text-secondary-custom"></i>
+                        <h3 class="h4 card-title text-primary-custom">Abuelos de Lechería</h3>
+                        <p class="card-text">programa donde se atienden las necesidades de adultos mayores</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-lightbulb-fill feature-icon d-block mb-3 text-secondary-custom"></i>
+                        <h3 class="h4 card-title text-primary-custom">Lechería Ciudad de Inclusión</h3>
+                        <p class="card-text">Reforzamos las competencias educativas de los docentes para fomentar una educación más inclusiva</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="mt-5"><a href="#contacto" class="btn btn-primary-custom btn-lg">Conoce todos nuestros proyectos</a></p>
+    </div>
+</section>
+
+<section id="voluntariado" class="section-padding bg-secondary-custom text-light-custom text-center">
+    <div class="container">
+        <h2 class="display-5 fw-bold mb-5 text-light-custom">Únete a Nuestro Equipo de Voluntarios</h2>
+        <p class="lead mb-5">Tu tiempo y habilidades son un regalo invaluable. ¡Haz una diferencia hoy!</p>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card bg-primary-custom text-light-custom card-voluntario border-0 h-100 align-content-center">
+                    <div class="card-body">
+                        <h4 class="card-title text-quaternary-custom">Apoyo Educativo</h4>
+                        <p class="card-text">Ayuda a niños y jóvenes con sus estudios o enseña nuevas habilidades.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card bg-primary-custom text-light-custom card-voluntario border-0 h-100 align-content-center">
+                    <div class="card-body">
+                        <h4 class="card-title text-quaternary-custom">Eventos y Recaudación</h4>
+                        <p class="card-text">Colabora en la organización de eventos y campañas para nuestra causa.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card bg-primary-custom text-light-custom card-voluntario border-0 h-100 align-content-center">
+                    <div class="card-body">
+                        <h4 class="card-title text-quaternary-custom">Administración y Logística</h4>
+                        <p class="card-text">Aporta tus conocimientos en tareas administrativas y de gestión de proyectos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="#contacto" class="btn btn-primary-custom mt-5">Quiero ser Voluntario</a>
+    </div>
+</section>
+
+<section id="noticias" class="section-padding">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-5">Noticias</h2>
+        <div class="row">
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <img src="https://lecheria.gov.ve/storage/cdf6f9ef-bf8a-4dce-8e7c-e27b625a15ef/ArRTn73ZZyc3jF7T6oFZVy6aRssglv-metaQUJVRUxPUyBFTiBFTCBBVUxBICgzKS5qcGVn-.jpeg" class="card-img-top" alt="Historia 1">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary-custom">Gestión social culmina programa “Abuelos en el aula” por el 2025 con avances positivos</h5>
+                        <p class="card-text">El alcalde de Lechería, Manuel Ferreira, expresó su alegría por el desarrollo de este programa que ha permitido la evolución de abuelos con ganas de superarse</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary-custom">Leer más</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <img src="https://lecheria.gov.ve/storage/4dbee0f4-ae08-4e45-8668-6e47995a158b/bkqez0Eo6Ty8iZDglnCNEf4VDSAAfi-metaUFJBRkxBTSAoMSkuanBlZw==-.jpeg" class="card-img-top" alt="Historia 2">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary-custom">Gestión Social benefició a mujeres de la comunidad en jornada gratuita de implantes subdérmicos</h5>
+                        <p class="card-text">La actividad benefició a un grupo de 20 mujeres provenientes de los sectores Santa Rosa, Casco Central y Aldea de Pescadores</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary-custom">Leer más</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <img src="https://lecheria.gov.ve/storage/47f056ab-7eae-4d62-b1f2-aae3841f59ea/Va3d0JHr2V3nsBrRKJ50BpcB5wsFy8-metaV2hhdHNBcHAgSW1hZ2UgMjAyNS0xMS0xMCBhdCAxMS40MS40OCBBTSAoMSkuanBlZw==-.jpeg" class="card-img-top" alt="Historia 3">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary-custom">Alcaldía de Lechería inicia octava edición del programa “Seamos Santa”</h5>
+                        <p class="card-text">Cada año, el 24 de diciembre en la mañana, el alcalde Manuel Ferreira, junto a voluntarios y su equipo social, recorren los sectores del municipio Urbaneja para repartir obsequios junto a Santa.</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary-custom">Leer más</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="donar" class="section-padding text-center">
+    <div class="container">
+        <h2 class="display-4 fw-bold mb-4 text-light-custom">Tu Ayuda es Crucial ¡Dona Ahora!</h2>
+        <p class="lead mb-5 text-light-custom">Cada contribución, grande o pequeña, nos acerca a nuestra meta de crear un mundo mejor.</p>
+        <a href="#" class="btn btn-donar">Realizar una Donación</a>
+    </div>
+</section>
+
+<section id="contacto" class="section-padding bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold mb-4 text-center">Contáctanos</h2>
+                <p class="text-center mb-5">¿Tienes preguntas, ideas o quieres colaborar? ¡Nos encantaría escucharte!</p>
+                <form>
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-control" id="nombre" placeholder="Tu Nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email" placeholder="tu.email@ejemplo.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="asunto" class="form-label">Asunto</label>
+                        <input type="text" class="form-control" id="asunto" placeholder="Motivo de tu mensaje">
+                    </div>
+                    <div class="mb-3">
+                        <label for="mensaje" class="form-label">Mensaje</label>
+                        <textarea class="form-control" id="mensaje" rows="5" placeholder="Escribe tu mensaje aquí..." required></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary-custom btn-lg">Enviar Mensaje</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    int CarruselActivo = 1;
+
+    private Timer _timer = new Timer(5000);
+
+    protected override void OnInitialized()
+    {
+        _timer.Elapsed += (sender, EventArgs) =>
+        {
+            Carrusel();
+            StateHasChanged();
+        };
+        _timer.AutoReset = true;
+        _timer.Enabled = true;
+    }
+
+    private void Carrusel()
+    {
+        if (CarruselActivo < 3) CarruselActivo++;
+        else CarruselActivo = 1;
+    }
+
+    public void Dispose()
+    {
+        _timer.Stop();
+        _timer?.Dispose();
+    }
+}

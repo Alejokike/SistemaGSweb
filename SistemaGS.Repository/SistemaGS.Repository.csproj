@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SistemaGS.DTO\SistemaGS.DTO.csproj" />
     <ProjectReference Include="..\SistemaGS.Model\SistemaGS.Model.csproj" />
   </ItemGroup>
 

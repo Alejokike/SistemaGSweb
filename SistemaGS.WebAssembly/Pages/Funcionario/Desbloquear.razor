@@ -1,19 +1,310 @@
 ﻿@page "/Desbloquear"
 @page "/Desbloquear/{IDAyuda:int}"
-<h3>Desbloquear</h3>
+
+@inject NavigationManager navigationManager;
+@inject IInventarioService inventarioService;
+@inject IAyudaService ayudaService;
+@inject IToastService toastService;
+@inject SweetAlertService Swat;
+
+@attribute [Authorize(Roles = "Funcionario")]
+
+<AuthorizeView>
+    <Authorized>
+        @{
+            cedula = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
+        }
+    </Authorized>
+</AuthorizeView>
+
+<PageTitle>Desbloquear Ayuda</PageTitle>
+
+<h3 class="m-3">Desbloquear Ayuda</h3>
+
+<ModalLayout
+    Mostrar="Mostrar"
+    Titulo="Seleccione el tipo de operación"
+    TextoConfirmar="Ejecutar"
+    TextoCancelar="Cancelar"
+    OnCerrar="(() => Mostrar = false)"
+    OnConfirmar="EventCallback.Factory.Create(this, async () => {await Transaccion();})">
+    
+    <div class="form-label fw-bold mb-1">Tipo de operación</div>
+    <InputSelect class="form-select mb-2" @bind-Value="movimiento">
+        <option value="ASI" selected>Asignación</option>
+        <option value="RET">Retiro</option>
+    </InputSelect>
+
+    <div class="form-label fw-bold mb-1">Cantidad</div>
+    <InputNumber class="form-control" min"="0" @bind-Value="cantidad"/>
+
+</ModalLayout>
+
+<div class="d-flex flex-column min-vh-90">
+    @* Formulario Ayuda *@
+    <div class="flex-grow-1">
+        <div class="row-cols-12 mt-3">
+            <div class="col-sm-12">
+                <div class="card mb-3">
+                    <div class="card-body">
+
+                        @if (ayuda.Detalle.TryGetValue("Observaciones", out string? observaciones) && !string.IsNullOrEmpty(observaciones))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Observaciones del funcionario</label>
+                                <div class="form-control">@observaciones</div>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Comentarios de la entrega</label>
+                            <InputTextArea class="form-control" required @bind-value="@ayuda.Detalle["Aprobado"]" />
+                        </div>
+
+                        <div class="mb-3">
+                        <label class="form-label fw-bold">Categoría de la ayuda</label>
+                        <div class="form-control">@ayuda.Categoria</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Lista Items *@
+
+        <div class="row-cols-12 mt-4">
+
+            <div class="col-sm-12">
+                <div class="card mb-3">
+
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm bg-light table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th class="text-center">ID</th>
+                                        <th class="text-center">Código ítem</th>
+                                        <th class="text-center">Nombre</th>
+                                        <th class="text-center">Categoria</th>
+                                        <th class="text-center">Unidad</th>
+                                        <th class="text-center">Cantidad Solicitada</th>
+                                        <th class="text-center">Cantidad Asignada</th>
+                                        <th class="text-center">Asignar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ayuda.ListaItems.Any())
+                                    {
+                                        foreach (var item in ayuda.ListaItems)
+                                        {
+                                            <tr>
+                                                <td valign="middle">@item.IdLista</td>
+                                                <td valign="middle" align="center">@item.ItemLista.IdItem</td>
+                                                <td valign="middle">@item.ItemLista!.Nombre</td>
+                                                <td valign="middle">@item.ItemLista!.Categoria</td>
+                                                <td valign="middle" align="center">@item.ItemLista!.Unidad</td>
+                                                <td valign="middle" align="center">@item.CantidadSolicitada</td>
+                                                <td valign="middle" align="center">@item.CantidadEntregada </td>
+
+                                                <td align="center">
+                                                    <button @onclick="@(() => {Mostrar = true; position = item;})">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="7">
+                                                <div class="alert alert-warning" role="alert">
+                                                    No hay productos en la lista
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @* Lista Movimientos *@
+
+    <div class="row-cols-12 mt-4">
+
+        <div class="col-sm-12">
+            <div class="card mb-3">
+
+                <div class="card-body">
+                    <TableLayout 
+                        lista="movimientos" 
+                        T="InventarioDTO" 
+                        MostrarBotones="false" />
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="bg-light p-3 mt-5">
+    <div class="d-flex justify-content-center align-items-center gap-5">
+        <button class="btn btn-info" style="width: 500px" @onclick="Guardar">Desbloquear ayuda</button>
+    </div>
+</div>
 
 @code {
     [Parameter]
     public int IDAyuda { get; set; }
 
-    AyudaDTO ayuda = new AyudaDTO();
+    private int cedula;
+    private bool Mostrar = false;
+    private ListaItemDTO position = new ListaItemDTO();
+    string movimiento = "ASI";
+    decimal cantidad = 0;
 
-    protected override void OnInitialized()
+    private List<InventarioDTO> movimientos = new List<InventarioDTO>();
+
+    AyudaDTO ayuda = new AyudaDTO()
     {
-        ayuda.ListaItems = new List<ListaItemDTO>();
+        ListaItems = new List<ListaItemDTO>(),
+        Detalle = new Dictionary<string, string>
+        {
+            ["Solicitud"] = "",
+            ["Observaciones"] = "",
+            ["Aprobado"] = "",
+            ["Rechazado"] = ""
+        }
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var response = await ayudaService.Obtener(IDAyuda);
+        if (response.EsCorrecto && response.Resultado != null)
+        {
+            if (response.Resultado.ListaItems.Any(Li => Li.ItemLista!.IdItem == 0))
+            {
+                toastService.ShowError("Hay ítems en la lista sin normalizar");
+                navigationManager.NavigateTo($"/GestionarAyudas/{cedula}");
+                return;
+            }
+            ayuda = response.Resultado;
+        }
+
+        if (ayuda.Funcionario != cedula) navigationManager.NavigateTo($"/GestionarAyudas/{cedula}");
     }
-    protected override Task OnParametersSetAsync()
+
+    private async Task Transaccion()
     {
-        return base.OnParametersSetAsync();
+        Mostrar = false;
+        if (movimiento == "ASI") await Asignar(position,cantidad);
+        else Retirar(position,cantidad);
+        position = new ListaItemDTO();
+        cantidad = 0;
+    }
+
+    private async Task Asignar(ListaItemDTO item, decimal cantidad)
+    {
+        if (item.ItemLista.Unidad != "VE") cantidad = Math.Floor(cantidad);
+
+        bool val1 = (await ObtenerStock(item.ItemLista.IdItem)) < cantidad;
+        bool val2 = cantidad <= 0;
+        bool val3 = cantidad > item.CantidadSolicitada;
+
+        if (val1 || val2)
+        {
+            if(val1) toastService.ShowWarning("No hay el stock necesario para asignar esa cantidad");
+            if(val2) toastService.ShowWarning("Se debe de asignar algo");
+            if(val3) toastService.ShowWarning("No se puede asignar más stock del solicitado");
+            return;
+        }
+
+        var encontrado = movimientos.FirstOrDefault(m => m.Item.IdItem == item.ItemLista.IdItem);
+        if (encontrado == null)
+        {
+            movimientos.Add(new InventarioDTO()
+                {
+                    IdTransaccion = 0,
+                    TipoOperacion = "ASI",
+                    Item = item.ItemLista,
+                    Unidad = item.ItemLista.Unidad,
+                    Cantidad = cantidad,
+                    Concepto = $"Asignación ayuda {ayuda.IdAyuda}; posición {item.IdLista}",
+                    Fecha = DateTime.Today
+                });
+            item.CantidadEntregada += cantidad;
+        }
+        else 
+        {
+            movimientos.Remove(encontrado);
+            item.CantidadEntregada -= encontrado.Cantidad;
+            encontrado.Cantidad = cantidad;
+            item.CantidadEntregada += encontrado.Cantidad;
+            movimientos.Add(encontrado);
+        }
+    }
+    private void Retirar(ListaItemDTO item, decimal cantidad)
+    {
+        if (item.ItemLista.Unidad != "VE") cantidad = Math.Floor(cantidad);
+
+        bool val1 = item.CantidadEntregada < cantidad;
+        bool val2 = cantidad <= 0;
+
+        if (val1 || val2)
+        {
+            if (val1) toastService.ShowWarning("No se puede retirar más de lo asignado");
+            if (val2) toastService.ShowWarning("La cantidad a retira no puede ser nula");
+            return;
+        }
+
+        var encontrado = movimientos.FirstOrDefault(m => m.Item.IdItem == item.ItemLista.IdItem);
+        if (encontrado == null)
+        {
+            int id;
+            if (!movimientos.Any()) id = 0;
+            else id = movimientos.Max(li => li.IdTransaccion);
+            movimientos.Add(new InventarioDTO()
+            {
+                IdTransaccion = id + 1,
+                TipoOperacion = "RET",
+                Item = item.ItemLista,
+                Unidad = item.ItemLista.Unidad,
+                Cantidad = cantidad,
+                Concepto = $"Retiro ayuda {ayuda.IdAyuda}; posición {item.IdLista}",
+                Fecha = DateTime.Today
+            });
+            item.CantidadEntregada -= cantidad;
+        }
+        else
+        {
+            movimientos.Remove(encontrado);
+            item.CantidadEntregada += encontrado.Cantidad;
+            encontrado.Cantidad = cantidad;
+            item.CantidadEntregada -= encontrado.Cantidad;
+            movimientos.Add(encontrado);
+        }
+    }
+
+    private async Task Guardar()
+    {
+        var response = await inventarioService.Desbloquear(movimientos, ayuda.IdAyuda);
+        if (response.EsCorrecto) navigationManager.NavigateTo("/Ayudas");
+        else toastService.ShowError($"Error: {response.Mensaje}");
+    }
+
+    private async Task<decimal> ObtenerStock(int idItem)
+    {
+        var response = await inventarioService.ObtenerItem(idItem);
+        if (response.EsCorrecto && response.Resultado != null) return response.Resultado.Cantidad;
+        else return 0;
     }
 }

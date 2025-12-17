@@ -2,7 +2,6 @@
 using SistemaGS.Model;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Repository.DBContext;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SistemaGS.Repository.Implementacion
 {

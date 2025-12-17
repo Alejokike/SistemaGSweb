@@ -1,0 +1,37 @@
+﻿@inject NavigationManager navigationManager;
+@inject IAyudaService ayudaService;
+@inject IToastService toastService;
+@inject SweetAlertService Swat;
+
+<h3 class="m-3">Histórico</h3>
+
+<FiltroAyuda filtro="filtro" Funcionario="false" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" />
+<TableLayout lista="lista" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, RecibirSeleccion))"/>
+
+<button type="button">Imprimir listado</button>
+
+@code {
+    [Parameter]
+    public int ID { get; set; }
+    List<AyudaDTO> lista = new List<AyudaDTO>();
+    AyudaDTO seleccion = new AyudaDTO();
+    AyudaQuery filtro = new AyudaQuery();
+
+    protected override async Task OnInitializedAsync()
+    {
+        filtro = new AyudaQuery
+            {
+                solicitante = ID
+            };
+        await ListarAyuda();
+    }
+    private async Task ListarAyuda()
+    {
+        var response = await ayudaService.Listar(filtro);
+        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
+    }
+    private void RecibirSeleccion(AyudaDTO ayuda)
+    {
+        navigationManager.NavigateTo($"/Ayuda/{ayuda.IdAyuda}");
+    }
+}

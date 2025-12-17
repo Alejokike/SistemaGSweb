@@ -79,14 +79,16 @@ TelefonoHabitacion nvarchar(12)
 );
 
 GO
-
+Drop table Item
 CREATE TABLE Item(
 IdItem int primary key identity(1,1),
 Nombre nvarchar(80) not null unique,
 Categoria nvarchar(50),
 Descripcion nvarchar(300) not null,
 Unidad nvarchar(2) default 'EU',
-Cantidad decimal default 0
+Cantidad decimal default 0,
+FechaCreacion datetime default GETDATE(),
+Activo bit default 1
 );
 
 /*

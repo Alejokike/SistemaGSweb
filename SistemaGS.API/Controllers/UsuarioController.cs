@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
 using SistemaGS.Service.Contrato;
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
@@ -17,14 +16,12 @@ namespace SistemaGS.API.Controllers
         }
 
         [HttpGet("Lista/{rol:int}/{buscar?}")]
-        public async Task<IActionResult> Lista(int rol, string buscar = "N/A")
+        public async Task<IActionResult> Lista(int rol, string buscar = "")
         {
             var response = new ResponseDTO<List<UsuarioDTO>>();
 
             try
             {
-                if (buscar == "N/A") buscar = "";
-
                 response.EsCorrecto = true;
                 response.Resultado = await _usuarioService.Lista(rol, buscar);
             }

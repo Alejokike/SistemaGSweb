@@ -1,0 +1,256 @@
+﻿@using System.Text
+@inject IJSRuntime JS;
+@inject IUsuarioService usuarioService;
+@inject SweetAlertService Swat;
+
+<div class="row-cols-12 mt-4">
+    <div class="col-sm-12">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3>Información de la ayuda</h3>
+            </div>
+            <div class="card-body">
+                @{
+                    if(ayuda.Detalle.TryGetValue("Solicitud", out string? solicitud) && !string.IsNullOrEmpty(solicitud))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Razón de la solicitud</label>
+                            <div class="form-control">@solicitud</div>
+                        </div>
+                    }
+                    if (ayuda.Detalle.TryGetValue("Observaciones", out string? observaciones) && !string.IsNullOrEmpty(observaciones))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Observaciones del funcionario</label>
+                            <div class="form-control">@observaciones</div>
+                        </div>
+                    }
+                    if (ayuda.Detalle.TryGetValue("Aprobado", out string? aprobado) && !string.IsNullOrEmpty(aprobado))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Detalle de la finalización del proceso</label>
+                            <div class="form-control">@aprobado</div>
+                        </div>
+                    }
+                    if (ayuda.Detalle.TryGetValue("Rechazado", out string? rechazado) && !string.IsNullOrEmpty(rechazado))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Motivo de rechazo</label>
+                            <div class="form-control">@rechazado</div>
+                        </div>
+                    }
+                }
+    
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Categoría de la ayuda</label>
+                    <div class="form-control">@ayuda.Categoria</div>
+                </div>
+                
+                @if (solicitante.Cedula != 0)
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Cédula Solicitante</label>
+                        <div class="form-label">@solicitante.Cedula</div>
+
+                        <label class="form-label fw-bold">Nombre Solicitante</label>
+                        <div class="form-label">@solicitante.Persona.Nombre @solicitante.Persona.Apellido</div>
+
+                        <label class="form-label fw-bold">Contacto Solicitante</label>
+                        <div class="form-label">
+                            Teléfono Habitación: @solicitante.Persona.TelefonoHabitacion <br/>
+                            Teléfono Trabajo: @solicitante.Persona.TelefonoTrabajo <br/>
+                            E-mail: @solicitante.Correo
+                        </div>
+                    </div>
+                }
+                <hr/>
+                @if (funcionario.Cedula != 0)
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Cédula Funcionario</label>
+                        <div class="form-label">@funcionario.Cedula</div>
+
+                        <label class="form-label fw-bold">Nombre Funcionario</label>
+                        <div class="form-label">@funcionario.Persona.Nombre @funcionario.Persona.Apellido</div>
+
+                        <label class="form-label fw-bold">Contacto Funcionario</label>
+                        <div class="form-label">
+                            Teléfono Trabajo: @funcionario.Persona.TelefonoTrabajo <br />
+                            E-mail: @funcionario.Correo
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (ImpresionHabilitada)
+{
+    <div class="row-cols-12 mt-4">
+        <div class="col-sm-12">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3>Imprimir Ayuda</h3>
+                </div>
+                <div class="card-body align-content-between justify-content-start">
+                    <div class="dropdown" role="group">
+                        <button class="btn btn-primary dropdown-toggle" type="button" @onclick="@(() => expand = !expand)" data-bs-toggle="dropdown" aria-expanded="@expand.ToString().ToLower()">
+                            <i class="bi bi-printer fs-5"></i> Imprimir ayuda
+                        </button>
+                        <ul class="dropdown-menu @(expand ? "show" : "")">
+                            <li>
+                                <button class="btn btn-danger m-3">
+                                    <i class="bi bi-filetype-pdf text-white fs-5"></i> Imprimir planilla
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn btn-success m-3">
+                                    <i class="bi bi-filetype-xlsx text-white fs-5"></i> Imprimir lista de ítems
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+        
+@* Lista Items *@
+
+<div class="row-cols-12 mt-4">
+
+    <div class="col-sm-12">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3>Lista de ítems</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm bg-light table-bordered hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-center">ID</th>
+                                <th class="text-center">Nombre</th>
+                                <th class="text-center">Categoria</th>
+                                <th class="text-center">Cantidad Solicitada</th>
+                                <th class="text-center">Cantidad Entregada</th>
+                                <th class="text-center">Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ayuda.ListaItems.Any())
+                            {
+                                foreach (var item in ayuda.ListaItems)
+                                {
+                                    <tr>
+                                        <td valign="middle">@item.IdLista</td>
+                                        <td valign="middle">@item.ItemLista!.Nombre</td>
+                                        <td valign="middle">@item.ItemLista!.Categoria</td>
+                                        <td valign="middle" align="center">@item.CantidadSolicitada</td>
+                                        <td valign="middle" align="center">@item.CantidadEntregada</td>
+                                        <td valign="middle" align="center">
+                                            <button @onclick="@(() => MostrarItem(item.ItemLista))">
+                                                <i class="bi bi-card-list text-primary fs-5"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="alert alert-warning" role="alert">
+                                            No hay productos en la lista
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@code {
+    [Parameter]
+    public bool ImpresionHabilitada { get; set; }
+    [Parameter]
+    public AyudaDTO ayuda { get; set; } = new AyudaDTO()
+        {
+            ListaItems = new List<ListaItemDTO>(),
+            Detalle = new Dictionary<string, string>()
+            {
+                ["Solicitud"] = "",
+                ["Observaciones"] = "",
+                ["Aprobado"] = "",
+                ["Rechazado"] = ""
+            }
+        };
+
+    private UsuarioDTO solicitante = new UsuarioDTO()
+        {
+            Persona = new PersonaDTO(),
+            Rol = new RolDTO()
+        };
+
+    private UsuarioDTO funcionario = new UsuarioDTO()
+    {
+        Persona = new PersonaDTO(),
+        Rol = new RolDTO()
+    };
+
+    private bool expand;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var response = await usuarioService.Obtener(ayuda.Solicitante);
+        if (response.EsCorrecto && response.Resultado != null) solicitante = response.Resultado;
+
+        if(ayuda.Funcionario != 0)
+        {
+            response = await usuarioService.Obtener(ayuda.Funcionario);
+            if (response.EsCorrecto && response.Resultado != null) funcionario = response.Resultado;
+        }
+    }
+
+    private string Detallar(ItemDTO item)
+    {
+        string validar = item.IdItem != 0 ? item.IdItem.ToString() : "No revisado por un funcionario";
+        string resultado = 
+           $@"<ul>
+           <li><strong>ID:</strong> {validar}</li>
+           <li><strong>Nombre:</strong> {item.Nombre}</li>
+           <li><strong>categoría:</strong> {item.Categoria}</li>
+           <li><strong>Unidad:</strong> {item.Unidad}</li>
+           <li><strong>Descripción:</strong> {item.Descripcion}</li>
+           <li><strong>Stock en Inventario:</strong> {item.Cantidad}</li>
+           </ul>";
+        return resultado;
+    }
+
+    private async Task MostrarItem(ItemDTO item)
+    {
+        SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+        {
+            Title = "Detalle ítem",
+            Html = Detallar(item),
+            Icon = item.IdItem == 0 ? SweetAlertIcon.Question : SweetAlertIcon.Success,
+            ShowCancelButton = false,
+            ConfirmButtonText = "Cerrar"
+        });
+    }
+
+    private async Task ImprimirAyuda()
+    {
+        string data = Convert.ToBase64String(Impresion.GeneratePDFplanilla(ayuda, solicitante.Persona, funcionario.Persona));
+        await JS.InvokeVoidAsync("DownloadFileFromBytes", $"planilla ayuda {ayuda.IdAyuda} fecha {ayuda.FechaSolicitud.ToShortDateString()}.pdf", data);
+    }
+}

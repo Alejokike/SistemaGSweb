@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
 using SistemaGS.Model;
@@ -50,7 +49,7 @@ namespace SistemaGS.Service.Implementacion
                                where
                                filtro.FechaIni <= m.Fecha && m.Fecha <= filtro.FechaFin &&
                                (filtro.IdItem == 0 || i.IdItem.Equals(filtro.IdItem)) &&
-                               (filtro.filtro == null || (m.TipoOperacion).ToLower().Contains(filtro.filtro.ToLower()))
+                               (filtro.Movimiento == null || (m.TipoOperacion!).ToLower().Contains(filtro.Movimiento.ToLower()))
                                select new InventarioDTO
                                {
                                    IdTransaccion = m.IdTransaccion,
@@ -59,7 +58,7 @@ namespace SistemaGS.Service.Implementacion
                                    Unidad = m.Unidad,
                                    Cantidad = m.Cantidad,
                                    Concepto = m.Concepto,
-                                   Fecha = m.Fecha
+                                   Fecha = m.Fecha.HasValue ? m.Fecha.Value : DateTime.Today
                                };
                 if (!(await consulta.AnyAsync())) return new List<InventarioDTO>();
                 return await consulta.ToListAsync();
@@ -70,11 +69,11 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }
-        public async Task<(string, int)> ListarInventario(ItemQuery filtro)
+        public async Task<List<ItemDTO>> ListarInventario(ItemQuery filtro)
         {
             try
             {
-                return await _InventarioRepository.ListarInventario(JsonConvert.SerializeObject(filtro));
+                return _mapper.Map<List<ItemDTO>>(await _InventarioRepository.ListarInventario(filtro));
             }
             catch (Exception ex)
             {

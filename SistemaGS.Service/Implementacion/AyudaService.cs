@@ -14,33 +14,18 @@ namespace SistemaGS.Service.Implementacion
     {
         private readonly IGenericoRepository<Ayuda> _modelRepository;
         private readonly IAyudaRepository _AyudaRepository;
-        private readonly IGenericoRepository<Persona> _personaRepository;
 
         private readonly IMapper _mapper;
-        public AyudaService(IGenericoRepository<Ayuda> modelRepository, IAyudaRepository AyudaRepository, IGenericoRepository<Persona> personaRepository,IMapper mapper)
+        public AyudaService(IGenericoRepository<Ayuda> modelRepository, IAyudaRepository AyudaRepository, IMapper mapper)
         {
             _modelRepository = modelRepository;
             _AyudaRepository = AyudaRepository;
-            _personaRepository = personaRepository;
             _mapper = mapper;
         }
-
-        public async Task<bool> CambiarEstado(string estado, int idAyuda)
-        {
-            return await _AyudaRepository.CambiarEstado(estado, idAyuda);
-        }
-
         public async Task<AyudaDTO> Crear(AyudaDTO Model)
         {
             try
             {
-                if (
-                    !await _personaRepository.Consultar(s => s.Cedula == Model.Solicitante).AnyAsync() ||
-                    !await _personaRepository.Consultar(f => f.Cedula == Model.Funcionario).AnyAsync()
-                    )
-                    throw new TaskCanceledException("Las personas en la ayuda no existen en sistema");
-                if(Model.Solicitante != Model.Funcionario) throw new TaskCanceledException("Un solicitante no puede gestionar su propia ayuda");
-
                 var responseDB = await _modelRepository.Crear(_mapper.Map<Ayuda>(Model));
                 if (responseDB != null) return _mapper.Map<AyudaDTO>(responseDB);
                 else throw new TaskCanceledException("No se pudo crear");
@@ -55,13 +40,6 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                if (
-                    !await _personaRepository.Consultar(s => s.Cedula == Model.Solicitante).AnyAsync() ||
-                    !await _personaRepository.Consultar(f => f.Cedula == Model.Funcionario).AnyAsync()
-                    )
-                    throw new TaskCanceledException("Las personas en la ayuda no existen en sistema");
-                if (Model.Solicitante == Model.Funcionario) throw new TaskCanceledException("Un solicitante no puede gestionar su propia ayuda");
-
                 if (await _modelRepository.Consultar(a => a.IdAyuda == Model.IdAyuda).AnyAsync()) return await _modelRepository.Editar(_mapper.Map<Ayuda>(Model));
                 else throw new TaskCanceledException("La ayuda seleccionada no existe");
             }
@@ -77,11 +55,16 @@ namespace SistemaGS.Service.Implementacion
             {
                 var model = await _modelRepository.Consultar(a => a.IdAyuda == idAyuda).FirstOrDefaultAsync();
 
-                List<ListaItemDTO> lista = JsonConvert.DeserializeObject<List<ListaItemDTO>>(model!.ListaItems!)!;
+                if(model != null)
+                {
+                    if (model.Estado != "Por Aprobar") throw new InvalidOperationException("No se puede eliminar una ayuda aprobada");
+                    
+                    List<ListaItemDTO>? lista = JsonConvert.DeserializeObject<List<ListaItemDTO>>(model.ListaItems!)!;
 
-                if (lista.Any(l => l.CantidadEntregada > 0)) throw new TaskCanceledException("La ayuda tiene stock asignado, devuelvalo al inventario antes de eliminar");
+                    if (lista != null && lista.Any(l => l.CantidadEntregada > 0)) throw new TaskCanceledException("La ayuda tiene stock asignado, devuelvalo al inventario antes de eliminar");
 
-                if (model != null) return await _modelRepository.Eliminar(model);
+                    return await _modelRepository.Eliminar(model);
+                }
                 else throw new TaskCanceledException("No existen coincidencias");
             }
             catch (Exception ex)
@@ -94,9 +77,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                string query = JsonConvert.SerializeObject(filtro);
-
-                var model = await _AyudaRepository.Listar(query);
+                var model = await _AyudaRepository.Listar(filtro);
 
                 if (model != null) return _mapper.Map<List<AyudaDTO>>(model);
                 else throw new TaskCanceledException("No existen coincidencias");

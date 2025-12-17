@@ -1,9 +1,13 @@
 ﻿@page "/Solicitar"
-@page "/Solicitar/{ID:int}"
+@page "/Solicitar/{ID:int}/{IDayuda:int}"
 
 @using Newtonsoft.Json;
+
+@inject IJSRuntime JS;
+@implements IDisposable;
+
 @inject IInventarioService inventarioService;
-@inject IListaAyudaService listaAyuda;
+@inject IAyudaService ayudaService;
 @inject IToastService toastService;
 @inject NavigationManager _navService;
 @inject AuthenticationStateProvider authenticationStateProvider;
@@ -15,32 +19,33 @@
 <AuthorizeView>
     <Authorized>
         @{
-            int IdLogged = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));            
-            string Rol = context.User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)!.Value;
-            if (ID != IdLogged && Rol != "Solicitante") _navService.NavigateTo($"/Usuario/{IdLogged}");
+            int IdLogged = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
+            if (ID != IdLogged) _navService.NavigateTo($"/Solicitar/{IdLogged}/0");
         }
     </Authorized>
 </AuthorizeView>
-
-<BlazoredToasts />
 
 @* Formulario Ayuda *@
 
 <div class="row-cols-12 mt-3">
     <div class="col-sm-12">
         <div class="card mb-3">
+            <div class="card-header">
+                <h4>Información de la ayuda</h4>
+            </div>
             <div class="card-body">
                 <EditForm Model="Ayuda" OnValidSubmit="SolicitarAyuda">
                     <DataAnnotationsValidator />
                     <ValidationSummary />
 
                     <div class="mb-3">
-                        <label class="form-label">Detalle y observaciones de la ayuda</label>
-                        <InputTextArea class="form-control form-control-sm" placeholder="Ingrese la necesidad para ortorgar esta ayuda" @bind-value="Ayuda.Detalle"/>
+                        <label class="form-label fw-bold">Razón de la solicitud</label>
+                        <InputTextArea class="form-control form-control-sm" required placeholder="Ingrese la necesidad para ortorgar esta ayuda" @bind-value="@Ayuda.Detalle["Solicitud"]" @oninput="@(e => Ayuda.Detalle["Solicitud"] = e.Value?.ToString() ?? "")" />
                         <ValidationMessage For="@(() => Ayuda.Detalle)" />
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Categoría de la ayuda</label>
+                        <label class="form-label fw-bold">Categoría de la ayuda</label>
                         <InputSelect class="form-select" @bind-value="Ayuda.Categoria">
                             <option value="" selected>--Seleccione una categoría</option>
                             <option value="Medicamentos">Medicamentos</option>
@@ -76,34 +81,30 @@
 <div class="row-cols-12 mt-4 align-items-sm-center">
     <div class="col-sm-12">
         <div class="card mb-3">
-            
             <div class="card-header">
-                <div class="text-center text-black">
-                    Seleccione ítems para agregar a la ayuda
-                </div>
+                <h5>Seleccione los ítems para añadir a la ayuda</h5>
             </div>
-
             <div class="table-responsive mt-2">
-                <table class="table table-sm bg-light table-bordered">
+                <table id="Tabla1" class="table table-sm bg-light table-bordered">
                     <thead class="table-dark">
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Categoria</th>
+                            <th class="text-center">ID</th>
+                            <th class="text-center">Nombre</th>
+                            <th class="text-center">Categoria</th>
+                            <th class="text-center">Descripción</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (inventario.Any())
                         {
-                            int i = 1;
                             foreach (var item in inventario)
                             {
                                 <tr>
-                                    <td valign="middle">@(i++)</td>
-                                    <td valign="middle">@item.Nombre</td>
-                                    <td valign="middle">@item.Categoria</td>
-
+                                    <td valign="middle" align="center">@item.IdItem</td>
+                                    <td valign="middle" align="center">@item.Nombre</td>
+                                    <td valign="middle" align="center">@item.Categoria</td>
+                                    <td valign="middle" align="center">@item.Descripcion</td>
                                     <td valign="middle" align="center">
                                         <div class="btn-group" role="group">
                                             <button type="button" class="btn btn-outline-dark" @onclick="(() => AgregarItem(item))">
@@ -117,7 +118,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="4">
+                                <td colspan="5">
                                     <div class="alert alert-warning" role="alert">
                                         No hay ítems para mostrar
                                     </div>
@@ -127,97 +128,49 @@
                     </tbody>
                 </table>
             </div>
-
         </div>
-
-            <div class="card-footer">
-            
-                <div class="text-center">
-                <span class="text-info">¿No encuentras lo que estas buscando?</span>
-                <button class="btn-outline-secondary" @onclick="(() => agregar = !agregar)" >Añadir ítem</button>
-            </div>    
-                
-                @if (agregar)
-                {
-                    <EditForm Model="item" OnValidSubmit="AgregarItemLista">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
-
-                        <div class="input-group mt-2">
-                            <span class="input-group-text bg-light" id="basic-addon3">Nombre</span>
-                            <InputText class="form-control" @bind-value="item.Nombre" />
-                        </div>
-                        <ValidationMessage For="@(() => item.Nombre)" />
-
-                        <div class="input-group mt-2">
-                            <label class="input-group-text bg-light">Categoría</label>
-                            <InputSelect class="form-select" @bind-value="item.Categoria">
-                                <option value="" selected>--Seleccione una categoría</option>
-                                <option value="Otros">Otros</option>
-                            </InputSelect>
-                        </div>
-                        <ValidationMessage For="@(() => item.Categoria)" />
-
-                        <div class="input-group mt-2">
-                            <span class="input-group-text bg-light" id="basic-addon3">Descripción</span>
-                            <InputTextArea class="form-control" @bind-value="item.Descripcion" />
-                        </div>
-                        <ValidationMessage For="@(() => item.Descripcion)" />
-
-                        <div class="mt-2">
-                            <button type="submit" class="btn btn-primary">Agregar</button>
-                            <button type="reset" class="btn btn-secondary" @onclick="LimpiarItem">Cancelar</button>
-                        </div>
-
-                    </EditForm>
-                }
-
-        </div>
-
     </div>
 </div>
 
 @* Lista de items *@
 
 <div class="row-cols-12 mt-4">
-
     <div class="col-sm-12">
         <div class="card mb-3">
-
+            <div class="card-header">
+                <h5>Lista de ítems</h5>
+            </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-sm bg-light table-bordered">
+                    <table id="Tabla2" class="table table-sm bg-light table-bordered">
                         <thead class="table-dark">
                             <tr>
                                 <th class="text-center">ID</th>
                                 <th class="text-center">Nombre</th>
                                 <th class="text-center">Categoria</th>
-                                <th class="text-center">Unidad</th>
                                 <th class="text-center">Cantidad</th>
-                                <th></th>
+                                <th class="text-center">Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
-
                             @if (Ayuda.ListaItems.Any())
                             {
                                 foreach (var item in Ayuda.ListaItems)
                                 {
                                     <tr>
-                                        <td valign="middle">@item.IdLista</td>
+                                        <td valign="middle" align="center">@item.IdLista</td>
                                         <td valign="middle">@item.ItemLista!.Nombre</td>
                                         <td valign="middle">@item.ItemLista!.Categoria</td>
-                                        <td valign="middle">@item.ItemLista!.Unidad</td>
-                                        
+
                                         <td valign="middle" align="center">
-                                            @if(item.ItemLista.Unidad == "VE")
+                                            @if (item.ItemLista.Unidad == "VE")
                                             {
-                                                <InputNumber class="form-control" min="0" step="0.01" style="width: 200px" @bind-value="item.CantidadSolicitada" @oninput="(e => Limitar(e, item))"/>
+                                                <InputNumber class="form-control" min="0" step="0.01" style="width: 200px" @bind-value="item.CantidadSolicitada" @oninput="(e => Utilidades.ValidateNumeric(e, item.ItemLista.Unidad))" />
                                             }
                                             else
                                             {
                                                 <div class="btn-group" role="group">
-                                                    <button type="button" class="btn btn-outline-dark" @onclick="(() => {if (item.CantidadSolicitada > 0) item.CantidadSolicitada--;})">
+                                                    <button type="button" class="btn btn-outline-dark" @onclick="(() => { if (item.CantidadSolicitada > 0) item.CantidadSolicitada--; })">
                                                         <i class="oi oi-minus"></i>
                                                     </button>
                                                     <input class="form-control" readonly style="width:50px" @bind-value="item.CantidadSolicitada">
@@ -228,7 +181,7 @@
                                             }
                                         </td>
 
-                                        <td valign="middle">
+                                        <td valign="middle" align="center">
                                             <button type="button" class="btn btn-outline-dark" @onclick="(() => EliminarItem(item.IdLista))">
                                                 <i class="oi oi-trash"></i>
                                             </button>
@@ -240,73 +193,61 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="7">
+                                    <td colspan="5">
                                         <div class="alert alert-warning" role="alert">
                                             No hay productos en la lista
                                         </div>
                                     </td>
                                 </tr>
                             }
-                        
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
-
 </div>
 
 @code{
-    [Parameter]
-    public int ID { get; set; }
+    [Parameter] public int ID { get; set; }
+    [Parameter] public int IDayuda { get; set; }
+
+    private AyudaDTO Ayuda = new AyudaDTO()
+    {
+        ListaItems = new List<ListaItemDTO>(),
+        Detalle = new Dictionary<string, string>
+        {
+            ["Solicitud"] = "",
+            ["Observaciones"] = "",
+            ["Aprobado"] = "",
+            ["Rechazado"] = ""
+        }
+    };
 
     List<ItemDTO> inventario = new List<ItemDTO>();
 
-    protected override void OnParametersSet()
+    ItemQuery filtro = new ItemQuery();
+
+    protected override async Task OnParametersSetAsync()
     {
-        Ayuda.Solicitante = ID;
-        Ayuda.ListaItems = new List<ListaItemDTO>();
-        Ayuda.Estado = "Por Aprobar";
-        Ayuda.FechaSolicitud = DateTime.Today;
-
-        inventario.Add(new ItemDTO()
-            {
-                IdItem = 1,
-                Nombre = "Financiamiento",
-                Categoria = "Financiamiento",
-                Descripcion = "Fondos para una actividad concreta",
-                Unidad = "VE"
-            });
-        inventario.Add(new ItemDTO()
-            {
-                IdItem = 2,
-                Nombre = "Consulta médica",
-                Categoria = "Estudios médicos",
-                Descripcion = "Consulta con un doctor de imasur",
-                Unidad = "MU"
-            });
-        inventario.Add(new ItemDTO()
-            {
-                IdItem = 3,
-                Nombre = "Exámenes de laboratorio",
-                Categoria = "Estudios médicos",
-                Descripcion = "Exámenes para estudios",
-                Unidad = "MU"
-            });
-        inventario.Add(new ItemDTO()
-            {
-                IdItem = 4,
-                Nombre = "Exámenes de diagnóstico",
-                Categoria = "Estudios médicos",
-                Descripcion = "Exámenes para diagnóstico",
-                Unidad = "MU"
-            });
+        if(IDayuda != 0)
+        {
+            var response = await ayudaService.Obtener(IDayuda);
+            if (response.EsCorrecto && response.Resultado != null) Ayuda = response.Resultado;
+        }
+        else
+        {
+            Ayuda.Solicitante = ID;
+            Ayuda.FechaSolicitud = DateTime.Today;
+            Ayuda.Estado = "Por Aprobar";
+        }
+        await ListarInventario();
     }
-
-    #region Solicitar Ayuda
-    private AyudaDTO Ayuda = new AyudaDTO();
+    private async Task ListarInventario()
+    {
+        var response = await inventarioService.ListarInventario(filtro);
+        if (response.EsCorrecto && response.Resultado != null) inventario = response.Resultado.Where(i => i.Unidad == "VE" || i.Unidad == "MU").ToList();
+    }
 
     private async Task SolicitarAyuda()
     {
@@ -321,25 +262,36 @@
             return;
         }
 
-        int id = 0;
-        var ayudas = await listaAyuda.Listar();
-        if (ayudas.Any()) id = ayudas.Max(i => i.IdAyuda);
-        else id = 0;
-
-        Ayuda.IdAyuda = id + 1;
-
-        await listaAyuda.AgregarLista(Ayuda);
-
-        _navService.NavigateTo("/");
+        if(IDayuda != 0)
+        {
+            var response = await ayudaService.Editar(Ayuda);
+            if (response.EsCorrecto)
+            {
+                toastService.ShowSuccess("La solicitud fué editada");
+                _navService.NavigateTo("/Ayudas");
+            }
+            else toastService.ShowWarning($"Error: {response.Mensaje}");
+        }
+        else
+        {
+            var response = await ayudaService.Crear(Ayuda);
+            if (response.EsCorrecto && response.Resultado != null)
+            {
+                toastService.ShowSuccess("La solicitud fué creada");
+                _navService.NavigateTo("/");
+            }
+            else toastService.ShowWarning($"Error: {response.Mensaje}");
+        }
     }
-    #endregion
 
     #region Item
+
     private bool agregar = false;
     ItemDTO item = new ItemDTO()
     {
         Unidad = "EU"
     };
+
     private void AgregarItem(ItemDTO Item)
     {
         item = Item;
@@ -370,13 +322,17 @@
                 IdLista = (id + 1),
                 ItemLista = item
             });
+
+        item = new ItemDTO()
+        {
+            Unidad = "EU"
+        };
     }
     private void EliminarItem(int id)
     {
         var response = Ayuda.ListaItems.FirstOrDefault(i => i.IdLista == id);
         if (response != null) Ayuda.ListaItems.Remove(response);
     }
-
     private void LimpiarItem()
     {
         item = new ItemDTO()
@@ -385,14 +341,26 @@
         };
         agregar = !agregar;
     }
-    private decimal Limitar(ChangeEventArgs e, ListaItemDTO item)
-    {
-        if(decimal.TryParse(e.Value?.ToString(), out decimal valor))
-        {
-            decimal val = Math.Round(valor, 2);
-            return val > 0 ? val : -val;
-        }
-        return 0;
-    }
+
     #endregion
+    bool[] Init = new bool[] {false, false};
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!Init[0] && inventario.Any())
+        {
+            JS.InvokeVoidAsync("InitTable", "#Tabla1");
+            Init[0] = true;
+        }
+        if (!Init[1] && Ayuda.ListaItems.Any())
+        {
+            JS.InvokeVoidAsync("InitTable", "#Tabla2");
+            Init[1] = true;
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+    public void Dispose()
+    {
+        if (inventario.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla1");
+        if (Ayuda.ListaItems.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla2");
+    }
 }

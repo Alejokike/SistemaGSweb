@@ -1,0 +1,70 @@
+﻿@page "/Ayuda"
+@page "/Ayuda/{IDAyuda:int}"
+
+@inject IAyudaService ayudaService;
+@inject NavigationManager navigationManager;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [Authorize]
+
+<PageTitle>Ayuda</PageTitle>
+
+@switch (Rol)
+{
+    case "Administrador":
+        {
+            <AyudaLayout ayuda="ayuda" ImpresionHabilitada="true"></AyudaLayout>
+            break;
+        }
+    case "Funcionario":
+        {
+            <AyudaLayout ayuda="ayuda" ImpresionHabilitada="true"></AyudaLayout>
+            break;
+        }
+    case "Solicitante":
+        {
+            <AyudaLayout ayuda="ayuda" ImpresionHabilitada="false"></AyudaLayout>
+            break;
+        }
+    default:
+        {
+            break;
+        }
+}
+
+@code {
+    [Parameter]
+    public int IDAyuda {get;set;}
+
+    private AyudaDTO ayuda = new AyudaDTO()
+    {
+        ListaItems = new List<ListaItemDTO>(),
+        Detalle = new Dictionary<string, string>
+        {
+            ["Solicitud"] = "",
+            ["Observaciones"] = "",
+            ["Aprobado"] = "",
+            ["Rechazado"] = ""
+        }
+    };
+
+    private int ID;
+    private string Rol = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var User = authState.User;
+
+        ID = Convert.ToInt32((User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
+        Rol = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)!.Value;
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        var response = await ayudaService.Obtener(IDAyuda);
+        if (response.EsCorrecto && response.Resultado != null) ayuda = response.Resultado;
+        else navigationManager.NavigateTo("/Ayudas");
+
+        if (Rol != "Administrador" && ((ID != ayuda.Solicitante && Rol == "Solicitante") || (ID != ayuda.Funcionario && Rol == "Funcionario"))) navigationManager.NavigateTo("/");
+    }
+}

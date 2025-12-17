@@ -6,7 +6,7 @@ namespace SistemaGS.DTO.ModelDTO
     {
         [Required(ErrorMessage = "Ingrese Cédula")]
         [RegularExpression(@"^\d{7,8}$", ErrorMessage = "El número debe tener 7 u 8 dígitos.")]
-        public int Cedula { get; set; }
+        public int? Cedula { get; set; }
 
         [Required(ErrorMessage = "Ingrese Nombres")]
         [RegularExpression(@"^[\p{L} ]+$", ErrorMessage = "¿Por que tendrías eso de nombre? ¿¿¿???")]
@@ -18,12 +18,11 @@ namespace SistemaGS.DTO.ModelDTO
         [MaxLength(60, ErrorMessage = "Máximo 60 caracteres")]
         public string Apellido { get; set; } = null!;
 
-        
         [Required(ErrorMessage = "Ingrese Fecha de Nacimiento")]
         public DateTime? FechaNacimiento { get; set; }
 
         [Required(ErrorMessage = "Seleccione un Género")]
-        [MaxLength(1, ErrorMessage = "Seleccione un Género")]
+        [MaxLength(1, ErrorMessage = "Género inválido")]
         public string Genero { get; set; } = "M";
 
         [Required(ErrorMessage = "Ingrese Profesión")]
@@ -44,6 +43,7 @@ namespace SistemaGS.DTO.ModelDTO
 
         [Required(ErrorMessage = "Ingrese Teléfono de Trabajo")]
         [RegularExpression(@"^0[24]\d{2}-\d{7}$", ErrorMessage = "Teléfono inválido")]
+        [MaxLength(12, ErrorMessage = "Máximo 12 caracteres")]
         public string? TelefonoTrabajo { get; set; }
 
         [Required(ErrorMessage = "Ingrese Dirección de Habitación")]
@@ -52,6 +52,7 @@ namespace SistemaGS.DTO.ModelDTO
 
         [Required(ErrorMessage = "Ingrese Teléfono de Trabajo")]
         [RegularExpression(@"^0[24]\d{2}-\d{7}$", ErrorMessage = "Teléfono inválido")]
+        [MaxLength(12, ErrorMessage = "Máximo 12 caracteres")]
         public string TelefonoHabitacion { get; set; } = null!;
     }
 }

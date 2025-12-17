@@ -12,9 +12,11 @@ namespace SistemaGS.API.Controllers
     public class AyudaController : Controller
     {
         private readonly IAyudaService _ayudaService;
-        public AyudaController(IAyudaService usuarioService)
+        private readonly IHttpContextAccessor _contextAccessor;
+        public AyudaController(IAyudaService usuarioService, IHttpContextAccessor contextAccessor   )
         {
             _ayudaService = usuarioService;
+            _contextAccessor = contextAccessor;
         }
         [HttpGet("Lista")]
         public async Task<IActionResult> Lista([FromQuery] AyudaQuery filtro)
@@ -79,23 +81,6 @@ namespace SistemaGS.API.Controllers
             {
                 response.EsCorrecto = true;
                 response.Resultado = await _ayudaService.Editar(ayuda);
-            }
-            catch (Exception ex)
-            {
-                response.EsCorrecto = false;
-                response.Mensaje = ex.Message;
-            }
-            return Ok(response);
-        }
-        [HttpPut("CambiarEstado/{estado:alpha}/{idAyuda:int}")]
-        public async Task<IActionResult> Editar(string estado, int idAyuda)
-        {
-            var response = new ResponseDTO<bool>();
-
-            try
-            {
-                response.EsCorrecto = true;
-                response.Resultado = await _ayudaService.CambiarEstado(estado, idAyuda);
             }
             catch (Exception ex)
             {

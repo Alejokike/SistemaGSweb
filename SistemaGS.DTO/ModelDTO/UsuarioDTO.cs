@@ -6,10 +6,8 @@ namespace SistemaGS.DTO.ModelDTO
     {
         [Required(ErrorMessage = "Ingrese Cédula")]
         [RegularExpression(@"^\d{7,8}$", ErrorMessage = "El número debe tener 7 u 8 dígitos.")]
-        public int Cedula { get; set; }
-        [Required]
+        public int? Cedula { get; set; }
         public RolDTO Rol { get; set; } = null!;
-        [Required]
         public PersonaDTO Persona { get; set; } = null!;
 
         [Required(ErrorMessage = "Ingrese nombre de usuario")]
@@ -29,7 +27,7 @@ namespace SistemaGS.DTO.ModelDTO
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "La clave debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, número y símbolo")]
         public string ConfirmarClave { get; set; } = null!;
         public bool Activo { get; set; }
-        public bool ResetearClave { get; set; }
-        public DateTime? FechaCreacion { get; set; }
+        public bool ResetearClave { get; set; } = true;
+        public DateTime FechaCreacion { get; set; }
     }
 }

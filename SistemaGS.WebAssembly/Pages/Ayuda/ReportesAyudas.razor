@@ -1,0 +1,53 @@
+﻿@page "/ConsolidadoAyudas"
+
+@using SistemaGS.WebAssembly.Pages.Admin;
+@using SistemaGS.WebAssembly.Pages.Funcionario
+@using SistemaGS.WebAssembly.Pages.Solicitante
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IToastService toastService;
+@inject NavigationManager _navService;
+
+@attribute [Authorize]
+
+<PageTitle>Reportes</PageTitle>
+
+@switch (Rol)
+{
+    case "Administrador":
+        {
+            <ReportesAdministrador />
+            break;
+        }
+    case "Funcionario":
+        {
+            <ReportesFuncionario ID="ID" />
+            break;
+        }
+    case "Solicitante":
+        {
+            <Historial ID="ID" />
+            break;
+        }
+    default:
+        {
+            //toastService.ShowInfo("Debes iniciar sesión");
+            //_navService.NavigateTo("/");
+            break;
+        }
+}
+
+@code {
+    int ID = 0;
+    string Rol = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var User = authState.User;
+
+        ID = Convert.ToInt32((User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
+        Rol = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)!.Value;
+
+        await base.OnInitializedAsync();
+    }
+}

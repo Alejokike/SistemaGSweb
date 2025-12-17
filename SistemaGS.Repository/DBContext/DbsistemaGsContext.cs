@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using SistemaGS.Model;
 
 namespace SistemaGS.Repository.DBContext;
@@ -30,17 +29,14 @@ public partial class DbsistemaGsContext : DbContext
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    => optionsBuilder.UseSqlServer("Server=localhost; DataBase=DBSISTEMA_GS; Trusted_Connection=True; TrustServerCertificate=True;");
-    /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.
-        optionsBuilder.UseSqlServer();
-    }*/
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=localhost; DataBase=DBSISTEMA_GS; Trusted_Connection=True; TrustServerCertificate=True;");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Ayuda>(entity =>
         {
-            entity.HasKey(e => e.IdAyuda).HasName("PK__Ayuda__649DCAF9FE8E54EC");
+            entity.HasKey(e => e.IdAyuda).HasName("PK__Ayuda__649DCAF9868F6432");
 
             entity.Property(e => e.Categoria).HasMaxLength(50);
             entity.Property(e => e.Estado).HasMaxLength(20);
@@ -53,22 +49,20 @@ public partial class DbsistemaGsContext : DbContext
 
             entity.HasOne(d => d.FuncionarioNavigation).WithMany(p => p.AyudumFuncionarioNavigations)
                 .HasForeignKey(d => d.Funcionario)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Ayuda__Funcionar__4CA06362");
+                .HasConstraintName("FK__Ayuda__Funcionar__5441852A");
 
             entity.HasOne(d => d.SolicitanteNavigation).WithMany(p => p.AyudumSolicitanteNavigations)
                 .HasForeignKey(d => d.Solicitante)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Ayuda__Solicitan__4BAC3F29");
+                .HasConstraintName("FK__Ayuda__Solicitan__534D60F1");
         });
 
         modelBuilder.Entity<Inventario>(entity =>
         {
-            entity.HasKey(e => e.IdTransaccion).HasName("PK__Inventar__334B1F77D9C1B0DD");
+            entity.HasKey(e => e.IdTransaccion).HasName("PK__Inventar__334B1F77B3B1E9AD");
 
             entity.ToTable("Inventario");
 
-            entity.Property(e => e.Cantidad).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.Cantidad).HasColumnType("decimal(10, 4)");
             entity.Property(e => e.Concepto).HasMaxLength(60);
             entity.Property(e => e.Fecha).HasColumnType("datetime");
             entity.Property(e => e.TipoOperacion).HasMaxLength(3);
@@ -77,17 +71,21 @@ public partial class DbsistemaGsContext : DbContext
 
         modelBuilder.Entity<Item>(entity =>
         {
-            entity.HasKey(e => e.IdItem).HasName("PK__Item__51E84262527F128F");
+            entity.HasKey(e => e.IdItem).HasName("PK__Item__51E842629B56C374");
 
             entity.ToTable("Item");
 
-            entity.HasIndex(e => e.Nombre, "UQ__Item__75E3EFCFFB2833D8").IsUnique();
+            entity.HasIndex(e => e.Nombre, "UQ__Item__75E3EFCF56253DAC").IsUnique();
 
+            entity.Property(e => e.Activo).HasDefaultValueSql("((1))");
             entity.Property(e => e.Cantidad)
                 .HasDefaultValueSql("((0))")
                 .HasColumnType("decimal(18, 0)");
             entity.Property(e => e.Categoria).HasMaxLength(50);
             entity.Property(e => e.Descripcion).HasMaxLength(300);
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Nombre).HasMaxLength(80);
             entity.Property(e => e.Unidad)
                 .HasMaxLength(2)

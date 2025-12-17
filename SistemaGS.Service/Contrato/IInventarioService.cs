@@ -7,7 +7,7 @@ namespace SistemaGS.Service.Contrato
     {
         Task<List<InventarioDTO>> Lista(InventarioQuery filtro);
         Task<InventarioDTO> Obtener(int IdTransaccion);
-        Task<(string, int)> ListarInventario(ItemQuery filtro);
+        Task<List<ItemDTO>> ListarInventario(ItemQuery filtro);
         Task<ItemDTO> ObtenerItem(int IdItem, string nombre);
         Task<InventarioDTO> Registrar(InventarioDTO Transaccion);
         Task<bool> Desbloquear(List<InventarioDTO> movimientos, int IdAyuda);

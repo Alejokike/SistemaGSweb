@@ -1,18 +1,44 @@
-﻿@page "/Aprobar"
+﻿@page "/Aprobar";
 @page "/Aprobar/{IDAyuda:int}"
-@using SistemaGS.WebAssembly.Services.RealServices
 
 @inject IUsuarioService usuarioService;
 @inject IAyudaService ayudaService;
-@inject IListaAyudaService listaAyuda;
 @inject IToastService toastService;
 @inject NavigationManager navigationManager;
 @inject SweetAlertService Swat;
+
+@attribute [Authorize(Roles = "Administrador")]
 
 <div class="d-flex flex-column min-vh-90">
 @* Formulario Ayuda *@
     <div class="flex-grow-1">
         <div class="row-cols-12 mt-3">
+
+            @if (ContSA + ContSC > 2)
+            {
+                <div class="col-sm-12">
+                    <div class="card mb-3">
+                        <div class="card-body">
+
+                            @if (ContSA > 0)
+                            {
+                                <div class="alert alert-warning p-2" role="alert">
+                                    El Solicitante tiene @ContSA ayudas en proceso en los últimos 2 meses, revisar si no tiene solicitudes duplicadas
+                                </div>
+                            }
+                            @if (ContSC > 0)
+                            {
+                                <div class="alert alert-warning p-2" role="alert">
+                                    El Solicitante tiene @ContSC ayudas entregadas en los últimos 2 meses, revisar si no tiene solicitudes duplicadas
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            }
+
+
             <div class="col-sm-12">
                 <div class="card mb-3">
                     <div class="card-body">
@@ -20,13 +46,13 @@
                         <div>
         
                             <div class="mb-3">
-                                <label class="form-label">Detalle y observaciones de la ayuda</label>
-                                <div class="form-control">@ayuda.Detalle</div>
+                                <label class="form-label">Detalle de la Ayuda</label>
+                                <div class="form-label">@(ayuda.Detalle["Solicitud"])</div>
                             </div>
         
                             <div class="mb-3">
                                 <label class="form-label">Categoría de la ayuda</label>
-                                <InputSelect class="form-select" @bind-value="ayuda.Categoria">
+                                <InputSelect class="form-select" readonly="@(boton == "Revocar Aprobación" ? true : null)" @bind-value="ayuda.Categoria">
                                     <option value="" selected>--Seleccione una categoría</option>
                                     <option value="Medicamentos">Medicamentos</option>
                                     <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
@@ -44,7 +70,17 @@
 
                             <div class="mb=3">
                                 <label class="form-label">Funcionario a cargo</label>
-                                <InputNumber class="form-control" min="0" placeholder="Ingrese la cédula del funcionario que se va a encargar de procesar la ayuda" @bind-value="ayuda.Funcionario" />
+                                @{  
+                                    string funci = "";
+                                }
+                                <InputText class="form-control mb-2" placeholder="Buscar funcionario..." @bind-Value="funci" @oninput="(e => BuscarFuncionario(e))"/>
+                                <InputSelect class="form-select" @bind-Value="ayuda.Funcionario">
+                                    <option value=0 selected>--Seleccione un funcionario</option>
+                                    @foreach(var funcionario in Funcionarios)
+                                    {
+                                        <option value=@funcionario.Cedula>@funcionario.Cedula - @funcionario.Persona.Nombre @funcionario.Persona.Apellido</option>
+                                    }
+                                </InputSelect>
                             </div>
         
                         </div>
@@ -70,29 +106,29 @@
                                         <th class="text-center">Nombre</th>
                                         <th class="text-center">Categoria</th>
                                         <th class="text-center">Unidad</th>
-                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-center">Cantidad Solicitada</th>
+                                        <th class="text-center">Cantidad Entregada</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @if (ayuda.ListaItems.Any())
                                     {
-                                        int i = 1;
                                         foreach (var item in ayuda.ListaItems)
                                         {
-                                            item.IdLista = i++;
                                             <tr>
                                                 <td valign="middle">@item.IdLista</td>
                                                 <td valign="middle">@item.ItemLista!.Nombre</td>
                                                 <td valign="middle">@item.ItemLista!.Categoria</td>
-                                                <td valign="middle">@item.ItemLista!.Unidad</td>
+                                                <td valign="middle" class="text-center">@item.ItemLista!.Unidad</td>
                                                 <td valign="middle" align="center">@item.CantidadSolicitada</td>
+                                                <td valign="middle" align="center">@item.CantidadEntregada</td>
                                             </tr>
                                         }
                                     }
                                     else
                                     {
                                         <tr>
-                                            <td colspan="5">
+                                            <td colspan="6">
                                                 <div class="alert alert-warning" role="alert">
                                                     No hay productos en la lista
                                                 </div>
@@ -121,30 +157,59 @@
 
 @code {
     [Parameter]
-    public int IDAyuda { get; set; }
+    public int IDAyuda { get; set; } 
+    private AyudaDTO ayuda { get; set; } = new AyudaDTO()
+    {
+        ListaItems = new List<ListaItemDTO>(),
+        Detalle = new Dictionary<string, string>()
+        {
+            ["Solicitud"] = "",
+            ["Observaciones"] = "",
+            ["Aprobado"] = "",
+            ["Rechazado"] = ""
+        }
+    };
 
     string boton = "Aprobar";
     string color = "btn btn-success";
 
-    AyudaDTO ayuda = new AyudaDTO();
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        ayuda.ListaItems = new List<ListaItemDTO>();
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        var lista = await listaAyuda.Listar();
-        if (!lista.Any(a => a.IdAyuda == IDAyuda))
+        var response = await ayudaService.Obtener(IDAyuda);
+        if (response.EsCorrecto && response.Resultado != null) ayuda = response.Resultado;
+        else
         {
             navigationManager.NavigateTo("/Ayudas");
             return;
         }
-        var response = lista.FirstOrDefault(a => a.IdAyuda == IDAyuda);
-        if (response != null) ayuda = response;
-        else navigationManager.NavigateTo("/Ayudas");
+        await listarS();
+    }
+    int ContSA = 0;
+    int ContSC = 0;
+    private async Task listarS()
+    {
+        var response = await ayudaService.Listar(
+                                    new AyudaQuery()
+                                    {
+                                        solicitante = ayuda.Solicitante,
+                                        FechaIni = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-1),
+                                        FechaFin = DateTime.Today
+                                    }
+                                );
+        if (response.EsCorrecto && response.Resultado != null)
+        {
+            ContSA = response.Resultado.Count(a => a.Estado == "En Proceso" || a.Estado == "Lista Para Entregar");
+            ContSC = response.Resultado.Count(a => a.Estado == "Cerrada");
+        }
+        else
+        {
+            ContSA = 0;
+            ContSC = 0;
+        }
+    }
 
+    protected override void OnParametersSet()
+    {
         if (ayuda.Estado == "Por Aprobar")
         {
             boton = "Aprobar";
@@ -160,41 +225,61 @@
     private async Task AprobarAyuda()
     {
         ayuda.Estado = ayuda.Estado == "Por Aprobar" ? "En Proceso" : "Por Aprobar";
-        if(ayuda.Estado == "En Proceso")
+
+        if (ayuda.Estado == "En Proceso") await EnProceso();
+        else await PorAprobar();
+    }
+    private async Task EnProceso()
+    {
+        if (ayuda.Funcionario == 0)
         {
-            /*var response = await usuarioService.Obtener(ayuda.Funcionario);
-            if (response.Resultado != null)
-            {
-                var funcionario = response.Resultado;
-                if (funcionario.Rol.IdRol == 2 && funcionario.Activo) ayuda.Funcionario = response.Resultado!.Cedula;
-                else
-                {
-                    toastService.ShowWarning("La ayuda debe de ser asignada a un funcionario activo");
-                    return;
-                    }*/ 
-                if(ayuda.Funcionario == 0)
-                {
-                    ayuda.Estado = "Por Aprobar";
-                    toastService.ShowWarning("El funcionario ingresado no existe");
-                    return;
-                }
-                await listaAyuda.AgregarLista(ayuda);
-                navigationManager.NavigateTo("/Ayudas");
-                return;
-            //}
-            //toastService.ShowWarning("El funcionario ingresado no existe");
-            //return;
+            toastService.ShowWarning("La ayuda debe tener un funcionario asignado");
+            ayuda.Estado = "Por Aprobar";
+            return;
         }
-        if(ayuda.ListaItems.Any(a => a.CantidadEntregada > 0))
+
+        await listarF();
+
+        if (ContF > 5)
+        {
+            SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+            {
+                Title = "Aviso",
+                Text = $"El funcionario seleccionado ya esta trabajando con más de 5 ayudas",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Confirmar",
+                CancelButtonText = "Cancelar"
+            });
+            if (!result.IsConfirmed)
+            {
+                ayuda.Estado = "Por Aprobar";
+                return;
+            }
+        }
+
+        var AyudaResponse = await ayudaService.Editar(ayuda);
+        if (AyudaResponse.EsCorrecto) toastService.ShowSuccess("Ayuda aprobada");
+        else toastService.ShowWarning($"Error: {AyudaResponse.Mensaje}");
+
+        navigationManager.NavigateTo("/Ayudas");
+    }
+    private async Task PorAprobar()
+    {
+        if (ayuda.ListaItems.Any(a => a.CantidadEntregada > 0))
         {
             ayuda.Estado = "En Proceso";
             toastService.ShowWarning("No se puede revocar la aprobación de una ayuda con stock");
             return;
         }
         ayuda.Funcionario = 0;
-        await listaAyuda.AgregarLista(ayuda);
+        var ayudaResponse = await ayudaService.Editar(ayuda);
+        if (ayudaResponse.EsCorrecto) toastService.ShowSuccess("La aprobación fué revocada");
+        else toastService.ShowSuccess($"Error: {ayudaResponse.Mensaje}");
+
         navigationManager.NavigateTo("/Ayudas");
     }
+
     private async Task RechazarAyuda()
     {
         if (ayuda.Estado == "Por Aprobar")
@@ -210,16 +295,32 @@
             });
             if (result.IsConfirmed)
             {
+                result = await Swat.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Razón de rechazo",
+                    ShowCancelButton = false,
+                    InputPlaceholder = "Ingrese motivo de rechazo",
+                    Input = SweetAlertInputType.Text,
+                    ConfirmButtonText = "Aceptar",
+                    InputValidator = new InputValidatorCallback((string value) =>
+                    {
+                        if (string.IsNullOrEmpty(value)) return "Debe ingresar una razón";
+                        return null;
+                    })
+                });
+
                 ayuda.Estado = "Rechazada";
                 ayuda.FechaEntrega = DateTime.Today;
-                await listaAyuda.AgregarLista(ayuda);
-                navigationManager.NavigateTo("/Ayudas");
-                return;
-                /*
-                var response = await ayudaService.Eliminar(idAyuda);
-                if (response.EsCorrecto) toastService.ShowSuccess("La solicitud fué eliminada");
+                ayuda.Detalle["Rechazado"] = result.Value.ToString();
+
+                var response = await ayudaService.Editar(ayuda);
+                if (response.EsCorrecto)
+                {
+                    toastService.ShowSuccess("La ayuda fué rechazada");
+                    navigationManager.NavigateTo("/Ayudas");
+                }
                 else toastService.ShowWarning($"Error: {response.Mensaje}");
-                */
+                return;
             }
         }
         else
@@ -233,5 +334,39 @@
                 ConfirmButtonText = "Cerrar"
             });
         }
+    }
+
+    List<UsuarioDTO> Funcionarios = new List<UsuarioDTO>();
+    private CancellationTokenSource? _cts;
+    private async Task BuscarFuncionario(ChangeEventArgs e)
+    {
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+        try
+        {
+            await Task.Delay(500, _cts.Token);
+
+            string filtro = (e.Value ?? "").ToString() ?? "";
+            var response = await usuarioService.Lista(2, filtro);
+            if (response.EsCorrecto && response.Resultado != null) Funcionarios = response.Resultado;
+        }
+        catch (TaskCanceledException)
+        {
+            
+        }
+    }
+    int ContF = 0;
+    private async Task listarF()
+    {
+        var response = await ayudaService.Listar(
+                                    new AyudaQuery()
+                                    {
+                                        funcionario = ayuda.Funcionario,
+                                        FechaIni = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-1),
+                                        FechaFin = DateTime.Today
+                                    }
+                                );
+        if (response.EsCorrecto && response.Resultado != null) ContF = response.Resultado.Count(a => a.Estado != "Rechazada" && a.Estado != "Por Aprobar");
+        else ContF = 0;
     }
 }

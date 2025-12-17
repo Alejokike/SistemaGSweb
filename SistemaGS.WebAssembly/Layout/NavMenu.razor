@@ -1,14 +1,15 @@
-﻿@inject IListaService listaService
-@inject SweetAlertService swat;
+﻿@inject SweetAlertService swat;
 @inject NavigationManager navigationManager;
 @using SistemaGS.WebAssembly.Extensiones;
 @using Microsoft.AspNetCore.Components.Authorization;
 @using System.Security.Claims;
 @inject AuthenticationStateProvider authenticationState;
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <p class="navbar-brand">SistemaGS</p>
+<div class="top-row p-5 align-content-center navbar navbar-dark">
+    <div class="container-fluid">        
+        <p class="navbar-brand">
+            <img class="img-fluid" width="50" height="50" src="/img/GestionSocialLogo.png" /> SistemaGS
+        </p>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -19,14 +20,13 @@
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
-                <!---->
                 <i class="bi bi-house-door-fill me-1" aria-hidden="true"></i>Home
             </NavLink>
         </div>
 
         <AuthorizeView Roles="Administrador">
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="AyudasAprobar">
+                <NavLink class="nav-link" href="Ayudas">
                     <i class="bi bi-clipboard2-check-fill me-1" aria-hidden="true"></i> Gestionar Ayudas
                 </NavLink>
             </div>
@@ -44,11 +44,15 @@
 
         <AuthorizeView Roles="Funcionario">
             @{
-
                 int Cedula = Convert.ToInt32(@context.User.Claims.Where(u => u.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault()!);
             }
             <div class="nav-item px-3">
-                <NavLink class="nav-link text-center" href="@($"/GestionarAyudas/{Cedula}")">
+                <NavLink class="nav-link text-center" href="@($"Usuario/{@Cedula}")">
+                    <i class="oi oi-people me-1" aria-hidden="true"></i>Perfil
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link text-center" href="Ayudas">
                     <i class="bi bi-box2-heart-fill me-1" aria-hidden="true"></i> Gestionar Ayudas
                 </NavLink>
             </div>
@@ -70,17 +74,17 @@
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link text-center" href="@($"Solicitar/{@Cedula}")">
+                <NavLink class="nav-link text-center" href="@($"Solicitar/{Cedula}/0")">
                     <i class="bi bi-box2-heart-fill me-1" aria-hidden="true"></i>Solicitar Ayuda
                 </NavLink>
             </div>
             <div class="nav-item px-3 text-center">
-                <NavLink class="nav-link" href="@($"Gestionar/{@Cedula}")">
+                <NavLink class="nav-link" href="Ayudas">
                     <i class="bi bi-receipt-cutoff me-1" aria-hidden="true"></i>Gestionar Ayudas
                 </NavLink>
             </div>
             <div class="nav-item px-3 text-center">
-                <NavLink class="nav-link" href="@($"Historial/{@Cedula}")">
+                <NavLink class="nav-link" href="ConsolidadoAyudas">
                     <i class="bi bi-calendar2-heart-fill me-1" aria-hidden="true"></i>Histórico Ayudas
                 </NavLink>
             </div>

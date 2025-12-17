@@ -1,13 +1,13 @@
 ﻿@page "/Usuario"
 @page "/Usuario/{Id:int}"
 
-@inject IListaService listaUsuarios;
+@using SistemaGS.WebAssembly.Extensiones
 @inject IUsuarioService usuarioService
 @inject IToastService toastService;
 @inject NavigationManager _navService;
 @inject AuthenticationStateProvider authenticationStateProvider;
 
-@attribute [Authorize(Roles = "Administrador, Solicitante")]
+@attribute [Authorize]
 
 <PageTitle>@Titulo</PageTitle>
 
@@ -31,47 +31,47 @@
         <button class="nav-link @(activeTab == "cuenta" ? "active" : "")" @onclick="@(() => activeTab = "cuenta")">Datos Cuenta</button>
     </li>
     <li class="nav-item">
-        <button class="nav-link @(activeTab == "personal" ? "active" : "")" @onclick="@(() => { activeTab = "personal"; model.Persona.Cedula = model.Cedula;})">Datos Personales</button>
+        <button class="nav-link @(activeTab == "personal" ? "active" : "")" @onclick="@(() => activeTab = "personal")">Datos Personales</button>
     </li>
 </ul>
 
 <div class="tab-content">
     <div class="row justify-content-center  mt-3">
         <div class="col-sm-12 col-md-8 col-xl-10">
-            <EditForm Model="model" OnValidSubmit="GuardarCambios">
-                <DataAnnotationsValidator />
+            <EditForm EditContext="@editContext" OnValidSubmit="GuardarCambios">
                 <ValidationSummary />
                 @if (activeTab == "cuenta")
                 {
                     <h5>Datos de cuenta</h5>
                     <div class="input-group">
                         <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
-                        <input type="text" maxlength="8" class="form-control" readonly="@(ID != 0 ? true : null)" @bind-value="model.Cedula">
+                        <input type="text" maxlength="8" class="form-control" readonly="@(ID != 0 ? true : null)" @bind-value="model.Cedula" @oninput=@(() => model.Persona.Cedula = model.Cedula)>
                     </div>
                     <ValidationMessage For="@(() => model.Cedula)" />
-                    
-                    <AuthorizeView Roles="Administrador" Context="nulo">
-                    <div class="mt-3">
-                        <label for="rolUsuario" class="form-label">Rol de Usuario</label>
-                        <select id="rolUsuario" class="form-select" disabled="@disable" @bind="ModelRol.IdRol">
-                            <option value=0 selected>--Seleccione un rol</option>
-                            <option value=1>Administrador</option>
-                            <option value=2>Funcionario</option>
-                            <option value=3>Solicitante</option>
-                        </select>
-                    </div>
-                    <ValidationMessage For="@(() => ModelRol.IdRol)" />
-                    </AuthorizeView>
+
+                    @if (Rol == "Administrador")
+                    {
+                        <div class="mt-3">
+                            <label for="rolUsuario" class="form-label">Rol de Usuario</label>
+                            <select id="rolUsuario" class="form-select" disabled="@disable" @bind="model.Rol.IdRol">
+                                <option value=0 selected>--Seleccione un rol</option>
+                                <option value=1>Administrador</option>
+                                <option value=2>Funcionario</option>
+                                <option value=3>Solicitante</option>
+                            </select>
+                        </div>
+                        <ValidationMessage For="@(() => model.Rol.IdRol)" />
+                    }
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Nombre de Usuario</span>
-                        <input type="text" class="form-control" @bind-value="model.NombreUsuario">
+                        <input type="text" class="form-control" maxlength="50" @bind-value="model.NombreUsuario">
                     </div>
                     <ValidationMessage For="@(() => model.NombreUsuario)" />
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Correo</span>
-                        <input type="text" class="form-control" @bind-value="model.Correo">
+                        <input type="text" class="form-control" maxlength="50" @bind-value="model.Correo">
                     </div>
                     <ValidationMessage For="@(() => model.Correo)" />
 
@@ -87,19 +87,19 @@
                     </div>
                     <ValidationMessage For="@(() => model.ConfirmarClave)" />
 
-                    <AuthorizeView Roles="Administrador" Context="Nulo">
-                    <div class="mt-3">
-                        <label class="form-label d-block">Status Usuario: </label>
-                        <div class="form-check form-switch d-inline-flex align-items-center gap-2">
-                            <div class="p-3">
-                                <input class="form-check-input" type="checkbox" role="switch" disabled="@(disable ? true : null)" id="userStatusSwitch" @bind="model.Activo">
-                                <label class="form-check-label">@((bool)model.Activo! ? "Activo" : "Inactivo")</label>
+                    @if (Rol == "Administrador")
+                    {
+                        <div class="mt-3">
+                            <label class="form-label d-block">Status Usuario: </label>
+                            <div class="form-check form-switch d-inline-flex align-items-center gap-2">
+                                <div class="p-3">
+                                    <input class="form-check-input" type="checkbox" role="switch" disabled="@(disable ? true : null)" id="userStatusSwitch" @bind="model.Activo">
+                                    <label class="form-check-label">@((bool)model.Activo! ? "Activo" : "Inactivo")</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    </AuthorizeView>
-
-                    <ValidationMessage For="@(() => model.Activo)" />
+                        <ValidationMessage For="@(() => model.Activo)" />
+                    }
                 }
                 else
                 {
@@ -107,35 +107,42 @@
 
                     <div class="input-group">
                         <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
-                        <InputNumber maxlength="8" class="form-control" readonly @bind-value="ModelPersona.Cedula" />
+                        <InputNumber maxlength="8" class="form-control" readonly @bind-value="model.Persona.Cedula" />
                     </div>
-                    <ValidationMessage For="@(() => ModelPersona.Cedula)" />
+                    <ValidationMessage For="@(() => model.Persona.Cedula)" />
+
+                    <div class="form-row mt-3">
+                        <div class="input-group col-md-6">
+                            <ValidationMessage For="@(() => model.Persona.Nombre)" />
+                        </div>
+                        <div class="input-group col-md-6">
+                            <ValidationMessage For="@(() => model.Persona.Apellido)" />
+                        </div>
+                     </div>
 
                     <div class="form-row mt-3">
                         <div class="input-group col-md-6">
                             <span class="input-group-text bg-light" id="basic-addon3">Nombres</span>
-                            <InputText maxlength="60" class="form-control" @bind-value="ModelPersona.Nombre" />
-                            <ValidationMessage For="@(() => ModelPersona.Nombre)" />
+                            <InputText maxlength="60" class="form-control" @bind-value="model.Persona.Nombre" />
                         </div>
 
                         <div class="input-group col-md-6">
                             <span class="input-group-text bg-light" id="basic-addon3">Apellidos</span>
-                            <InputText maxlength="60" class="form-control" @bind-value="ModelPersona.Apellido" />
-                            <ValidationMessage For="@(() => ModelPersona.Apellido)" />
+                            <InputText maxlength="60" class="form-control" @bind-value="model.Persona.Apellido" />
                         </div>
                     </div>
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Fecha de nacimiento</span>
-                        <InputDate max="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" id="birthdaytime" name="birthdaytime" @bind-value="ModelPersona.FechaNacimiento" />
+                        <InputDate max="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" id="birthdaytime" name="birthdaytime" @bind-value="model.Persona.FechaNacimiento" />
                     </div>
-                    <ValidationMessage For="@(() => ModelPersona.FechaNacimiento)" />
+                    <ValidationMessage For="@(() => model.Persona.FechaNacimiento)" />
 
                     bool Masc = model.Persona.Genero == "M";
 
                     <div class="mt-3">
                         <label class="form-label d-block">Género</label>
-                        <InputRadioGroup @bind-value="ModelPersona.Genero" class="form-check form-check-inline">
+                        <InputRadioGroup @bind-value="model.Persona.Genero" class="form-check form-check-inline">
                             <div class="form-check form-check-inline">
                             <InputRadio class="form-check-input" Value=@("M") id="generoMasculino"/>
                             <label class="form-check-label" for="generoMasculino">Masculino</label>
@@ -146,59 +153,67 @@
                             </div>
                         </InputRadioGroup>
                     </div>
-                    <ValidationMessage For="@(() => ModelPersona.Genero)" />
+                    <ValidationMessage For="@(() => model.Persona.Genero)" />
 
+                    <div class="form-row mt-3">
+                        <div class="input-group col-md-6">
+                            <ValidationMessage For="@(() => model.Persona.Profesion)" />
+                        </div>
+                        <div class="input-group col-md-6">
+                            <ValidationMessage For="@(() => model.Persona.Ocupacion)" />
+                        </div>
+                    </div>
 
                     <div class="form-row mt-3">
                         <div class="input-group col-md-6">
                             <span class="input-group-text bg-light" id="basic-addon3">Profesión</span>
-                            <InputText maxlength="50" class="form-control" @bind-value="ModelPersona.Profesion" />
-                            <ValidationMessage For="@(() => ModelPersona.Profesion)" />
+                            <InputText maxlength="30" class="form-control" @bind-value="model.Persona.Profesion" />
                         </div>
                         
                         <div class="input-group col-md-6">
                             <span class="input-group-text bg-light" id="basic-addon3">Ocupación</span>
-                            <InputText maxlength="50" class="form-control" @bind-value="ModelPersona.Ocupacion" />
-                            <ValidationMessage For="@(() => ModelPersona.Ocupacion)" />
+                            <InputText maxlength="30" class="form-control" @bind-value="model.Persona.Ocupacion" />
                         </div>
                     </div>
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Lugar de Trabajo</span>
-                        <InputText class="form-control" @bind-value="ModelPersona.LugarTrabajo" />
+                        <InputText maxlength="60" class="form-control" @bind-value="model.Persona.LugarTrabajo" />
                     </div>
-                    <ValidationMessage For="@(() => ModelPersona.LugarTrabajo)" />
+                    <ValidationMessage For="@(() => model.Persona.LugarTrabajo)" />
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Dirección de Trabajo</span>
-                        <InputText class="form-control" @bind-value="ModelPersona.DireccionTrabajo" />
+                        <InputText maxlength="150" class="form-control" @bind-value="model.Persona.DireccionTrabajo" />
                     </div>
-                    <ValidationMessage For="@(() => ModelPersona.DireccionTrabajo)" />
+                    <ValidationMessage For="@(() => model.Persona.DireccionTrabajo)" />
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Teléfono de trabajo</span>
-                        <InputText maxlenght="12" class="form-control" @bind-value="ModelPersona.TelefonoTrabajo" />
+                        <InputText maxlenght="12" class="form-control" @bind-value="model.Persona.TelefonoTrabajo" />
                     </div>
-                    <ValidationMessage For="@(() => ModelPersona.TelefonoTrabajo)" />
+                    <ValidationMessage For="@(() => model.Persona.TelefonoTrabajo)" />
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Dirección de habitación</span>
-                        <InputText class="form-control" @bind-value="ModelPersona.DireccionHabitacion" />
+                        <InputText maxlength="150" class="form-control" @bind-value="model.Persona.DireccionHabitacion" />
                     </div>
-                    <ValidationMessage For="@(() => ModelPersona.DireccionHabitacion)" />
+                    <ValidationMessage For="@(() => model.Persona.DireccionHabitacion)" />
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Teléfono de habitación</span>
-                        <InputText maxlenght="12" class="form-control" @bind-value="ModelPersona.TelefonoHabitacion" />
+                        <InputText maxlenght="12" class="form-control" @bind-value="model.Persona.TelefonoHabitacion" />
                     </div>
-                    <ValidationMessage For="@(() => ModelPersona.TelefonoHabitacion)" />
+                    <ValidationMessage For="@(() => model.Persona.TelefonoHabitacion)" />
                 }
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-primary" style="width:130px">@Boton</button>
 
-                    <AuthorizeView Roles="Administrador" Context="Nulo">
-                        <a href="/usuarios" class="btn btn-secondary" style="width:130px">Volver</a>
-                    </AuthorizeView>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary m-3" style="width:130px">@Boton</button>
+
+                    @if (Rol == "Administrador")
+                    {
+                        <a href="/usuarios" class="btn btn-secondary m-3" style="width:130px">Volver</a>
+                    }
 
                 </div>
             </EditForm>
@@ -216,17 +231,56 @@
     private string Boton = "Crear";
 
     private string activeTab = "cuenta";
-
-    private UsuarioDTO model = new UsuarioDTO();
-    private PersonaDTO ModelPersona = new PersonaDTO();
-    private RolDTO ModelRol = new RolDTO();
-
     private bool disable = false;
+
+    private UsuarioDTO model = new UsuarioDTO()
+    {
+        Persona = new PersonaDTO(),
+        Rol = new RolDTO()
+    };
+
+    public required EditContext editContext;
+    public required ValidationMessageStore messageStore;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(model);
+        messageStore = new ValidationMessageStore(editContext);
+
+        editContext.OnValidationRequested += (sender, args) =>
+        {
+            messageStore.Clear();
+
+            var results = Utilidades.ValidateRecursive(model);
+            foreach (var result in results)
+            {
+                foreach (var memberName in result.MemberNames)
+                {
+                    if (memberName.StartsWith("Persona."))
+                    {
+                        var subName = memberName.Substring("Persona.".Length);
+                        var fieldIdentifier = new FieldIdentifier(model.Persona, subName);
+                        messageStore.Add(fieldIdentifier, result.ErrorMessage ?? "");
+                    }
+                    else if (memberName.StartsWith("Rol."))
+                    {
+                        var subName = memberName.Substring("Rol.".Length);
+                        var fieldIdentifier = new FieldIdentifier(model.Rol, subName);
+                        messageStore.Add(fieldIdentifier, result.ErrorMessage ?? "");
+                    }
+                    else
+                    {
+                        var fieldIdentifier = new FieldIdentifier(model, memberName);
+                        messageStore.Add(fieldIdentifier, result.ErrorMessage ?? "");
+                    }
+                }
+            }
+            editContext.NotifyValidationStateChanged();
+        };
+    }
 
     protected override async Task OnParametersSetAsync()
     {
-        model.Persona = new PersonaDTO();
-        model.Rol = new RolDTO();
         if(ID != 0)
         {
             Titulo = "Editar Usuario";
@@ -241,9 +295,6 @@
                 model = modelrecover;
                 model.Clave = "";
                 model.ConfirmarClave = "";
-
-                ModelPersona = model.Persona;
-                ModelRol = model.Rol;
             }
             else
             {
@@ -261,20 +312,14 @@
             return;
         }
 
-        model.Persona = ModelPersona;
-        model.Rol = ModelRol;
-
         bool respuesta = true;
         string mensaje = string.Empty;
 
-        if (model.Clave != model.ConfirmarClave)
-        {
-            toastService.ShowWarning("Las contraseñas no coinciden");
-            return;
-        }
-
         if(ID != 0)
         {
+            string[] roles = { "Administrador", "Funcionario", "Solicitante" };
+            model.Rol.Nombre = roles[model.Rol.IdRol - 1];
+
             var response = await usuarioService.Editar(model);
             if (response.EsCorrecto)
             {
@@ -283,13 +328,17 @@
             else
             {
                 respuesta = false;
-                mensaje = "No se pudo editar";
+                mensaje = response.Mensaje ?? "No se pudo editar";
             }
         }
         else
         {
+            string[] roles = { "Administrador", "Funcionario", "Solicitante"};
+
+            model.Rol.Nombre = roles[model.Rol.IdRol - 1];
             model.ResetearClave = true;
             model.FechaCreacion = DateTime.Today;
+
             var response = await usuarioService.Crear(model);
             if (response.EsCorrecto)
             {
@@ -298,19 +347,17 @@
             else
             {
                 respuesta = false;
-                mensaje = "No se pudo crear";
+                mensaje = response.Mensaje ?? "No se pudo crear";
             }
         }
 
         if (respuesta)
         {
-            await listaUsuarios.AgregarLista(model);
             toastService.ShowSuccess(mensaje);
             if(Rol == "Administrador") _navService.NavigateTo("/Usuarios");
+            model.Clave = "";
+            model.ConfirmarClave = "";
         }
-        else
-        {
-            toastService.ShowWarning(mensaje);
-        }
+        else toastService.ShowWarning(mensaje);
     }
 }

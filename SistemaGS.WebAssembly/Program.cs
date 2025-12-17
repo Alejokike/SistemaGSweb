@@ -10,7 +10,6 @@ using SistemaGS.WebAssembly.Services.Contrato;
 using SistemaGS.WebAssembly.Services.Implementacion;
 using Microsoft.AspNetCore.Components.Authorization;
 using SistemaGS.WebAssembly.Extensiones;
-using SistemaGS.WebAssembly.Services.RealServices;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -29,9 +28,6 @@ builder.Services.AddSweetAlert2(options => {
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IAyudaService, AyudaService>();
-builder.Services.AddScoped<IListaService, ListaService>();
-builder.Services.AddScoped<IListaAyudaService, ListaAyudaService>();
-builder.Services.AddScoped<IListaInventarioService, ListaInventarioService>();
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, AutExt>();

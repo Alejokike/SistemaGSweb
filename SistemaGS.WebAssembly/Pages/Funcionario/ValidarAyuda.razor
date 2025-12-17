@@ -1,13 +1,14 @@
 ﻿@page "/ValidarAyuda"
 @page "/ValidarAyuda/{idAyuda:int}"
 
-@using SistemaGS.WebAssembly.Extensiones;
-
-@inject IListaAyudaService listaAyuda;
-@inject IListaInventarioService inventarioService;
 @inject NavigationManager navigationManager;
+@inject IInventarioService inventarioService;
+@inject IAyudaService ayudaService;
+@inject IUsuarioService usuarioService;
 @inject IToastService toastService;
 @inject SweetAlertService Swat;
+
+@attribute [Authorize(Roles = "Funcionario")]
 
 <PageTitle>Validar Ayuda</PageTitle>
 
@@ -20,39 +21,38 @@
             <div class="col-sm-12">
                 <div class="card mb-3">
                     <div class="card-body">
+                        @if(ayuda.Detalle.TryGetValue("Solicitud", out string? solicitud) && !string.IsNullOrEmpty(solicitud))
+                        {
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Razón de la solicitud</label>
+                            <div class="form-control">@solicitud</div>
+                        </div>
+                        }
 
-                        <div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Detalle y observaciones de la ayuda</label>
-                                <InputTextArea class="form-control" @bind-value="ayuda.Detalle"/>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Categoría de la ayuda</label>
-                                <InputSelect class="form-select" readonly @bind-value="ayuda.Categoria">
-                                    <option value="" selected>--Seleccione una categoría</option>
-                                    <option value="Medicamentos">Medicamentos</option>
-                                    <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
-                                    <option value="Citas para exámenes de laboratorio">Citas para exámenes de laboratorio</option>
-                                    <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
-                                    <option value="Prótesis">Prótesis</option>
-                                    <option value="Apoyo financiero para cirugías">Apoyo financiero para cirugías</option>
-                                    <option value="Utiles escolares">Utiles escolares</option>
-                                    <option value="Alimentos">Alimentos</option>
-                                    <option value="Financiamiento deportivo">Financiamiento deportivo</option>
-                                    <option value="Ayudas funerarias">Ayudas funerarias</option>
-                                    <option value="Otros">Otros</option>
-                                </InputSelect>
-                            </div>
-
-                            <div class="mb=3">
-                                <label class="form-label">Funcionario a cargo</label>
-                                <InputNumber class="form-control" min="0" placeholder="Ingrese la cédula del funcionario que se va a encargar de procesar la ayuda" @bind-value="ayuda.Funcionario" />
-                            </div>
-
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Detalle y observaciones de la ayuda</label>
+                            <InputTextArea class="form-control" required  @bind-value="@ayuda.Detalle["Observaciones"]" />
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Categoría de la ayuda</label>
+                            <div class="form-control">@ayuda.Categoria</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Cédula Solicitante</label>
+                            <div class="form-label">@solicitante.Cedula</div>
+
+                            <label class="form-label fw-bold">Nombre Solicitante</label>
+                            <div class="form-label">@solicitante.Persona.Nombre @solicitante.Persona.Apellido</div>
+
+                            <label class="form-label fw-bold">Contacto Solicitante</label>
+                            <div class="form-label">
+                                Teléfono Habitación: @solicitante.Persona.TelefonoHabitacion <br />
+                                Teléfono Trabajo: @solicitante.Persona.TelefonoTrabajo <br />
+                                E-mail: @solicitante.Correo
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -82,19 +82,17 @@
                                 <tbody>
                                     @if (ayuda.ListaItems.Any())
                                     {
-                                        int i = 1;
                                         foreach (var item in ayuda.ListaItems)
                                         {
-                                            item.IdLista = i++;
                                             <tr>
                                                 <td valign="middle">@item.IdLista</td>
-                                                <td valign="middle">
-                                                    <InputNumber min="0" @bind-value="item.ItemLista!.IdItem" />
+                                                <td valign="middle" >
+                                                    <InputNumber min="0" @bind-value="item.ItemLista.IdItem" />
                                                 </td>
                                                 <td valign="middle">@item.ItemLista!.Nombre</td>
                                                 <td valign="middle">@item.ItemLista!.Categoria</td>
                                                 <td valign="middle">@item.ItemLista!.Unidad</td>
-                                                <td valign="middle" align="center">@item.CantidadSolicitada</td>
+                                                <td valign="middle" align="center">@Utilidades.FormatearValor(item.CantidadSolicitada)</td>
 
                                                 <td align="center">
                                                     <button @onclick="() => ValidarItem(item)">
@@ -107,7 +105,7 @@
                                     else
                                     {
                                         <tr>
-                                            <td colspan="5">
+                                            <td colspan="6">
                                                 <div class="alert alert-warning" role="alert">
                                                     No hay productos en la lista
                                                 </div>
@@ -137,32 +135,39 @@
     [Parameter]
     public int idAyuda { get; set; }
 
-    AyudaDTO ayuda = new AyudaDTO();
-
-    protected override void OnInitialized()
+    AyudaDTO ayuda = new AyudaDTO()
     {
-        ayuda.ListaItems = new List<ListaItemDTO>();
-    }
+        ListaItems = new List<ListaItemDTO>(),
+        Detalle = new Dictionary<string, string>
+        {
+            ["Solicitud"] = "",
+            ["Observaciones"] = "",
+            ["Aprobado"] = "",
+            ["Rechazado"] = ""
+        }
+    };
+
+    UsuarioDTO solicitante = new UsuarioDTO()
+        {
+            Persona = new PersonaDTO(),
+            Rol = new RolDTO()
+        };
 
     protected override async Task OnParametersSetAsync()
     {
-        var lista = await listaAyuda.Listar();
-        if (lista == null) navigationManager.NavigateTo("/");
-        var response = lista!.FirstOrDefault();
-        if (response == null) navigationManager.NavigateTo("/");
+        var response = await ayudaService.Obtener(idAyuda);
+        if (response.EsCorrecto && response.Resultado != null) ayuda = response.Resultado;
+        else navigationManager.NavigateTo("/");
 
-        ayuda = response!;
+        var response2 = await usuarioService.Obtener(ayuda.Solicitante);
+        if (response2.EsCorrecto && response2.Resultado != null) solicitante = response2.Resultado;
     }
-
     private async Task ValidarItem(ListaItemDTO item)
     {
-        var inventario = await inventarioService.ListarInventario();
 
-        var Recuperado = inventario
-        .OrderBy(i => Utilidades.CalcularDistanciaLevenshtein(i.Nombre.ToLower(), item.ItemLista!.Nombre))
-        .FirstOrDefault();
+        var recuperado = item.ItemLista.IdItem == 0 ? await inventarioService.ObtenerItem(0, item.ItemLista!.Nombre) : await inventarioService.ObtenerItem(item.ItemLista.IdItem);
 
-        if(Recuperado == null)
+        if(!recuperado.EsCorrecto || recuperado.Resultado == null)
         {
             SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
             {
@@ -178,7 +183,7 @@
             SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
             {
                 Title = "Existe una coincidencia en el inventario",
-                Html = $"Corregir ítem con:<br/>Nombre: {Recuperado.Nombre}<br/>Categoría: {Recuperado.Categoria}",
+                Html = $"Corregir ítem con:<br/>Nombre: {recuperado.Resultado.Nombre}<br/>Categoría: {recuperado.Resultado.Categoria}",
                 ShowCancelButton = true,
                 ConfirmButtonText = "Aceptar",
                 CancelButtonText = "Cancelar"
@@ -186,25 +191,33 @@
             if (result.IsConfirmed)
             {
                 ayuda.ListaItems.Remove(item);
+                item.ItemNoValidado = new ItemDTO()
+                {
+                    IdItem = 0,
+                    Nombre = item.ItemLista.Nombre,
+                    Categoria = item.ItemLista.Categoria,
+                    Unidad = item.ItemLista.Unidad,
+                    Descripcion = item.ItemLista.Descripcion,
+                    Cantidad = 0
+                };
+
                 ayuda.ListaItems.Add(new ListaItemDTO
                 {
                     IdLista = item.IdLista,
-                    ItemLista = new ItemDTO
-                    {
-                        IdItem = Recuperado.IdItem,
-                        Nombre = Recuperado.Nombre,
-                        Categoria = Recuperado.Categoria,
-                        Unidad = Recuperado.Unidad,
-                        Descripcion = Recuperado.Descripcion
-                    },
+                    ItemLista = recuperado.Resultado,
                     CantidadSolicitada = item.CantidadSolicitada,
                     CantidadEntregada = item.CantidadEntregada
                 });
+                ayuda.ListaItems = ayuda.ListaItems.OrderBy(li => li.IdLista).ToList();
             }
         }
     }
-    private void Guardar()
+    private async Task Guardar()
     {
-        
-    }
+        var response = await ayudaService.Editar(ayuda);
+        if (response.EsCorrecto) toastService.ShowSuccess("Validación Correcta");
+        else toastService.ShowError("La puta que te parió");
+
+        navigationManager.NavigateTo("/Ayudas");
+    } 
 }

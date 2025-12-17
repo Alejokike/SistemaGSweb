@@ -1,0 +1,70 @@
+﻿@inject IInventarioService inventarioService;
+
+<div class="card-header">
+    <h4 class="text-center text-black">
+        Histórico Inventario
+    </h4>
+</div>
+
+<div class="card-body">
+    <EditForm Model="filtro" OnValidSubmit="HistoricoInventario">
+        <div class="row-cols-12 gap-3 mt-1">
+            <div class="form-row mt-2">
+                <div class="input-group col-6 mt-1">
+                    <label class="input-group-text bg-light">ID ítem</label>
+                    <InputNumber min="0" class="form-control" @bind-value="filtro.IdItem" />
+                </div>
+                <ValidationMessage For="@(() => filtro.IdItem)" />
+                <div class="input-group col-6 mt-1">
+                    <label class="input-group-text bg-light">Tipo de operación</label>
+                    <InputSelect class="form-select" @bind-value="filtro.Movimiento">
+                        <option value="" selected>--Cualquiera</option>
+                        <option value="REC">Recarga</option>
+                        <option value="DEV">Devolución</option>
+                        <option value="ASI">Asignación</option>
+                        <option value="RET">Retiro</option>
+                    </InputSelect>
+                </div>
+                <ValidationMessage For="@(() => filtro.Movimiento)" />
+            </div>
+
+            <div class="form-row mt-2">
+                <div class="input-group col-6 mt-1">
+                    <label class="input-group-text bg-light">Fecha inicial</label>
+                    <InputDate class="form-control" @bind-value="filtro.FechaIni" />
+                </div>
+                <ValidationMessage For="@(() => filtro.FechaIni)" />
+                <div class="input-group col-6 mt-1">
+                    <label class="input-group-text bg-light">Fecha final</label>
+                    <InputDate class="form-control" @bind-value="filtro.FechaFin" />
+                </div>
+                <ValidationMessage For="@(() => filtro.FechaIni)" />
+            </div>
+
+            <div class="form-row mt-2">
+                <button class="btn btn-outline-secondary col-12" style="width:130px" type="submit">
+                    <i class="oi oi-magnifying-glass"></i> Aplicar filtros
+                </button>
+            </div>
+        </div>
+    </EditForm>
+
+    <TableLayout lista="Movimientos" T="InventarioDTO" Retorno="() => { return; }" />
+</div>
+
+@code{
+    private InventarioQuery filtro = new InventarioQuery();
+    private List<InventarioDTO> Movimientos = new List<InventarioDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await HistoricoInventario();
+    }
+
+    private async Task HistoricoInventario()
+    {
+        var response = await inventarioService.Lista(filtro);
+        if (response.EsCorrecto) Movimientos = response.Resultado!;
+        else new List<InventarioDTO>();
+    }
+}

@@ -1,0 +1,32 @@
+﻿@inject IAyudaService ayudaService;
+@inject IToastService toastService;
+@inject NavigationManager navigationManager;
+@inject SweetAlertService Swat;
+
+@attribute [Authorize(Roles = "Administrador")]
+
+<PageTitle>Aprobar Ayudas</PageTitle>
+
+<h3 class="m-3">Aprobar Ayudas</h3>
+
+<FiltroAyuda filtro="filtro" retorno="EventCallback.Factory.Create(this, ListarAyuda)" Estado="false"/>
+<TableLayout lista="lista" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, CargarAyuda))"/>
+
+@code{
+    AyudaQuery filtro = new AyudaQuery();
+    List<AyudaDTO> lista = new List<AyudaDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ListarAyuda();
+    }
+    private async Task ListarAyuda()
+    {
+        var response = await ayudaService.Listar(filtro);
+        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado.OrderBy(a => a.IdAyuda).Where(la => la.Estado == "Por Aprobar" || la.Estado == "En Proceso").ToList();
+    }
+    private void CargarAyuda(AyudaDTO ayuda)
+    {
+        navigationManager.NavigateTo($"/Aprobar/{ayuda.IdAyuda}");
+    }
+}

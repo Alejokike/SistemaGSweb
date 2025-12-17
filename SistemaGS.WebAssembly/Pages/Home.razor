@@ -1,9 +1,85 @@
 ﻿@page "/"
 
-@attribute [Authorize(Roles = "Administrador, Funcionario, Solicitante")]
+@attribute [Authorize]
 
 <PageTitle>Inicio</PageTitle>
 
 <h1>Bienvenido!</h1>
 
-¡Hola otra vez!
+<AuthorizeView Roles="Administrador, Funcionario">
+    <div class="row mt-4">
+    
+        <div class="col-sm-6 mb-3">
+            <div class="card border-5 border-bottom-0 border-top-0 border-end-0 shadow border-primary p-4">
+                <div class="row align-items-center">
+                    <div class="col ms-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Ayudas entregadas mes en curso
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-muted">
+                            0
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-box2-heart-fill text-secondary" style="font-size:50px"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="col-sm-6 mb-3">
+            <div class="card border-5 border-bottom-0 border-top-0 border-end-0 shadow border-success p-4">
+                <div class="row align-items-center">
+                    <div class="col ms-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Total Ayudas entregadas año en curso
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-muted">
+                            0
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-calendar-heart-fill text-secondary" style="font-size:50px"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="col-sm-6 mb-3">
+            <div class="card border-5 border-bottom-0 border-top-0 border-end-0 shadow border-warning p-4">
+                <div class="row align-items-center">
+                    <div class="col ms-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Total Solicitantes Atendidos
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-muted">
+                            0
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-person-wheelchair text-secondary" style="font-size:50px"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="col-sm-6 mb-3">
+            <div class="card border-5 border-bottom-0 border-top-0 border-end-0 shadow border-danger p-4">
+                <div class="row align-items-center">
+                    <div class="col ms-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Total ayudas rechazadas
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-muted">
+                            0
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-shield-fill-exclamation text-danger" style="font-size:50px"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</AuthorizeView>

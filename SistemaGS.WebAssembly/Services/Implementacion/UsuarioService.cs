@@ -1,5 +1,6 @@
 ﻿using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
+using SistemaGS.WebAssembly.Extensiones;
 using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Json;
 
@@ -12,14 +13,12 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         {
             _httpClient = httpClient;
         }
-
         public async Task<ResponseDTO<SesionDTO>> Autorizacion(LoginDTO model)
         {
             var response = await _httpClient.PostAsJsonAsync("Usuario/Autorizacion", model);
             var result = await response.Content.ReadFromJsonAsync<ResponseDTO<SesionDTO>>();
             return result!;
         }
-
         public async Task<ResponseDTO<UsuarioDTO>> Crear(UsuarioDTO model)
         {
             var response = await _httpClient.PostAsJsonAsync("Usuario/Crear", model);
@@ -36,24 +35,20 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
                 return result!;
             }
         }
-
         public async Task<ResponseDTO<bool>> Editar(UsuarioDTO model)
         {
             var response = await _httpClient.PutAsJsonAsync("Usuario/Editar", model);
             var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
             return result!;
         }
-
         public async Task<ResponseDTO<bool>> Eliminar(int Id)
         {
             return (await _httpClient.DeleteFromJsonAsync<ResponseDTO<bool>>($"Usuario/Eliminar/{Id}"))!;
         }
-
-        public async Task<ResponseDTO<List<UsuarioDTO>>> Lista(int Rol, string Buscar)
+        public async Task<ResponseDTO<List<UsuarioDTO>>> Lista(int Rol, string Buscar = "")
         {
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<UsuarioDTO>>>($"Usuario/Lista/{Rol}/{Buscar}"))!;
         }
-
         public async Task<ResponseDTO<UsuarioDTO>> Obtener(int Id)
         {
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<UsuarioDTO>>($"Usuario/Obtener/{Id}"))!;

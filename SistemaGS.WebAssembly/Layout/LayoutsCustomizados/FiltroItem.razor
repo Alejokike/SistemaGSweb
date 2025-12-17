@@ -1,0 +1,72 @@
+﻿<div class="card mt-2 mb-2">
+    <div class="card-body">
+        <EditForm Model="filtro" OnValidSubmit="@(async () => await retorno.InvokeAsync(filtro))">
+            <div class="row-cols-12 mt-1">
+                <div class="form-row mt-1">
+                    <div class="input-group col-3 mt-1">
+                        <label class="input-group-text bg-light">ID</label>
+                        <InputNumber class="form-control" @bind-value="filtro.ID" />
+                    </div>
+
+                    <div class="input-group col-5 mt-1">
+                        <label class="input-group-text bg-light">Nombre</label>
+                        <InputText class="form-control" @bind-value="filtro.Nombre" />
+                    </div>
+                    @if (Unidad)
+                    {
+                        <div class="input-group col-4 mt-1">
+                            <label class="input-group-text bg-light">Unidad</label>
+                            <InputSelect class="form-select" @bind-value="filtro.Unidad">
+                                <option value="" selected>--Cualquiera</option>
+                                <option value="EU">Unidad Estándar</option>
+                                <option value="MU">Unidad Médica</option>
+                                <option value="VE">Bolívares Fuertes</option>
+                            </InputSelect>
+                        </div>
+                    }
+                </div>
+
+                <div class="form-row mt-1">
+                    <div class="input-group col-12 mt-1">
+                        <label class="input-group-text bg-light">Categoría</label>
+                        <InputSelect class="form-select" @bind-value="filtro.Categoria">
+                            <option value="" selected>--Seleccione una categoría</option>
+                            <option value="Médicamentos">Médicamentos</option>
+                            <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
+                            <option value="Prótesis">Prótesis</option>
+                            <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
+                            <option value="Servicios médicos">Servicios médicos</option>
+                            <option value="Bienes de apoyo social">Bienes de apoyo social</option>
+                            <option value="Fondos y financiamiento">Fondos y financiamiento</option>
+                            <option value="Otros">Otros</option>
+                        </InputSelect>
+                    </div>
+                </div>
+                @if (Estado)
+                {
+                    <div class="form-row mt-1">
+                        <div class="form-check form-switch d-inline-flex align-items-center gap-2">
+                            <div class="p-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="userStatusSwitch" @bind="filtro.Activo">
+                                <label class="form-check-label">@((bool)filtro.Activo ? "Activo" : "Inactivo")</label>
+                            </div>
+                        </div>
+                    </div>
+                }                
+                <div class="form-row mt-2">
+                    <button class="btn btn-outline-secondary col-12" style="width:130px" type="submit" @onclick="@(async () => await retorno.InvokeAsync(filtro))">
+                        <i class="oi oi-magnifying-glass"></i> Aplicar filtros
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public ItemQuery filtro { get; set; } = new ItemQuery();
+    [Parameter] public EventCallback<ItemQuery> retorno { get; set; }
+
+    [Parameter] public bool Estado { get; set; } = true;
+    [Parameter] public bool Unidad { get; set; } = true;
+}

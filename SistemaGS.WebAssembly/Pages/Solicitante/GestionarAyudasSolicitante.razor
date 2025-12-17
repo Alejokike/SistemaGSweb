@@ -1,0 +1,115 @@
+﻿@inject IUsuarioService usuarioService;
+@inject IAyudaService ayudaService;
+@inject IToastService toastService;
+@inject NavigationManager navigationManager;
+@inject SweetAlertService Swat;
+
+@attribute [Authorize(Roles = "Solicitante")]
+
+<PageTitle>Gestionar Ayudas</PageTitle>
+
+<FiltroAyuda filtro="filtro" retorno="ListarAyudas" 
+    Solicitante="false"
+    Estado="false"/>
+<TableLayout lista="lista" T="AyudaDTO" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, CargarAyuda))"></TableLayout>
+
+@code {
+    [Parameter]
+    public int ID { get; set; }
+
+    AyudaQuery filtro = new AyudaQuery();
+    List<AyudaDTO> lista = new List<AyudaDTO>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        filtro = new AyudaQuery()
+        {
+            solicitante = ID
+        };
+        await ListarAyudas();
+    }
+    private async Task ListarAyudas()
+    {
+        var response = await ayudaService.Listar(filtro);
+        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado
+        .Where(la =>
+            la.Solicitante == ID &&
+            (la.Estado != "Cerrada" && la.Estado != "Rechazada")
+        ).ToList();
+    }
+    private async Task CargarAyuda(AyudaDTO ayuda)
+    {
+        SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+        {
+            Title = "Acción Ayuda",
+            Text = $"Seleccione una acción",
+            Icon = SweetAlertIcon.Info,
+            ShowCancelButton = true,
+            ShowDenyButton = true,
+            ConfirmButtonText = "Modificar solicitud",
+            DenyButtonText = "Eliminar",
+            CancelButtonText = "Ver ayuda"
+        });
+        if (result.IsConfirmed)
+        {
+            if(ayuda.Estado == "Por Aprobar") navigationManager.NavigateTo($"/Solicitar/{ayuda.Solicitante}/{ayuda.IdAyuda}");
+            else
+            {
+                result = await Swat.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Error",
+                    Text = $"No puede modificar una ayuda en proceso, comuniquese con el funcionario a cargo",
+                    Icon = SweetAlertIcon.Error,
+                    ShowCancelButton = false,
+                    ConfirmButtonText = "Cerrar"
+                });
+            }
+            return;
+        }
+        if (result.IsDismissed)
+        {
+            navigationManager.NavigateTo($"/Ayuda/{ayuda.IdAyuda}");
+            return;
+        }
+        if (result.IsDenied)
+        {
+            await Eliminar(ayuda);
+        }
+    }
+    private async Task Eliminar(AyudaDTO ayuda)
+    {
+        if(ayuda.Estado == "Por Aprobar")
+        {
+            SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+            {
+                Title = "Aviso",
+                Text = $"¿Seguro de eliminar el registro seleccionado? Esta acción no se puede deshacer",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Si",
+                CancelButtonText = "No"
+            });
+            if (result.IsConfirmed)
+            {
+                var response = await ayudaService.Eliminar(ayuda.IdAyuda);
+                if (response.EsCorrecto) toastService.ShowSuccess("La solicitud fué eliminada");
+                else toastService.ShowWarning($"Error: {response.Mensaje}");
+
+                await ListarAyudas();
+
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+            {
+                Title = "Error",
+                Text = $"No puede eliminar una ayuda en proceso, comuniquese con el funcionario a cargo",
+                Icon = SweetAlertIcon.Error,
+                ShowCancelButton = false,
+                ConfirmButtonText = "Cerrar"
+            });
+        }
+    }
+}

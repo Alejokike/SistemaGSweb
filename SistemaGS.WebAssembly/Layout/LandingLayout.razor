@@ -1,0 +1,280 @@
+﻿@inherits LayoutComponentBase
+
+@inject IJSRuntime JS
+
+<BlazoredToasts />
+
+<style>
+    :root {
+        --primary-color: #9B2873;
+        --secondary-color: #00B3CB;
+        --tertiary-color: #FF315F;
+        --quaternary-color: #FFD515;
+        --text-dark: #333;
+        --text-light: #f8f9fa;
+    }
+
+    body {
+        font-family: 'Open Sans', sans-serif;
+        color: var(--text-dark);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--primary-color);
+    }
+
+    .bg-primary-custom {
+        background-color: var(--primary-color) !important;
+    }
+
+    .bg-secondary-custom {
+        background-color: var(--secondary-color) !important;
+    }
+
+    .bg-tertiary-custom {
+        background-color: var(--tertiary-color) !important;
+    }
+
+    .bg-quaternary-custom {
+        background-color: var(--quaternary-color) !important;
+    }
+
+    .text-primary-custom {
+        color: var(--primary-color) !important;
+    }
+
+    .text-secondary-custom {
+        color: var(--secondary-color) !important;
+    }
+
+    .text-tertiary-custom {
+        color: var(--tertiary-color) !important;
+    }
+
+    .text-quaternary-custom {
+        color: var(--quaternary-color) !important;
+    }
+
+    .text-light-custom {
+        color: var(--text-light) !important;
+    }
+
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--text-light);
+    }
+
+        .btn-primary-custom:hover {
+            background-color: #7a205a; /* Un tono más oscuro */
+            border-color: #7a205a;
+        }
+
+    .btn-secondary-custom {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: var(--text-light);
+    }
+
+        .btn-secondary-custom:hover {
+            background-color: #008fa3; /* Un tono más oscuro */
+            border-color: #008fa3;
+        }
+
+    .navbar-brand {
+        font-weight: 700;
+    }
+
+    /* Carrusel */
+    .carousel-item {
+        height: 70vh; /* Altura del carrusel */
+        min-height: 300px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: var(--text-light);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    }
+
+    .carousel-caption {
+        bottom: unset;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 10%;
+        right: 10%;
+        text-align: left;
+    }
+
+        .carousel-caption h5 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--quaternary-color); /* Título en amarillo */
+        }
+
+        .carousel-caption p {
+            font-size: 1.25rem;
+            margin-top: 15px;
+        }
+
+     /*Imágenes para el carrusel*/
+    .carousel-item:nth-child(1) {
+        background-image: linear-gradient(rgba(255,255,255,0.3)),
+        url('https://lecheria.gov.ve/storage/32bfc0da-caf2-4366-9195-c7e4adcd7d60/xa0W3bs6Nl58y3P8VfRJCImkSsl8jM-metaRWR1Y2FydGUgICgxKS5qcGVn-.jpeg');
+    }
+    .carousel-item:nth-child(2) {
+        background-image: linear-gradient( rgba(255,255,255,0.3) ), 
+        url('https://lecheria.gov.ve/storage/2b4a5549-1d7b-4725-a79b-2425372920c2/FD70Z83575PNsvC0FPP1a5sckDr2xd-metaUk9NUEUgRUwgQ0lDTE8gKDIpLmpwZWc=-.jpeg');
+    }
+    .carousel-item:nth-child(3) {
+        background-image: linear-gradient( rgba(255,255,255,0.3) ), 
+        url('https://lecheria.gov.ve/storage/5ee559ec-6e55-4b17-a845-8b84a8c3cbf4/fQBTyi0XpU8LMTzr61Di6vWpn1gqIq-metaV2hhdHNBcHAgSW1hZ2UgMjAyNS0xMS0yNiBhdCAzLjIyLjQzIFBNICgxKS5qcGVn-.jpeg');
+    }
+
+    /* Secciones */
+    .section-padding {
+        padding: 80px 0;
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: var(--secondary-color);
+    }
+
+    .card-voluntario {
+        transition: transform 0.3s ease-in-out;
+    }
+
+        .card-voluntario:hover {
+            transform: translateY(-5px);
+        }
+
+    .footer-link {
+        color: var(--text-light);
+        text-decoration: none;
+    }
+
+        .footer-link:hover {
+            color: var(--quaternary-color);
+            text-decoration: underline;
+        }
+
+    /* Estilos específicos para la sección de CTA (Call To Action) */
+    #donar {
+        background-color: var(--tertiary-color);
+        color: var(--text-light);
+    }
+
+        #donar h2 {
+            color: var(--text-light);
+        }
+
+        #donar .btn-donar {
+            background-color: var(--quaternary-color);
+            border-color: var(--quaternary-color);
+            color: var(--primary-color); /* Texto oscuro en el botón amarillo */
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 15px 30px;
+        }
+
+            #donar .btn-donar:hover {
+                background-color: #e6c100; /* Un tono más oscuro */
+                border-color: #e6c100;
+            }
+
+    .img-rounded {
+        border-radius: 15px;
+    }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom fixed-top" id="mainNavbar">
+    <div class="container">
+        <a class="navbar-brand" href="#hero"><img width="50" height="50" src="/img/GestionSocialLogo.png" /> Fundación Gestión Social</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#hero">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#nosotros">Nosotros</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#que-hacemos">Qué Hacemos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#voluntariado">Voluntariado</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#noticias">Noticias</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contacto">Contacto</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-secondary-custom ms-lg-3" href="/login">Iniciar Sesión</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="row justify-content-center">
+    @Body
+</div>
+
+<footer class="bg-primary-custom text-light-custom py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5 class="text-quaternary-custom mb-3">Fundación Gestión Social</h5>
+                <p>Trabajando juntos para un futuro más brillante.</p>
+                <p>&copy; 2025 Fundación Gestión Social. Todos los derechos reservados.</p>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5 class="text-quaternary-custom mb-3">Enlaces Rápidos</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#nosotros" class="footer-link">Sobre Nosotros</a></li>
+                    <li><a href="#que-hacemos" class="footer-link">Nuestros Proyectos</a></li>
+                    <li><a href="#voluntariado" class="footer-link">Voluntariado</a></li>
+                    <li><a href="#donar" class="footer-link">Donar</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5 class="text-quaternary-custom mb-3">Síguenos</h5>
+                <div class="d-flex">
+                    <a href="https://www.facebook.com/pages/FUNDACION%20GESTION%20SOCIAL%20DE%20LECHERIA/109648265722561/#" class="text-light-custom me-3"><i class="bi bi-facebook" style="font-size: 1.5rem;"></i></a>
+                    <a href="#" class="text-light-custom me-3"><i class="bi bi-twitter" style="font-size: 1.5rem;"></i></a>
+                    <a href="https://www.instagram.com/gestionsociallecheria/" class="text-light-custom me-3"><i class="bi bi-instagram" style="font-size: 1.5rem;"></i></a>
+                    <a href="#" class="text-light-custom"><i class="bi bi-linkedin" style="font-size: 1.5rem;"></i></a>
+                </div>
+                <p class="mt-3"><a href="mailto: comunicacionesgestionsocialle@gmail.com" class="footer-link"><i class="bi bi-envelope-at-fill"></i> Correo</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    window.initScrollSpy = function () {
+        var scrollSpy = new bootstrap.ScrollSpy(document.body, {
+            target: '#mainNavbar',
+            offset: 100
+        });
+    };
+</script>
+
+@code{
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initScrollSpy");
+        }
+    }
+}

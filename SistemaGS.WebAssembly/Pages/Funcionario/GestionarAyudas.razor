@@ -1,0 +1,155 @@
+﻿@using System.Text;
+@inject IAyudaService ayudaService;
+@inject IToastService toastService;
+@inject NavigationManager navigationManager;
+@inject SweetAlertService Swat;
+
+@attribute [Authorize(Roles = "Funcionario")]
+
+<PageTitle>Gestionar Ayudas</PageTitle>
+
+<h3 class="m-3">Gestionar Ayudas</h3>
+
+<FiltroAyuda filtro="filtro" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" Funcionario="false"/>
+<TableLayout lista="lista" T="AyudaDTO" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, CargarAyuda))"></TableLayout>
+
+@code{
+    [Parameter]
+    public int ID { get; set; }
+
+    AyudaQuery filtro = new AyudaQuery();
+    List<AyudaDTO> lista = new List<AyudaDTO>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        filtro = new AyudaQuery()
+        {
+            funcionario = ID
+        };
+        await ListarAyuda();        
+    }
+    private async Task ListarAyuda()
+    {
+        var response = await ayudaService.Listar(filtro);
+        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado.Where(la => la.Funcionario == ID && (la.Estado == "En Proceso" || la.Estado == "Lista Para Entregar")).ToList();
+    }
+    private async Task CargarAyuda(AyudaDTO ayuda)
+    {
+        string option = ayuda.Estado == "En Proceso" ? "Validar" : "Ver";
+
+        SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+        {
+            Title = "Acción Ayuda",
+            Text = $"Seleccione una acción",
+            Icon = SweetAlertIcon.Info,
+            ShowCancelButton = true,
+            ShowDenyButton = true,
+            ConfirmButtonText = $"{option} Solicitud",
+            ConfirmButtonColor = "#0dcaf0",
+            DenyButtonText = "Desbloquear Ayuda",
+            DenyButtonColor = "#0d6efd",
+            CancelButtonText = "Cerrar Ayuda",
+            CancelButtonColor = "#20c997"
+        });
+        if (result.IsConfirmed)
+        {
+            option = ayuda.Estado == "En Proceso" ? $"/ValidarAyuda/{ayuda.IdAyuda}" : $"/Ayuda/{ayuda.IdAyuda}";
+            navigationManager.NavigateTo(option);
+            return;
+        }
+        if (result.IsDenied)
+        {
+            if(ayuda.ListaItems.Any(li => li.IdLista != 0)) navigationManager.NavigateTo($"/Desbloquear/{ayuda.IdAyuda}");
+            else
+            {
+                result = await Swat.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Error",
+                    Text = $"No se ha validado ningún ítem de la ayuda",
+                    Icon = SweetAlertIcon.Error,
+                    ConfirmButtonText = "Cerrar",
+                });
+            }
+            return;
+        }
+        if (result.IsDismissed)
+        {
+            if (ayuda.Estado == "Lista Para Entregar") await CerrarAyuda(ayuda);
+            else
+            {
+                result = await Swat.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Error",
+                    Text = $"La ayuda todavía esta en proceso",
+                    Icon = SweetAlertIcon.Error,
+                    ConfirmButtonText = "Cerrar",
+                });
+            }
+        }
+    }
+    private string ListarItems(List<ListaItemDTO> listaItems)
+    {
+        StringBuilder listahtml = new StringBuilder(
+            @"<table class='table table-bordered'>
+            <thead>
+            <tr>
+                <td>Nombre</td>
+                <td>Cantidad Solicitada</td>
+                <td>Cantidad Entregada</td>
+            </tr>
+            </thead>");
+        foreach(var item in listaItems)
+        {
+            listahtml.AppendLine($@"<tr>
+                                        <td>{item.ItemLista!.Nombre}</td>
+                                        <td>{item.CantidadSolicitada}</td>
+                                        <td>{item.CantidadEntregada}</td>
+                                    </tr>");
+        }
+        listahtml.Append("</table>");
+        return listahtml.ToString();
+    }
+    private async Task CerrarAyuda(AyudaDTO ayuda)
+    {
+        navigationManager.NavigateTo($"/Ayuda/{ayuda.IdAyuda}");
+        SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+        {
+            Title = "¿Cerrar Solicitud?",
+            Text = $"Esta acción no se puede deshacer, validar si la ayuda tiene todo lo necesario",
+            Html = ListarItems(ayuda.ListaItems),
+            Icon = SweetAlertIcon.Info,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Si",
+            CancelButtonText = "No"
+        });
+        if (result.IsConfirmed)
+        {
+            result = await Swat.FireAsync(new SweetAlertOptions
+            {
+                Title = "Comentarios adicionales previo el cierre de la ayuda",
+                ShowCancelButton = false,
+                InputPlaceholder = "Ingrese detalles adicionales",
+                Input = SweetAlertInputType.Textarea,
+                InputAttributes = new Dictionary<string, string>
+                {
+                    {"maxlength", "250" }
+                },
+                ConfirmButtonText = "Aceptar",
+                InputValidator = new InputValidatorCallback((string value) =>
+                {
+                    if (string.IsNullOrEmpty(value)) return "Debe ingresar más información";
+                    return null;
+                })
+            });
+
+            ayuda.Estado = "Rechazada";
+            ayuda.FechaEntrega = DateTime.Today;
+            ayuda.Detalle["Cerrada"] = result.Value.ToString();
+
+            var response = await ayudaService.Editar(ayuda);
+            if (response.EsCorrecto) toastService.ShowSuccess("La ayuda fué cerrada");
+        }
+        
+        navigationManager.NavigateTo( "/Ayudas");
+    }
+}

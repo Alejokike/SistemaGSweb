@@ -2,7 +2,6 @@
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
-using SistemaGS.DTO.Responses;
 using SistemaGS.Service.Contrato;
 
 namespace SistemaGS.API.Controllers
@@ -56,19 +55,14 @@ namespace SistemaGS.API.Controllers
         [HttpGet("ListarInventario")]
         public async Task<IActionResult> ListarInventario([FromQuery] ItemQuery filtro)
         {
-            var response = new ResponseDTO<InventarioRespuesta>();
+            var response = new ResponseDTO<List<ItemDTO>>();
 
             try
             {
-                response.EsCorrecto = true;
-                //JsonDocument resultado = JsonDocument.Parse(await _inventarioService.ListarInventario(filtro));
-                var aux = await _inventarioService.ListarInventario(filtro);
-
-                response.Resultado = new InventarioRespuesta()
-                {
-                    contenido = aux.Item1,
-                    contador = aux.Item2
-                };
+                filtro.FechaIni ??= new DateTime(DateTime.Today.Year, 1, 1);
+                filtro.FechaFin ??= new DateTime(DateTime.Today.Year, 12, 31);
+                response.EsCorrecto = true;                
+                response.Resultado = await _inventarioService.ListarInventario(filtro);
             }
             catch (Exception ex)
             {

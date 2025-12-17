@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using SistemaGS.DTO;
+using SistemaGS.DTO.Query;
 using SistemaGS.Model;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Repository.DBContext;
@@ -92,30 +94,22 @@ namespace SistemaGS.Repository.Implementacion
                 }
             }
         }
-        public async Task<(string, int)> ListarInventario(string q)
+        public async Task<List<Item>> ListarInventario(ItemQuery query)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    var query = JsonConvert.DeserializeObject<ItemQuery>(q!)!;
-
-                    string filtro = $"{(query.buscar ?? "").ToLower()}";
-                    
                     var consulta = from i in _dbContext.Items
                                    where
                                     (string.IsNullOrEmpty(query.Nombre) || EF.Functions.Like((i.Nombre ?? "").ToLower(), $"%{query.Nombre}%".ToLower())) &&
                                     (string.IsNullOrEmpty(query.Categoria) || EF.Functions.Like((i.Categoria ?? "").ToLower(), $"%{query.Categoria}%".ToLower())) &&
-                                    (string.IsNullOrEmpty(query.Unidad) || i.Unidad == query.Unidad) &&
-
-                                    (string.IsNullOrEmpty(query.buscar) ||
-                                        EF.Functions.Like((i.Descripcion ?? "").ToLower(), $"%{filtro}%".ToLower()) 
-                                    )
+                                    (string.IsNullOrEmpty(query.Unidad) || i.Unidad == query.Unidad)
                                    select new
                                    {
                                        Item = i
                                    };
-
+                    /*
                     consulta = query.OrdenarPor switch
                     {
                         "Nombre" => query.Ascendente
@@ -134,26 +128,9 @@ namespace SistemaGS.Repository.Implementacion
                         ? consulta.OrderBy(x => x.Item.IdItem)
                         : consulta.OrderByDescending(x => x.Item.IdItem)
                     };
+                    */
 
-                    (string, int) respuesta;
-                    respuesta.Item2 = await consulta.CountAsync();
-
-                    //total
-                    Console.WriteLine("Total elementos: " + respuesta.Item2);
-                    //pagina
-                    Console.WriteLine($"pagina: {query.Pagina} con {query.PageSize} elementos");
-
-                    var lista = await consulta
-                        .Skip((query.Pagina - 1) * query.PageSize)
-                        .Take(query.PageSize)
-                        .Select(a => a.Item)
-                        .ToListAsync();
-
-                    transaction.Commit();
-
-                    respuesta.Item1 = JsonConvert.SerializeObject(lista);
-
-                    return respuesta;
+                    return await consulta.Select(i => i.Item).ToListAsync();
                 }
                 catch (Exception ex)
                 {
@@ -235,34 +212,6 @@ namespace SistemaGS.Repository.Implementacion
                     throw;
                 }
             }
-        }
-        public class ItemDTO
-        {
-            public int IdItem { get; set; }
-            public string Nombre { get; set; } = null!;
-            public string? Categoria { get; set; }
-            public string Descripcion { get; set; } = null!;
-            public string? Unidad { get; set; }
-        }
-        public class ListaItemDTO
-        {
-            public int IdLista { get; set; }
-            public ItemDTO ItemLista { get; set; } = null!;
-            public decimal CantidadSolicitada { get; set; }
-            public decimal? CantidadEntregada { get; set; }
-        }
-        public class ItemQuery
-        {
-            //propiedades filtro
-            public string? Nombre { get; set; } = "";
-            public string? Categoria { get; set; } = "";
-            public string? buscar { get; set; } = "";
-            public string? Unidad { get; set; } = "";
-            //propiedades paginación
-            public string OrdenarPor { get; set; } = "";
-            public bool Ascendente { get; set; } = false;
-            public int Pagina { get; set; } = 1;
-            public int PageSize { get; set; } = 20;
         }
     }
 }

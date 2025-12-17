@@ -60,7 +60,8 @@ namespace SistemaGS.Service.Implementacion
                 var DbPersona = _mapper.Map<Persona>(Model.Persona);
                 DbUsuario.Clave = Ferramentas.ConvertToSha256(DbUsuario.Clave);
 
-                if (await _UsuarioRepository.Registrar(DbUsuario, DbPersona)) return await Obtener(Model.Cedula);
+                if (Model.Cedula == null) throw new TaskCanceledException("No se pudo crear");
+                if (await _UsuarioRepository.Registrar(DbUsuario, DbPersona)) return await Obtener(Model.Cedula.Value);
                 else throw new TaskCanceledException("No se pudo crear");
             }
             catch (Exception ex)

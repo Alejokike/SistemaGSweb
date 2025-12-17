@@ -1,0 +1,123 @@
+﻿@using System.Reflection
+@using System.ComponentModel.DataAnnotations
+
+@typeparam T;
+@inject IJSRuntime JS;
+@implements IDisposable;
+
+<div class="table-responsive mt-2">
+    <table id="Tabla" class="table table-sm bg-light table-bordered hover">
+        <thead class="table-dark">
+            <tr>
+                @foreach(var prop in typeof(T).GetProperties())
+                {
+                    if (!prop.PropertyType.IsPrimitive &&
+                    prop.PropertyType != typeof(DateTime) &&
+                    (prop.PropertyType != typeof(string) && prop.PropertyType != typeof(decimal)) &&
+                    prop.PropertyType != typeof(DateTime?)) continue;
+                    
+                    DisplayAttribute? custom = prop.GetCustomAttribute<DisplayAttribute>();
+                    
+                    if (!MostrarOpcionales && custom != null && custom.GetAutoGenerateField() == false) continue;
+
+                    string nombre = custom?.Name ?? prop.Name;
+
+                    <th valign="middle" align="center" class="text-center">@nombre</th>
+                }
+                @if (MostrarBotones)
+                {
+                    <th valign="middle" align="center" class="text-center">Detalle</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if (lista.Any())
+            {
+                foreach (var obj in lista)
+                {
+                    <tr>
+                        @foreach (var prop in obj!.GetType().GetProperties())
+                        {
+                            if (!prop.PropertyType.IsPrimitive &&
+                            prop.PropertyType != typeof(DateTime) &&
+                            (prop.PropertyType != typeof(string) && prop.PropertyType != typeof(decimal)) &&
+                            prop.PropertyType != typeof(DateTime?)) continue;
+
+                            DisplayAttribute? custom = prop.GetCustomAttribute<DisplayAttribute>();
+                            if (!MostrarOpcionales && custom != null && custom.GetAutoGenerateField() == false) continue;
+
+                            if (esAyuda)
+                            {
+                                string valor = Utilidades.FormatearValor(prop.GetValue(obj) ?? "N/A");
+                                <td valign="middle" align="center" class="@(colores.TryGetValue(valor, out string? color) ? $"{color} text-center" : null)">@valor</td>
+                            }
+                            else
+                            {
+                                string valor = Utilidades.FormatearValor(prop.GetValue(obj) ?? "N/A");
+                                <td valign="middle" align="center">@valor</td>
+                            }
+                        }
+                        @if (MostrarBotones)
+                        {
+                            <td valign="middle" align="center">
+                                <button type="button" class="btn btn-outline-dark" @onclick="(async () => await Retorno.InvokeAsync(obj))">
+                                    <i class="bi bi-box-arrow-up-right text-primary fs-5"></i>
+                                </button>
+                            </td>
+                        }
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="@(typeof(T).GetProperties().Count() + 1)">
+                        <div class="alert alert-warning" role="alert">
+                            No hay ítems para mostrar
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter]
+    public List<T> lista { get; set; } = new();
+    [Parameter] public bool MostrarOpcionales {get;set;} = false;
+    [Parameter] public bool MostrarBotones {get;set;} = true;
+    [Parameter]
+    public EventCallback<T> Retorno { get; set; }
+
+    bool esAyuda = false;
+    bool Init = false;
+
+    protected override void OnInitialized()
+    {
+        esAyuda = typeof(T) == typeof(AyudaDTO);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!Init && lista.Any())
+        {
+            await JS.InvokeVoidAsync("InitTable", "#Tabla");
+            Init = true;
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    public void Dispose()
+    {
+        JS.InvokeVoidAsync("DestroyTable", "#Tabla");
+    }
+
+    Dictionary<string, string> colores = new Dictionary<string, string>()
+    {
+        ["Por Aprobar"] = "bg-success text-white fw-bold",
+        ["En Proceso"] = "bg-primary text-white fw-bold",
+        ["Lista Para Entregar"] = "bg-info text-white fw-bold",
+        ["Cerrada"] = "bg-dark text-white fw-bold",
+        ["Rechazada"] = "bg-danger text-white fw-bold"
+    };
+}

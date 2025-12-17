@@ -2,7 +2,6 @@
 
 @inject IUsuarioService usuarioService
 @inject IToastService toastService;
-@inject IListaService listaUsuarios;
 @inject SweetAlertService swat;
 @inject AuthenticationStateProvider authenticationStateProvider;
 
@@ -38,18 +37,18 @@
                     </InputSelect>
                     <input type="text" class="form-control" placeholder="Buscar usuario..." @bind-value="buscar">
                     <button class="btn btn-outline-secondary" type="button" @onclick="(async () => await ObtenerUsuarios(rol, buscar))">
-                        <i class="oi oi-magnifying-glass"></i>
+                        <i class="bi bi-search"></i>
                     </button>
                 </div>
             </div>
         </div>
         
-        <div class="row gx-4 row-cols-1 row-cols-sm-2 row-cols-sm-3 row-cols-sm-4 justify-content-start mt-2">
+        <div class="row gx-4 row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 mt-2">
         
             @if (Lista != null)
             {
         
-                int IdLogged = Convert.ToInt32(@context.User.Claims.SingleOrDefault(u => u.Type == ClaimTypes.NameIdentifier)!.Value);
+                int IdLogged = Convert.ToInt32(@context.User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)!.Value);
 
                 foreach (UsuarioDTO item in Lista)
                 {
@@ -82,8 +81,10 @@
             }
             else
             {
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                <div class="col-12 d-flex justify-content-center align-items-center" style="min-height:200px;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             }
         
@@ -101,8 +102,6 @@
         var response = await usuarioService.Lista(rol, valor);
         if (response.EsCorrecto) Lista = (List<UsuarioDTO>) response.Resultado!;
         else Lista = new List<UsuarioDTO>();
-
-        await listaUsuarios.CargarLista(Lista);
     }
 
     protected override async Task OnInitializedAsync()
@@ -130,14 +129,13 @@
 
         if (result.IsConfirmed)
         {
-            var response = await usuarioService.Eliminar(model.Cedula);
+            var response = await usuarioService.Eliminar(model.Cedula ?? 0);
             if (response.EsCorrecto)
             {
-                await listaUsuarios.EliminarLista(model.Cedula);
                 await ObtenerUsuarios();
                 toastService.ShowSuccess("Usuario eliminado");
             }
-            else toastService.ShowSuccess(response.Mensaje!);
+            else toastService.ShowError($"Error: {response.Mensaje!}");
         }
     }
 }

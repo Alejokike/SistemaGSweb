@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Timers;
 
 namespace SistemaGS.DTO.ModelDTO
 {
