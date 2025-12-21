@@ -89,16 +89,16 @@ namespace SistemaGS.Service.Implementacion
             }
         }
 
-        public async Task<byte[]> Imprimir(int idAyuda, int option, AyudaQuery? filtro = null)
+        public async Task<byte[]> Imprimir(int idAyuda, int option, AyudaQuery filtro)
         {
             try
             {
                 byte[] documento;
-                var ayuda = await Obtener(idAyuda);
                 switch (option)
                 {
                     case 1:
                         {
+                            var ayuda = await Obtener(idAyuda);
                             PersonaDTO Solicitante = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Solicitante).FirstOrDefault() ?? throw new TaskCanceledException("El solicitante de la ayuda no existe"));
                             PersonaDTO Funcionario = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Funcionario).FirstOrDefault() ?? throw new TaskCanceledException("El funcionario de la ayuda no existe"));
                             documento = Impresion.GeneratePDFplanilla(ayuda, Solicitante, Funcionario);
@@ -106,6 +106,7 @@ namespace SistemaGS.Service.Implementacion
                         }
                     case 2:
                         {
+                            var ayuda = await Obtener(idAyuda);
                             PersonaDTO Solicitante = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Solicitante).FirstOrDefault() ?? throw new TaskCanceledException("El solicitante de la ayuda no existe"));
                             PersonaDTO Funcionario = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Funcionario).FirstOrDefault() ?? throw new TaskCanceledException("El funcionario de la ayuda no existe"));
                             documento = Impresion.GeneratePDFdetalle(ayuda, Solicitante, Funcionario);
@@ -113,8 +114,9 @@ namespace SistemaGS.Service.Implementacion
                         }
                     case 3:
                         {
-                            List<AyudaDTO> ayudas = _mapper.Map<List<AyudaDTO>>(_AyudaRepository.Listar(filtro!));
-                            documento = Impresion.GeneratePDFreporte(filtro!, ayudas);
+                            List<AyudaDTO> ayudas = await Lista(filtro);
+                            if (!ayudas.Any()) throw new TaskCanceledException("No hay casos de ayudas cerradas en el período seleccionado");
+                            documento = Impresion.GeneratePDFreporte(filtro, ayudas);
                             break;
                         }
                     default:

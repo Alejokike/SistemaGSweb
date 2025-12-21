@@ -10,7 +10,7 @@
 <PageTitle>Usuarios</PageTitle>
 
 <style>
-    p {
+    .wrap {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -19,9 +19,7 @@
 
 <AuthorizeView>
     <Authorized>
-
-
-        <div class="row justify-content-center  mt-3">
+        <div class="row justify-content-center  mt-3 position-sticky">
             <div class="col-sm-6 col-md-4 col-xl-3 mb-4">
                 <div class="d-grid gap-1 col-12 mx-auto">
                     <a class="btn btn-primary" href="/usuario">Nuevo usuario</a>
@@ -60,7 +58,7 @@
                                 <div class="text-center">
                                     <i class="oi oi-person" style="font-size:50px"></i>
                                 </div>
-                                <div class="text-start">
+                                <div class="wrap text-start">
                                     <p class="m-1"><b>Usuario: </b>@item.NombreUsuario</p>
                                     <p class="m-1"><b>Rol: </b>@item.Rol.Nombre</p>
                                     <p class="m-1"><b>Correo: </b>@item.Correo</p>

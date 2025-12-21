@@ -5,11 +5,23 @@
 @using System.Security.Claims;
 @inject AuthenticationStateProvider authenticationState;
 
+@*
 <div class="top-row p-5 align-content-center navbar navbar-dark">
     <div class="container-fluid">        
         <p class="navbar-brand">
             <img class="img-fluid" width="50" height="50" src="/img/GestionSocialLogo.png" /> SistemaGS
         </p>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+*@
+
+<div class="top-row align-content-center navbar navbar-dark">
+    <div class="container-fluid">
+        <img class="img-fluid" width="50" height="50" src="/img/GestionSocialLogo.png" />
+        <img class="img-fluid me-2" width="50" height="50" src="/img/LogoAlcaldiaLetrasBlancas.png" />
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>

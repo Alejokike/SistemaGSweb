@@ -34,7 +34,6 @@ namespace SistemaGS.Repository.Implementacion
                 {
                     transaction.Rollback();
                     Console.WriteLine(ex.Message);
-                    return false;
                     throw;
                 }
             }
@@ -67,7 +66,6 @@ namespace SistemaGS.Repository.Implementacion
                 {
                     transaction.Rollback();
                     Console.WriteLine(ex.Message);
-                    return false;
                     throw;
                 }
             }

@@ -57,7 +57,7 @@ namespace SistemaGS.Service.Implementacion
                 DbUsuario.Clave = Ferramentas.ConvertToSha256(DbUsuario.Clave);
 
                 if (await _UsuarioRepository.Registrar(DbUsuario, DbPersona)) return await Obtener(Model.Cedula!.Value);
-                else throw new TaskCanceledException("No se pudo crear");
+                else return new UsuarioDTO() { Persona = new PersonaDTO(), Rol = new RolDTO()}; 
             }
             catch (Exception ex)
             {
@@ -77,7 +77,7 @@ namespace SistemaGS.Service.Implementacion
 
                 bool respuesta = await _UsuarioRepository.Editar(parseoU, parseoP);
 
-                if (!respuesta) throw new TaskCanceledException("No se pudo editar");
+                if (!respuesta) return respuesta;
                 else return respuesta;
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace SistemaGS.Service.Implementacion
             try
             {
                 var respuesta =  await _UsuarioRepository.Eliminar(id);
-                if (!respuesta) throw new TaskCanceledException("No se pudo eliminar");
+                if (!respuesta) return respuesta; 
                 else return respuesta;
             }
             catch (Exception ex)

@@ -9,7 +9,7 @@
 
 <h3 class="m-3">Aprobar Ayudas</h3>
 
-<FiltroAyuda filtro="filtro" retorno="EventCallback.Factory.Create(this, ListarAyuda)" Estado="false"/>
+<FiltroAyuda filtro="filtro" Estado="false" retorno="EventCallback.Factory.Create(this, ListarAyuda)" />
 <TableLayout lista="lista" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, CargarAyuda))"/>
 
 @code{
@@ -18,12 +18,16 @@
 
     protected override async Task OnInitializedAsync()
     {
+        filtro = new AyudaQuery()
+        {
+            Estado = "Por Aprobar,En Proceso"
+        };
         await ListarAyuda();
     }
     private async Task ListarAyuda()
     {
         var response = await ayudaService.Listar(filtro);
-        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado.OrderBy(a => a.IdAyuda).Where(la => la.Estado == "Por Aprobar" || la.Estado == "En Proceso").ToList();
+        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
     }
     private void CargarAyuda(AyudaDTO ayuda)
     {

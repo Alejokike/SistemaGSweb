@@ -10,7 +10,7 @@
 
 <h3 class="m-3">Gestionar Ayudas</h3>
 
-<FiltroAyuda filtro="filtro" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" Funcionario="false"/>
+<FiltroAyuda filtro="filtro" Estado="false" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" Funcionario="false"/>
 <TableLayout lista="lista" T="AyudaDTO" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, CargarAyuda))"></TableLayout>
 
 @code{
@@ -24,7 +24,8 @@
     {
         filtro = new AyudaQuery()
         {
-            funcionario = ID
+            funcionario = ID,
+            Estado = "En Proceso,Lista Para Entregar"
         };
         await ListarAyuda();        
     }

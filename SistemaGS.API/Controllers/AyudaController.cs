@@ -111,7 +111,7 @@ namespace SistemaGS.API.Controllers
             try
             {
                 response.EsCorrecto = true;
-                response.Resultado = await _ayudaService.Imprimir(idAyuda, option);
+                response.Resultado = await _ayudaService.Imprimir(idAyuda, option, new AyudaQuery());
             }
             catch (Exception ex)
             {
@@ -126,6 +126,9 @@ namespace SistemaGS.API.Controllers
             var response = new ResponseDTO<byte[]>();
             try
             {
+                filtro.FechaIni ??= new DateTime(DateTime.Now.Year, 1, 1);
+                filtro.FechaFin ??= new DateTime(DateTime.Now.Year, 12, 31);
+                filtro.Estado = "Cerrada";
                 response.EsCorrecto = true;
                 response.Resultado = await _ayudaService.Imprimir(0, 3, filtro);
             }

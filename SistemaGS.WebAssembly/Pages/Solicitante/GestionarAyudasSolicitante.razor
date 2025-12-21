@@ -24,18 +24,15 @@
     {
         filtro = new AyudaQuery()
         {
-            solicitante = ID
+            solicitante = ID,
+            Estado = "Por Aprobar,En Proceso"
         };
         await ListarAyudas();
     }
     private async Task ListarAyudas()
     {
         var response = await ayudaService.Listar(filtro);
-        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado
-        .Where(la =>
-            la.Solicitante == ID &&
-            (la.Estado != "Cerrada" && la.Estado != "Rechazada")
-        ).ToList();
+        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
     }
     private async Task CargarAyuda(AyudaDTO ayuda)
     {

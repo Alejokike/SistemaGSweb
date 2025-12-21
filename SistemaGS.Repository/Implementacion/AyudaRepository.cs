@@ -22,6 +22,7 @@ namespace SistemaGS.Repository.Implementacion
                 {
                     string datasoli = (filtro.DataSoli ?? "").ToLower();
                     string datafunci = (filtro.DataFunci ?? "").ToLower();
+                    string[] estados = (filtro.Estado ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                     var consulta = from a in _dbContext.Ayuda
                                    join s in _dbContext.Personas on a.Solicitante equals s.Cedula
@@ -29,6 +30,8 @@ namespace SistemaGS.Repository.Implementacion
                                    from f in funcGroup.DefaultIfEmpty()
                                    where
                                     filtro.FechaIni <= a.FechaSolicitud && a.FechaSolicitud <= filtro.FechaFin &&
+
+                                    (estados.Length == 0 || estados.Contains(a.Estado)) &&
 
                                     (string.IsNullOrEmpty(filtro.categoria) || a.Categoria == filtro.categoria) &&
 

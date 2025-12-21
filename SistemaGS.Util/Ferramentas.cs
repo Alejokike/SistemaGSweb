@@ -381,6 +381,8 @@ namespace SistemaGS.Util
                             });
                         });
 
+                        col1.Item().Padding(3f).LineHorizontal(2.5f);
+
                         #region Detalle
 
                         if (ayuda.Detalle.TryGetValue("Solicitud", out string? solicitud) && !(string.IsNullOrEmpty(solicitud)))
@@ -389,7 +391,7 @@ namespace SistemaGS.Util
                             .Column(column =>
                             {
                                 column.Item().Text("Razón de la solicitud").FontSize(14);
-                                column.Item().Text($"El solicitante indica: {solicitud}'");
+                                column.Item().Text(solicitud);
                                 column.Spacing(5);
                             });
                         }
@@ -423,7 +425,6 @@ namespace SistemaGS.Util
                                 column.Spacing(5);
                             });
                         }
-
                         #endregion
 
                         col1.Item().PageBreak();
@@ -479,22 +480,52 @@ namespace SistemaGS.Util
 
                         col1.Item().PageBreak();
 
-                        col1.Item().Background(Colors.Amber.Accent2).Padding(10)
+                        col1.Item().Padding(10)
                             .Column(column =>
                             {
-                                column.Item().Text("Total").FontSize(14);
-                                col1.Item().AlignRight().Text($"Total Solicitado (VE): {ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "VE").Sum(li => li.CantidadSolicitada)}").FontSize(12);
-                                col1.Item().AlignRight().Text($"Total Solicitado (MU): {ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "MU").Sum(li => li.CantidadSolicitada)}").FontSize(12);
-                                col1.Item().AlignRight().Text($"Total Solicitado (EU): {ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "EU").Sum(li => li.CantidadSolicitada)}").FontSize(12);
-                                column.Spacing(5);
-                                col1.Item().AlignRight().Text($"Total Entregado (VE): {ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "VE").Sum(li => li.CantidadEntregada)}").FontSize(12);
-                                col1.Item().AlignRight().Text($"Total Entregado (MU): {ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "MU").Sum(li => li.CantidadEntregada)}").FontSize(12);
-                                col1.Item().AlignRight().Text($"Total Entregado (EU): {ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "EU").Sum(li => li.CantidadEntregada)}").FontSize(12);
+                                column.Item().Text("Total").BackgroundColor(Colors.Amber.Accent1).FontSize(14);
+                                column.Item().AlignLeft().Text(txt => 
+                                {
+                                    txt.Span("Total Solicitado (VE): ").SemiBold();
+                                    txt.Span(ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "VE").Sum(li => li.CantidadSolicitada).ToString("N2"));
+                                });
+                                column.Item().AlignLeft().Text(txt => 
+                                {
+                                    txt.Span("Total Solicitado (MU): ").SemiBold();
+                                    txt.Span(ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "MU").Sum(li => li.CantidadSolicitada).ToString("N0"));
+                                });
+                                column.Item().AlignLeft().Text(txt => 
+                                {
+                                    txt.Span("Total Solicitado (EU): ").SemiBold();
+                                    txt.Span(ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "EU").Sum(li => li.CantidadSolicitada).ToString("N0"));
+                                });
+
+                                column.Spacing(10);
+
+                                column.Item().AlignLeft().Text(txt => 
+                                {
+                                    txt.Span("Total Entregado (VE): ").SemiBold();
+                                    txt.Span(ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "VE").Sum(li => li.CantidadEntregada).ToString("N2"));
+                                });
+                                column.Item().AlignLeft().Text(txt =>
+                                {
+                                    txt.Span("Total Entregado (MU): ").SemiBold();
+                                    txt.Span(ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "MU").Sum(li => li.CantidadEntregada).ToString("N0"));
+                                });
+                                column.Item().AlignLeft().Text(txt =>
+                                {
+                                    txt.Span("Total Entregado (EU): ").SemiBold();
+                                    txt.Span(ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "EU").Sum(li => li.CantidadEntregada).ToString("N0"));
+                                });
                                 column.Spacing(5);
                                 decimal totalE = ayuda.ListaItems.Sum(li => li.CantidadEntregada);
                                 decimal totalS = ayuda.ListaItems.Sum(li => li.CantidadSolicitada);
-                                decimal porcentaje = totalE > 0 ? totalE / totalS : 0;
-                                col1.Item().AlignRight().Text($"Completado: %{porcentaje.ToString("N2")}");
+                                decimal porcentaje = totalE > 0 ? (totalE / totalS) * 100 : 0;
+                                column.Item().AlignRight().Text(txt => 
+                                {
+                                    txt.Span("Completado: %").SemiBold().FontSize(12);
+                                    txt.Span(porcentaje.ToString("N2")).Italic().FontSize(12);
+                                });
                             });
 
                         #endregion
@@ -520,6 +551,8 @@ namespace SistemaGS.Util
 
         public static byte[] GeneratePDFreporte(AyudaQuery filtro, List<AyudaDTO> ayudas)
         {
+            QuestPDF.Settings.License = LicenseType.Community;
+
             var ReportePDF =
             Document.Create(document =>
             {
@@ -592,9 +625,12 @@ namespace SistemaGS.Util
 
                         #region Ayudas
 
+                        col1.Spacing(5);
                         col1.Item().LineHorizontal(0.5f);
-                        col1.Item().Text("Ayudas").Bold().FontSize(10); ;
+                        col1.Item().Text("Resumen ayudas sociales").Bold().FontSize(14).AlignCenter();
                         col1.Item().LineHorizontal(0.5f);
+                        col1.Spacing(5);
+
                         col1.Item().Table(tabla =>
                         {
                             tabla.ColumnsDefinition(columns =>
@@ -657,7 +693,7 @@ namespace SistemaGS.Util
                                 .Padding(2).Text(ayuda.Categoria).FontSize(9).AlignCenter();
 
                                 tabla.Cell().BorderBottom(0.5f).BorderColor("#D9D9D9")
-                                .Padding(2).Text(ayuda.Estado).FontColor(color[ayuda.Estado]).Bold().FontSize(9).AlignCenter();
+                                .Padding(2).Text(ayuda.Estado).Bold().FontSize(9).AlignCenter();
 
                                 tabla.Cell().BorderBottom(0.5f).BorderColor("#D9D9D9")
                                 .Padding(2).Text(ayuda.FechaSolicitud.ToString("dd/MM/yyyy")).FontSize(9).AlignCenter();
@@ -673,9 +709,11 @@ namespace SistemaGS.Util
 
                         #region Items
 
+                        col1.Spacing(5);
                         col1.Item().LineHorizontal(0.5f);
-                        col1.Item().Text("Resumen Items");
+                        col1.Item().Text("Resumen ítems").Bold().FontSize(14).AlignCenter();
                         col1.Item().LineHorizontal(0.5f);
+                        col1.Spacing(5);
 
                         col1.Item().Table(tabla =>
                         {
@@ -732,27 +770,33 @@ namespace SistemaGS.Util
                         .Column(column =>
                         {
                             column.Item().Text("Métricas").FontSize(14).Bold().Italic().Underline();
-                            col1.Item().AlignRight().Text($"Total Solicitado (VE): {Items.Where(li => li.Unidad == "VE").Sum(li => li.CantidadSolicitada)}").FontSize(12);
-                            col1.Item().AlignRight().Text($"Total Solicitado (MU): {Items.Where(li => li.Unidad == "MU").Sum(li => li.CantidadSolicitada)}").FontSize(12);
-                            col1.Item().AlignRight().Text($"Total Solicitado (EU): {Items.Where(li => li.Unidad == "EU").Sum(li => li.CantidadSolicitada)}").FontSize(12);
+                            column.Item().AlignLeft().Text($"Total Solicitado (VE): {Items.Where(li => li.Unidad == "VE").Sum(li => li.CantidadSolicitada)}").FontSize(12);
+                            column.Item().AlignLeft().Text($"Total Solicitado (MU): {Items.Where(li => li.Unidad == "MU").Sum(li => li.CantidadSolicitada)}").FontSize(12);
+                            column.Item().AlignLeft().Text($"Total Solicitado (EU): {Items.Where(li => li.Unidad == "EU").Sum(li => li.CantidadSolicitada)}").FontSize(12);
                             column.Spacing(5);
-                            col1.Item().AlignRight().Text($"Total Entregado (VE): {Items.Where(li => li.Unidad == "VE").Sum(li => li.CantidadEntregada)}").FontSize(12);
-                            col1.Item().AlignRight().Text($"Total Entregado (MU): {Items.Where(li => li.Unidad == "MU").Sum(li => li.CantidadEntregada)}").FontSize(12);
-                            col1.Item().AlignRight().Text($"Total Entregado (EU): {Items.Where(li => li.Unidad == "EU").Sum(li => li.CantidadEntregada)}").FontSize(12);
+                            column.Item().AlignLeft().Text($"Total Entregado (VE): {Items.Where(li => li.Unidad == "VE").Sum(li => li.CantidadEntregada)}").FontSize(12);
+                            column.Item().AlignLeft().Text($"Total Entregado (MU): {Items.Where(li => li.Unidad == "MU").Sum(li => li.CantidadEntregada)}").FontSize(12);
+                            column.Item().AlignLeft().Text($"Total Entregado (EU): {Items.Where(li => li.Unidad == "EU").Sum(li => li.CantidadEntregada)}").FontSize(12);
+                            column.Spacing(5);
+
+                            var itemMS = Items.Where(li => li.CantidadSolicitada == Items.Max(li => li.CantidadSolicitada)).ToList();
+                            column.Item().AlignLeft().Text($"Item(s) más solicitado(s)").Italic();
+                            foreach (var ms in itemMS)
+                            {
+                                column.Item().Text(txt =>
+                                {
+                                    txt.Span("Item más solicitado: ").SemiBold(); txt.Span(ms.Nombre);
+                                    string x = ms.Unidad == "VE" ? ms.CantidadSolicitada.ToString("N2") : ms.CantidadSolicitada.ToString("N2");
+                                    txt.Line("Cantidad solicitada: ").SemiBold(); txt.Span(x);
+                                    txt.Line("");
+                                });
+                            }
                             column.Spacing(5);
                             decimal totalE = Items.Sum(li => li.CantidadEntregada);
                             decimal totalS = Items.Sum(li => li.CantidadSolicitada);
-                            decimal porcentaje = totalE > 0 ? totalE / totalS : 0;
-                            col1.Item().AlignRight().Text($"Cumplimiento total período: %{porcentaje.ToString("N2")}");
-                            column.Spacing(5);
-                            var itemMS = Items.Where(li => li.CantidadSolicitada == Items.Max(li => li.CantidadSolicitada)).ToList();
-                            col1.Item().AlignRight().Text($"Item(s) más solicitado(s)").Italic();
-                            foreach (var ms in itemMS)
-                            {
-                                col1.Item().AlignRight().Text($"- Item más solicitado: {ms.Nombre}");
-                                string x = ms.Unidad == "VE" ? ms.CantidadSolicitada.ToString("N2") : ms.CantidadSolicitada.ToString("N2");
-                                col1.Item().AlignRight().Text($"  Cantidad solicitada: {x}");
-                            }
+                            decimal porcentaje = totalE > 0 ? (totalE / totalS) * 100 : 0;
+                            column.Item().AlignRight().Text($"Cumplimiento total período: %{porcentaje.ToString("N2")}");                          
+                            
                         });
                     });
 

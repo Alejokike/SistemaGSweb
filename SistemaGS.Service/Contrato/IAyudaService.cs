@@ -10,6 +10,6 @@ namespace SistemaGS.Service.Contrato
         Task<AyudaDTO> Crear(AyudaDTO Model);
         Task<bool> Editar(AyudaDTO Model);
         Task<bool> Eliminar(int idAyuda);
-        Task<byte[]> Imprimir(int idAyuda, int option, AyudaQuery? filtro = null);
+        Task<byte[]> Imprimir(int idAyuda, int option, AyudaQuery filtro);
     }
 }

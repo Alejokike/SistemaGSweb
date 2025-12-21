@@ -5,7 +5,12 @@
 
 @attribute [Authorize];
 
-<nav class="navbar navbar-expand-sm navbar-light bg-light">
+<nav class="navbar navbar-expand-sm navbar-light">
+    <div class="container-fluid">        
+        <div class="navbar-brand d-inline-flex">
+            <h1 class="text-white">Sistema GS</h1>
+        </div>
+    </div>
     <div class="container d-sm-inline-flex justify-content-end gap-3">
             <AuthorizeView>
                 <Authorized>
@@ -15,25 +20,25 @@
                         string rol = context.User.Claims.SingleOrDefault(c => c.Type == ClaimTypes.Role)!.Value;
                     }
                     <div class="nav-item dropdown">
-                        <button class="nav-link dropdown-toggle d-flex align-items-center" 
+                        <button class="nav-link dropdown-toggle d-flex align-items-center text-white" 
                                 id="userDropdown" 
                                 data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle fs-4 me-2"></i>
                             <span class="d-none d-md-inline">@usuario</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li class="dropdown-header bg-primary text-center text-white">
+                            <li class="dropdown-header text-center text-white" style="background: rgb(3, 37, 75)">
                                 <i class="bi bi-person-circle fs-1 mb-2"></i>
                                 <p class="mb-0">@usuario<br><small>@rol</small></p>
                             </li>
-                            <li class="bg-secondary"><hr class="dropdown-divider"></li>
+                            <li class="pt-2" style="background: rgb(202, 120, 21)"><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item" href="@($"/Usuario/{cedula}")">
+                                <a class="dropdown-item btn btn-light" href="@($"/Usuario/{cedula}")">
                                     <i class="bi bi-person me-2"></i> Perfil
                                 </a>
                             </li>
                             <li>
-                                <button class="dropdown-item text-danger" type="button" @onclick="CerrarSesion">
+                                <button class="dropdown-item btn btn-light text-danger" type="button" @onclick="CerrarSesion">
                                     <i class="bi bi-box-arrow-right me-2"></i> Salir
                                 </button>
                             </li>
@@ -45,6 +50,15 @@
 </nav>
 
 @code{
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
     private async Task CerrarSesion()
     {
         SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions

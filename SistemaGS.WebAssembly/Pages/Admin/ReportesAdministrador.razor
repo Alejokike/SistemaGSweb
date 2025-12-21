@@ -6,7 +6,7 @@
 
 <h3 class="m-3">Reportes</h3>
 
-<FiltroAyuda filtro="filtro" Funcionario="false" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" />
+<FiltroAyuda filtro="filtro" Estado="false" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" />
 <TableLayout lista="lista" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, RecibirSeleccion))"/>
 
 <button type="button" class="btn btn-primary" @onclick="ImprimirReporte">
@@ -20,6 +20,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        filtro = new AyudaQuery()
+            {
+                Estado = "Cerrada,Rechazada"
+            };
         await ListarAyuda();
     }
     private async Task ListarAyuda()
