@@ -102,35 +102,12 @@ namespace SistemaGS.Repository.Implementacion
                 {
                     var consulta = from i in _dbContext.Items
                                    where
-                                    (string.IsNullOrEmpty(query.Nombre) || EF.Functions.Like((i.Nombre ?? "").ToLower(), $"%{query.Nombre}%".ToLower())) &&
-                                    (string.IsNullOrEmpty(query.Categoria) || EF.Functions.Like((i.Categoria ?? "").ToLower(), $"%{query.Categoria}%".ToLower())) &&
+                                    (query.ID == 0 || i.IdItem == query.ID) &&
+                                    (string.IsNullOrEmpty(query.Nombre) || EF.Functions.Like((i.Nombre ?? "").ToLower(), query.Nombre.ToLower())) &&
+                                    (string.IsNullOrEmpty(query.Categoria) || i.Categoria == query.Categoria) &&
                                     (string.IsNullOrEmpty(query.Unidad) || i.Unidad == query.Unidad)
-                                   select new
-                                   {
-                                       Item = i
-                                   };
-                    /*
-                    consulta = query.OrdenarPor switch
-                    {
-                        "Nombre" => query.Ascendente
-                        ? consulta.OrderBy(x => x.Item.Nombre)
-                        : consulta.OrderByDescending(x => x.Item.Nombre),
-
-                        "Categoria" => query.Ascendente
-                        ? consulta.OrderBy(x => x.Item.Categoria)
-                        : consulta.OrderByDescending(x => x.Item.Categoria),
-
-                        "Unidad" => query.Ascendente
-                        ? consulta.OrderBy(x => x.Item.Unidad)
-                        : consulta.OrderByDescending(x => x.Item.Unidad),
-
-                        _ => query.Ascendente
-                        ? consulta.OrderBy(x => x.Item.IdItem)
-                        : consulta.OrderByDescending(x => x.Item.IdItem)
-                    };
-                    */
-
-                    return await consulta.Select(i => i.Item).ToListAsync();
+                                   select i;
+                    return await consulta.ToListAsync();
                 }
                 catch (Exception ex)
                 {

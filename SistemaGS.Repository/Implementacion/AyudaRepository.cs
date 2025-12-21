@@ -25,15 +25,16 @@ namespace SistemaGS.Repository.Implementacion
 
                     var consulta = from a in _dbContext.Ayuda
                                    join s in _dbContext.Personas on a.Solicitante equals s.Cedula
-                                   join f in _dbContext.Personas on a.Funcionario equals f.Cedula
+                                   join f in _dbContext.Personas on a.Funcionario equals f.Cedula into funcGroup
+                                   from f in funcGroup.DefaultIfEmpty()
                                    where
                                     filtro.FechaIni <= a.FechaSolicitud && a.FechaSolicitud <= filtro.FechaFin &&
 
                                     (string.IsNullOrEmpty(filtro.categoria) || a.Categoria == filtro.categoria) &&
 
-                                    (filtro.solicitante == 0 || filtro.solicitante == s.Cedula) &&
-
-                                    (filtro.funcionario == 0 || filtro.funcionario == f.Cedula) &&
+                                    (filtro.solicitante == null || filtro.solicitante == s.Cedula) &&
+                                     
+                                    (filtro.funcionario == null || filtro.funcionario == f.Cedula) &&
 
                                     (string.IsNullOrEmpty(filtro.DataSoli) ||
                                         EF.Functions.Like((s.Nombre ?? "").ToLower(), datasoli) ||
@@ -41,8 +42,6 @@ namespace SistemaGS.Repository.Implementacion
                                         EF.Functions.Like((s.TelefonoTrabajo ?? "").ToLower(), datasoli) ||
                                         EF.Functions.Like((s.TelefonoHabitacion ?? "").ToLower(), datasoli)
                                     ) &&
-
-
 
                                     (string.IsNullOrEmpty(filtro.DataFunci) ||
                                         EF.Functions.Like((f.Nombre ?? "").ToLower(), datafunci) ||

@@ -1,7 +1,10 @@
 ﻿@using System.Text
 @inject IJSRuntime JS;
+@inject AuthenticationStateProvider AuthenticationStateProvider;
 @inject IUsuarioService usuarioService;
+@inject IAyudaService ayudaService;
 @inject SweetAlertService Swat;
+@inject IToastService toastService;
 
 <div class="row-cols-12 mt-4">
     <div class="col-sm-12">
@@ -15,35 +18,45 @@
                     {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Razón de la solicitud</label>
-                            <div class="form-control">@solicitud</div>
+                            <div class="form-label">@solicitud</div>
                         </div>
                     }
-                    if (ayuda.Detalle.TryGetValue("Observaciones", out string? observaciones) && !string.IsNullOrEmpty(observaciones))
+                    if(ayuda.Estado == "En Proceso" && Rol == "Funcionario")
                     {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Observaciones del funcionario</label>
-                            <div class="form-control">@observaciones</div>
+                            <InputText class="form-control" placeholder="Ingrese las observaciones vistas del caso, en que consiste la solicitud y cualquier información de interés..." @bind-Value="@(ayuda.Detalle["Observaciones"])" />
                         </div>
+                    }
+                    else
+                    {
+                        if (ayuda.Detalle.TryGetValue("Observaciones", out string? observaciones) && !string.IsNullOrEmpty(observaciones))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Observaciones del funcionario</label>
+                                <div class="form-label">@observaciones</div>
+                            </div>
+                        }
                     }
                     if (ayuda.Detalle.TryGetValue("Aprobado", out string? aprobado) && !string.IsNullOrEmpty(aprobado))
                     {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Detalle de la finalización del proceso</label>
-                            <div class="form-control">@aprobado</div>
+                            <div class="form-label">@aprobado</div>
                         </div>
                     }
                     if (ayuda.Detalle.TryGetValue("Rechazado", out string? rechazado) && !string.IsNullOrEmpty(rechazado))
                     {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Motivo de rechazo</label>
-                            <div class="form-control">@rechazado</div>
+                            <div class="form-label">@rechazado</div>
                         </div>
                     }
                 }
     
                 <div class="mb-3">
                     <label class="form-label fw-bold">Categoría de la ayuda</label>
-                    <div class="form-control">@ayuda.Categoria</div>
+                    <div class="form-label">@ayuda.Categoria</div>
                 </div>
                 
                 @if (solicitante.Cedula != 0)
@@ -85,43 +98,37 @@
         </div>
     </div>
 </div>
-
+        
 @if (ImpresionHabilitada)
 {
+    
     <div class="row-cols-12 mt-4">
         <div class="col-sm-12">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h3>Imprimir Ayuda</h3>
-                </div>
-                <div class="card-body align-content-between justify-content-start">
-                    <div class="dropdown" role="group">
-                        <button class="btn btn-primary dropdown-toggle" type="button" @onclick="@(() => expand = !expand)" data-bs-toggle="dropdown" aria-expanded="@expand.ToString().ToLower()">
-                            <i class="bi bi-printer fs-5"></i> Imprimir ayuda
+            <div class="dropdown" role="group">
+                <button class="btn btn-primary dropdown-toggle" type="button" @onclick="@(() => expand = !expand)" data-bs-toggle="dropdown" aria-expanded="@expand.ToString().ToLower()">
+                    <i class="bi bi-printer fs-5"></i> Imprimir ayuda
+                </button>
+                <ul class="dropdown-menu @(expand ? "show" : "")">
+                    <li>
+                        <button class="btn btn-danger m-3" @onclick="ImprimirAyuda">
+                            <i class="bi bi-filetype-pdf text-white fs-5"></i> Imprimir planilla
                         </button>
-                        <ul class="dropdown-menu @(expand ? "show" : "")">
-                            <li>
-                                <button class="btn btn-danger m-3">
-                                    <i class="bi bi-filetype-pdf text-white fs-5"></i> Imprimir planilla
-                                </button>
-                            </li>
-                            <li>
-                                <button class="btn btn-success m-3">
-                                    <i class="bi bi-filetype-xlsx text-white fs-5"></i> Imprimir lista de ítems
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                    </li>
+                    <li>
+                        <button class="btn btn-success m-3" @onclick="ImprimirDetalle">
+                            <i class="bi bi-filetype-pdf text-white fs-5"></i> Imprimir lista de ítems
+                        </button>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
+   
 }
-        
+
 @* Lista Items *@
 
 <div class="row-cols-12 mt-4">
-
     <div class="col-sm-12">
         <div class="card mb-3">
             <div class="card-header">
@@ -146,13 +153,13 @@
                                 foreach (var item in ayuda.ListaItems)
                                 {
                                     <tr>
-                                        <td valign="middle">@item.IdLista</td>
+                                        <td valign="middle" align="center">@item.IdLista</td>
                                         <td valign="middle">@item.ItemLista!.Nombre</td>
                                         <td valign="middle">@item.ItemLista!.Categoria</td>
                                         <td valign="middle" align="center">@item.CantidadSolicitada</td>
                                         <td valign="middle" align="center">@item.CantidadEntregada</td>
                                         <td valign="middle" align="center">
-                                            <button @onclick="@(() => MostrarItem(item.ItemLista))">
+                                            <button class="btn btn-light" @onclick="@(() => MostrarItem(item.ItemLista))">
                                                 <i class="bi bi-card-list text-primary fs-5"></i>
                                             </button>
                                         </td>
@@ -173,10 +180,8 @@
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
-
 </div>
 
 @code {
@@ -206,6 +211,17 @@
         Persona = new PersonaDTO(),
         Rol = new RolDTO()
     };
+
+    private int ID;
+    private string Rol = "";
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var User = authState.User;
+
+        ID = Convert.ToInt32((User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
+        Rol = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)!.Value;
+    }
 
     private bool expand;
 
@@ -250,7 +266,22 @@
 
     private async Task ImprimirAyuda()
     {
-        string data = Convert.ToBase64String(Impresion.GeneratePDFplanilla(ayuda, solicitante.Persona, funcionario.Persona));
-        await JS.InvokeVoidAsync("DownloadFileFromBytes", $"planilla ayuda {ayuda.IdAyuda} fecha {ayuda.FechaSolicitud.ToShortDateString()}.pdf", data);
+        var response = await ayudaService.Imprimir(ayuda.IdAyuda, 1);
+        if (response.EsCorrecto && response.Resultado != null)
+        {
+            string data = Convert.ToBase64String(response.Resultado);
+            await JS.InvokeVoidAsync("downloadFileFromBytes", $"planilla ayuda {ayuda.IdAyuda} fecha {ayuda.FechaSolicitud.ToShortDateString()}.pdf", data);
+        }
+        else toastService.ShowError($"Error: {response.Mensaje}");
+    }
+    private async Task ImprimirDetalle()
+    {
+        var response = await ayudaService.Imprimir(ayuda.IdAyuda, 2);
+        if (response.EsCorrecto && response.Resultado != null)
+        {
+            string data = Convert.ToBase64String(response.Resultado);
+            await JS.InvokeVoidAsync("downloadFileFromBytes", $"Detalle ayuda {ayuda.IdAyuda} fecha {ayuda.FechaSolicitud.ToShortDateString()}.pdf", data);
+        }
+        else toastService.ShowError($"Error: {response.Mensaje}");
     }
 }

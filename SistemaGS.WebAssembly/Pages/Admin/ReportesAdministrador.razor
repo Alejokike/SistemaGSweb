@@ -2,13 +2,16 @@
 @inject IToastService toastService;
 @inject NavigationManager navigationManager;
 @inject SweetAlertService Swat;
+@inject IJSRuntime JS;
 
 <h3 class="m-3">Reportes</h3>
 
 <FiltroAyuda filtro="filtro" Funcionario="false" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" />
 <TableLayout lista="lista" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, RecibirSeleccion))"/>
 
-<button type="button">Imprimir listado</button>
+<button type="button" class="btn btn-primary" @onclick="ImprimirReporte">
+    <i class="bi bi-printer fs-5"></i> Imprimir listado
+</button>
 
 @code {
     List<AyudaDTO> lista = new List<AyudaDTO>();
@@ -27,5 +30,15 @@
     private void RecibirSeleccion(AyudaDTO ayuda)
     {
         navigationManager.NavigateTo($"/Ayuda/{ayuda.IdAyuda}");
+    }
+    private async Task ImprimirReporte()
+    {
+        var response = await ayudaService.ImprimirReporte(filtro);
+        if (response.EsCorrecto && response.Resultado != null)
+        {
+            string data = Convert.ToBase64String(response.Resultado);
+            await JS.InvokeVoidAsync("downloadFileFromBytes", $"Reporte Ayudas fecha {DateTime.Today.ToString("dd-MM-yyyy")}.pdf", data);
+        }
+        else toastService.ShowError($"Error: {response.Mensaje}");
     }
 }

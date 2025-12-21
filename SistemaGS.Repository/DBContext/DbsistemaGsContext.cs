@@ -49,7 +49,8 @@ public partial class DbsistemaGsContext : DbContext
 
             entity.HasOne(d => d.FuncionarioNavigation).WithMany(p => p.AyudumFuncionarioNavigations)
                 .HasForeignKey(d => d.Funcionario)
-                .HasConstraintName("FK__Ayuda__Funcionar__5441852A");
+                .HasConstraintName("FK__Ayuda__Funcionar__5441852A")
+                .IsRequired(false);
 
             entity.HasOne(d => d.SolicitanteNavigation).WithMany(p => p.AyudumSolicitanteNavigations)
                 .HasForeignKey(d => d.Solicitante)

@@ -24,7 +24,6 @@ namespace SistemaGS.Service.Implementacion
             _InventarioRepository = InventarioRepository;
             _mapper = mapper;
         }
-
         public async Task<bool> Desbloquear(List<InventarioDTO> movimientos, int IdAyuda)
         {
             try
@@ -32,7 +31,7 @@ namespace SistemaGS.Service.Implementacion
                 List<Inventario> auxm = _mapper.Map<List<Inventario>>(movimientos);
                 bool responseDB = await _InventarioRepository.Desbloquear(auxm, IdAyuda);
                 if (responseDB) return true;
-                else throw new TaskCanceledException("No se pudo crear");
+                else throw new TaskCanceledException("No se pudo desbloquear");
             }
             catch (Exception ex)
             {
@@ -48,7 +47,7 @@ namespace SistemaGS.Service.Implementacion
                                join i in _ItemRepository.Consultar() on m.Item equals i.IdItem
                                where
                                filtro.FechaIni <= m.Fecha && m.Fecha <= filtro.FechaFin &&
-                               (filtro.IdItem == 0 || i.IdItem.Equals(filtro.IdItem)) &&
+                               (filtro.IdItem == 0  || i.IdItem.Equals(filtro.IdItem)) &&
                                (filtro.Movimiento == null || (m.TipoOperacion!).ToLower().Contains(filtro.Movimiento.ToLower()))
                                select new InventarioDTO
                                {

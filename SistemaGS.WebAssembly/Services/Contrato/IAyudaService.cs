@@ -11,5 +11,7 @@ namespace SistemaGS.WebAssembly.Services.Contrato
         Task<ResponseDTO<AyudaDTO>> Crear(AyudaDTO ayuda);
         Task<ResponseDTO<bool>> Editar(AyudaDTO ayuda);
         Task<ResponseDTO<bool>> Eliminar(int idAyuda);
+        Task<ResponseDTO<byte[]>> Imprimir(int idAyuda, int option);
+        Task<ResponseDTO<byte[]>> ImprimirReporte(AyudaQuery filtro);
     }
 }

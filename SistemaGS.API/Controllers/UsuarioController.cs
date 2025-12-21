@@ -19,7 +19,6 @@ namespace SistemaGS.API.Controllers
         public async Task<IActionResult> Lista(int rol, string buscar = "")
         {
             var response = new ResponseDTO<List<UsuarioDTO>>();
-
             try
             {
                 response.EsCorrecto = true;
@@ -36,8 +35,7 @@ namespace SistemaGS.API.Controllers
         [HttpGet("Obtener/{id:int}")]
         public async Task<IActionResult> Obtener(int id)
         {
-            var response = new ResponseDTO<UsuarioDTO>();
-
+            var response = new ResponseDTO<UsuarioDTO?>();
             try
             {
                 response.EsCorrecto = true;
@@ -50,12 +48,10 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpPost]
-        [Route("Crear")]
+        [HttpPost("Crear")]
         public async Task<IActionResult> Crear([FromBody]UsuarioDTO model)
         {
             var response = new ResponseDTO<UsuarioDTO>();
-
             try
             {
                 response.EsCorrecto = true;
@@ -72,7 +68,6 @@ namespace SistemaGS.API.Controllers
         public async Task<IActionResult> Autorizacion([FromBody] LoginDTO model)
         {
             var response = new ResponseDTO<SesionDTO>();
-
             try
             {
                 response.EsCorrecto = true;
@@ -89,7 +84,6 @@ namespace SistemaGS.API.Controllers
         public async Task<IActionResult> Editar([FromBody] UsuarioDTO model)
         {
             var response = new ResponseDTO<bool>();
-
             try
             {
                 response.EsCorrecto = true;
@@ -106,7 +100,6 @@ namespace SistemaGS.API.Controllers
         public async Task<IActionResult> Eliminar(int id)
         {
             var response = new ResponseDTO<bool>();
-
             try
             {
                 response.EsCorrecto = true;

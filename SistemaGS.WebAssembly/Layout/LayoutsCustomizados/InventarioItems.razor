@@ -1,5 +1,6 @@
 ﻿@inject IInventarioService inventarioService;
 @inject IToastService toastService;
+@inject IJSRuntime JS;
 
 <div class="card-header">
     <h4 class="text-center text-black">
@@ -9,7 +10,7 @@
 
 <div class="card-body">
 
-    <FiltroItem filtro="filtro" Estado="Estado" retorno="EventCallback.Factory.Create<ItemQuery>(this, ListarInventario)"/>
+    <FiltroItem filtro="filtro" Estado="Estado" retorno="EventCallback.Factory.Create<ItemQuery>(this, ListarInventario)" />
     <TableLayout lista="inventario" T="ItemDTO" Retorno="@(async (ItemDTO i) => {await retorno.InvokeAsync(i); toastService.ShowSuccess("Información cargada");})"/>
 </div>
 
@@ -23,7 +24,6 @@
     {
         await ListarInventario();
     }
-
     private async Task ListarInventario()
     {
         var respuesta = await inventarioService.ListarInventario(filtro);

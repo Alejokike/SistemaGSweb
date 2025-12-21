@@ -8,12 +8,10 @@ namespace SistemaGS.Repository.Implementacion
     public class UsuarioRepository : GenericoRepository<Usuario>, IUsuarioRepository
     {
         private readonly DbsistemaGsContext _dbContext;
-
         public UsuarioRepository(DbsistemaGsContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
-
         public async Task<bool> Editar(Usuario usuario, Persona persona)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
@@ -22,9 +20,9 @@ namespace SistemaGS.Repository.Implementacion
                 {
                     if(await _dbContext.Usuarios.AnyAsync(u => u.Cedula == usuario.Cedula) || await _dbContext.Personas.AnyAsync(p => p.Cedula == persona.Cedula))
                     {
-                        _dbContext.Personas.Update(persona);
-                        await _dbContext.SaveChangesAsync();
                         _dbContext.Usuarios.Update(usuario);
+                        await _dbContext.SaveChangesAsync();
+                        _dbContext.Personas.Update(persona);
                         await _dbContext.SaveChangesAsync();
 
                         transaction.Commit();
@@ -41,7 +39,6 @@ namespace SistemaGS.Repository.Implementacion
                 }
             }
         }
-
         public async Task<bool> Eliminar(int Cedula)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
@@ -75,7 +72,6 @@ namespace SistemaGS.Repository.Implementacion
                 }
             }
         }
-
         public async Task<List<(Usuario usuario, Persona persona, Rol rol)>> Listar(int rol, string buscar)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
@@ -84,30 +80,34 @@ namespace SistemaGS.Repository.Implementacion
                 {
                     string filtro = (buscar ?? "").ToLower();
 
-                    var temp = 
-                        await (from u in _dbContext.Usuarios
-                               join p in _dbContext.Personas on u.Cedula equals p.Cedula
-                               join r in _dbContext.Rols on u.IdRol equals r.IdRol
-                               where
+                    var lista = from u in _dbContext.Usuarios
+                                join p in _dbContext.Personas on u.Cedula equals p.Cedula
+                                join r in _dbContext.Rols on u.IdRol equals r.IdRol
+                                where
+                                (rol == 0 || r.IdRol.Equals(rol)) &&
+                                (string.IsNullOrEmpty(filtro) ||
+                                    EF.Functions.Like((p.Cedula.ToString() ?? "").ToLower(), filtro) ||
+                                    EF.Functions.Like((p.Nombre ?? "").ToLower(), filtro) ||
+                                    EF.Functions.Like((p.Apellido ?? "").ToLower(), filtro) ||
+                                    EF.Functions.Like((p.TelefonoTrabajo ?? "").ToLower(), filtro) ||
+                                    EF.Functions.Like((p.TelefonoHabitacion ?? "").ToLower(), filtro))
+                                select new
+                                {
+                                    usuario = u,
+                                    persona = p,
+                                    rol = r
+                                };
 
-                               (rol == 0 || r.IdRol.Equals(rol)) &&
-
-                               (string.IsNullOrEmpty(filtro) ||
-                                        EF.Functions.Like((p.Cedula.ToString() ?? "").ToLower(), filtro) ||
-                                        EF.Functions.Like((p.Nombre ?? "").ToLower(), filtro) ||
-                                        EF.Functions.Like((p.Apellido ?? "").ToLower(), filtro) ||
-                                        EF.Functions.Like((p.TelefonoTrabajo ?? "").ToLower(), filtro) ||
-                                        EF.Functions.Like((p.TelefonoHabitacion ?? "").ToLower(), filtro))
-                               select new
-                               {
-                                   u,
-                                   p,
-                                   r
-                               }).ToListAsync();
-
-                    List<(Usuario usuario, Persona persona, Rol rol)> lista = temp.Select(t => (usuario: t.u, persona: t.p, rol: t.r)).ToList();
-                    return lista;
-
+                    List<(Usuario usuario, Persona persona, Rol rol)> temp = new List<(Usuario usuario, Persona persona, Rol rol)>(); 
+                    await lista.ForEachAsync(t => 
+                    {
+                        (Usuario usuario, Persona persona, Rol rol) x;
+                        x.usuario = t.usuario;
+                        x.persona = t.persona;
+                        x.rol = t.rol;
+                        temp.Add(x);
+                    });
+                    return temp;
                 }
                 catch (Exception ex)
                 {
@@ -117,14 +117,13 @@ namespace SistemaGS.Repository.Implementacion
                 }
             }
         }
-
         public async Task<(Usuario usuario, Persona persona, Rol rol)> Obtener(int IdUsuario)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    var temp =
+                    var consulta =
                          await (from u in _dbContext.Usuarios
                                 join p in _dbContext.Personas on u.Cedula equals p.Cedula
                                 join r in _dbContext.Rols on u.IdRol equals r.IdRol
@@ -135,11 +134,12 @@ namespace SistemaGS.Repository.Implementacion
                                     p,
                                     r
                                 }).FirstOrDefaultAsync();
-
-                    if (temp!.u == null || temp.p == null || temp.r == null) throw new InvalidDataException("No hay coincidencias");
-
-                    (Usuario usuario, Persona persona, Rol rol) t = (usuario: temp.u, persona: temp.p, rol: temp.r);
-
+                    (Usuario usuario, Persona persona, Rol rol) t = (usuario: new Usuario(), persona: new Persona(), rol: new Rol());
+                    if (consulta != null)
+                    {
+                        t = (usuario: consulta.u, persona: consulta.p, rol: consulta.r);
+                        return t;
+                    }                    
                     return t;
                 }
                 catch (Exception ex)
@@ -150,7 +150,6 @@ namespace SistemaGS.Repository.Implementacion
                 }
             }
         }
-
         public async Task<bool> Registrar(Usuario usuario, Persona persona)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())

@@ -4,6 +4,7 @@ using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
 using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Json;
+using System.Reflection;
 //using System.Reflection.Metadata.Ecma335;
 
 namespace SistemaGS.WebAssembly.Services.Implementacion
@@ -25,9 +26,7 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
                 ["FechaIni"] = filtro.FechaIni.HasValue ? filtro.FechaIni.Value.ToString("yyyy-MM-dd") : null,
                 ["FechaFin"] = filtro.FechaFin.HasValue ? filtro.FechaFin.Value.ToString("yyyy-MM-dd") : null
             };
-
             var url = QueryHelpers.AddQueryString("Inventario/Listar", queryparams);
-
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<InventarioDTO>>>(url))!;
         }
         public async Task<ResponseDTO<InventarioDTO>> Obtener(int IdTransaccion)
@@ -46,9 +45,7 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
                 ["FechaIni"] = filtro.FechaIni.HasValue ? filtro.FechaIni.Value.ToString("yyyy-MM-dd") : null,
                 ["FechaFin"] = filtro.FechaFin.HasValue ? filtro.FechaFin.Value.ToString("yyyy-MM-dd") : null
             };
-
             var url = QueryHelpers.AddQueryString("Inventario/ListarInventario", queryparams);
-
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<ItemDTO>>>(url))!;
         }
         public async Task<ResponseDTO<ItemDTO>> ObtenerItem(int IdItem, string nombre = "")
@@ -63,7 +60,13 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         }
         public async Task<ResponseDTO<bool>> Desbloquear(List<InventarioDTO> movimientos, int idAyuda)
         {
-            var response = await _httpClient.PostAsJsonAsync($"Inventario/Desbloquear/{idAyuda:int}", movimientos);
+            var response = await _httpClient.PostAsJsonAsync($"Inventario/Desbloquear/{idAyuda}", movimientos);
+            var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
+            return result!;
+        }
+        public async Task<ResponseDTO<bool>> Editar(ItemDTO item)
+        {
+            var response = await _httpClient.PutAsJsonAsync("Inventario/Editar", item);
             var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
             return result!;
         }

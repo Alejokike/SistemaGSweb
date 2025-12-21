@@ -15,7 +15,7 @@
                     <button class="nav-link @(activeTab == "cuenta" ? "active" : "")" @onclick="@(() => activeTab = "cuenta")">Datos Cuenta</button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link @(activeTab == "personal" ? "active" : "")" @onclick="@(() => activeTab = "personal")">Datos Personales</button>
+                    <button class="nav-link @(activeTab == "personal" ? "active" : "")" @onclick="@(() => {activeTab = "personal"; model.Persona.Cedula = model.Cedula; model.Rol.IdRol = 3; model.Rol.Nombre = "Solicitante";})">Datos Personales</button>
                 </li>
             </ul>
 
@@ -232,6 +232,7 @@
 
         model.Rol.IdRol = 3;
         model.Activo = true;
+        model.FechaCreacion = DateTime.Now;
 
         var response = await _usuarioService.Crear(model);
 

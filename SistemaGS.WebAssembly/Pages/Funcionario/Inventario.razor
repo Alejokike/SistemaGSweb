@@ -139,7 +139,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Cantidad</label>
-                        <InputNumber class="form-control" min="0" @bind-value="model.Cantidad" @onchange="@((e) => model.Cantidad = Utilidades.ValidateNumeric(e, model.Unidad ?? "EU"))" />
+                        <InputNumber class="form-control" min="0" max="999999" maxlenght="6" @bind-value="model.Cantidad" @onchange="@((e) => model.Cantidad = Utilidades.ValidateNumeric(e, model.Unidad ?? "EU"))" />
                         <ValidationMessage For="@(() => model.Cantidad)" />
                     </div>
                     
@@ -227,6 +227,7 @@
     {
         model.Unidad = model.Item.Unidad;
         model.Fecha = DateTime.Today;
+        if (model.Unidad != "VE") model.Cantidad = Math.Floor(model.Cantidad);
 
         var response = await inventarioService.Registrar(model);
 

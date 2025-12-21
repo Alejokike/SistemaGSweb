@@ -191,15 +191,6 @@
             if (result.IsConfirmed)
             {
                 ayuda.ListaItems.Remove(item);
-                item.ItemNoValidado = new ItemDTO()
-                {
-                    IdItem = 0,
-                    Nombre = item.ItemLista.Nombre,
-                    Categoria = item.ItemLista.Categoria,
-                    Unidad = item.ItemLista.Unidad,
-                    Descripcion = item.ItemLista.Descripcion,
-                    Cantidad = 0
-                };
 
                 ayuda.ListaItems.Add(new ListaItemDTO
                 {

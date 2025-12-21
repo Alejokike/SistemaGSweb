@@ -37,8 +37,12 @@ namespace SistemaGS.Util
             CreateMap<InventarioDTO, Inventario>()
                 .ForMember(dest => dest.Item, opt => opt.MapFrom(src => src.Item.IdItem));
 
-            CreateMap<Ayuda, AyudaDTO>();
-            CreateMap<AyudaDTO, Ayuda>();
+            CreateMap<Ayuda, AyudaDTO>()
+                .ForMember(dest => dest.Detalle, opt => opt.Ignore())
+                .ForMember(dest => dest.ListaItems, opt => opt.Ignore());
+            CreateMap<AyudaDTO, Ayuda>()
+                .ForMember(dest => dest.Detalle, opt => opt.Ignore())
+                .ForMember(dest => dest.ListaItems, opt => opt.Ignore()); ;
         }
     }
 }

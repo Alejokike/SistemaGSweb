@@ -15,12 +15,10 @@ namespace SistemaGS.API.Controllers
         {
             _inventarioService = inventarioService;
         }
-
         [HttpGet("Listar")]
         public async Task<IActionResult> Lista([FromQuery] InventarioQuery filtro)
         {
             var response = new ResponseDTO<List<InventarioDTO>>();
-
             try
             {
                 filtro.FechaIni ??= new DateTime(DateTime.Today.Year, 1, 1);
@@ -39,7 +37,6 @@ namespace SistemaGS.API.Controllers
         public async Task<IActionResult> Obtener(int idTransaccion)
         {
             var response = new ResponseDTO<InventarioDTO>();
-
             try
             {
                 response.EsCorrecto = true;
@@ -56,7 +53,6 @@ namespace SistemaGS.API.Controllers
         public async Task<IActionResult> ListarInventario([FromQuery] ItemQuery filtro)
         {
             var response = new ResponseDTO<List<ItemDTO>>();
-
             try
             {
                 filtro.FechaIni ??= new DateTime(DateTime.Today.Year, 1, 1);
@@ -75,10 +71,8 @@ namespace SistemaGS.API.Controllers
         public async Task<IActionResult> ObtenerItem(int idItem, string nombre = "N/A")
         {
             var response = new ResponseDTO<ItemDTO>();
-
             try
             {
-                if(nombre == "N/A")
                 response.EsCorrecto = true;
                 response.Resultado = await _inventarioService.ObtenerItem(idItem, nombre);
             }
@@ -94,7 +88,6 @@ namespace SistemaGS.API.Controllers
         public async Task<IActionResult> Registrar([FromBody] InventarioDTO Transaccion)
         {
             var response = new ResponseDTO<InventarioDTO>();
-
             try
             {
                 response.EsCorrecto = true;
@@ -108,10 +101,9 @@ namespace SistemaGS.API.Controllers
             return Ok(response);
         }
         [HttpPost("Desbloquear/{IdAyuda:int}")]
-        public async Task<IActionResult> Desbloquear([FromQuery] List<InventarioDTO> movimientos, int IdAyuda)
+        public async Task<IActionResult> Desbloquear(int IdAyuda, [FromBody] List<InventarioDTO> movimientos)
         {
             var response = new ResponseDTO<bool>();
-
             try
             {
                 response.EsCorrecto = true;

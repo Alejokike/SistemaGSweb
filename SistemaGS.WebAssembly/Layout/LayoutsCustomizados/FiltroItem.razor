@@ -31,7 +31,7 @@
                         <label class="input-group-text bg-light">Categoría</label>
                         <InputSelect class="form-select" @bind-value="filtro.Categoria">
                             <option value="" selected>--Seleccione una categoría</option>
-                            <option value="Médicamentos">Médicamentos</option>
+                            <option value="Medicamentos">Medicamentos</option>
                             <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
                             <option value="Prótesis">Prótesis</option>
                             <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
@@ -48,7 +48,7 @@
                         <div class="form-check form-switch d-inline-flex align-items-center gap-2">
                             <div class="p-3">
                                 <input class="form-check-input" type="checkbox" role="switch" id="userStatusSwitch" @bind="filtro.Activo">
-                                <label class="form-check-label">@((bool)filtro.Activo ? "Activo" : "Inactivo")</label>
+                                <label class="form-check-label">@((filtro.Activo.HasValue && filtro.Activo.Value) ? "Activo" : "Inactivo")</label>
                             </div>
                         </div>
                     </div>

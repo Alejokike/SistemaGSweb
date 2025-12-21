@@ -10,7 +10,10 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" @onclick="Confirmar">@TextoConfirmar</button>
-                <button class="btn btn-info" @onclick="Cerrar">@TextoCancelar</button>
+                @if(MostrarCancelar)
+                {
+                    <button class="btn btn-info" @onclick="Cerrar">@TextoCancelar</button>
+                }
             </div>
         </div>
     </div>
@@ -21,6 +24,7 @@
     [Parameter] public string Titulo { get; set; } = "Modal";
     [Parameter] public string TextoConfirmar { get; set; } = "Aceptar";
     [Parameter] public string TextoCancelar { get; set; } = "Cancelar";
+    [Parameter] public bool MostrarCancelar { get; set; } = true;
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
     [Parameter] public EventCallback OnConfirmar { get; set; }

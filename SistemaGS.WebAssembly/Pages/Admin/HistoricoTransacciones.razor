@@ -1,9 +1,59 @@
 ﻿@page "/HistoricoTransacciones"
+@inject IAuditoriaService auditoriaService;
+@inject NavigationManager navigationManager;
 
-
+<ModalLayout Mostrar="Mostrar"
+             Titulo="Seleccione el tipo de operación"
+             TextoConfirmar="Cerrar"
+             OnConfirmar="(() => {Mostrar = false; Registro = new RegistroDTO();})">
+    <div class="mb-3">
+        <div class="input-group col-6 mt-1">
+            <label class="input-group-text bg-light">ID Transacción</label>
+            <div class="form-control">@Registro.IdRegistro</div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">Transacción</label>
+        <div class="form-control">Acción: @Registro.Accion</div>
+        <div class="form-control">Tabla Afectada: @Registro.TablaAfectada</div>
+        <div class="form-control">ID Registro afectado: @Registro.IdRegistroAfectado</div>
+    </div>
+    <div class="mb-3">
+        <div class="input-group col-6 mt-1">
+            <label class="input-group-text bg-light">ID Usuario Responsable</label>
+            <div class="form-control">@Registro.UsuarioResponsable</div>
+        </div>
+        <div class="input-group col-6 mt-1">
+            <label class="input-group-text bg-light">Fecha de la transacción</label>
+            <div class="form-control">@Registro.FechaAccion.ToString("dd/MM/yyyy")</div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">Detalle</label>
+        <div class="form-control">@Registro.Detalle</div>
+    </div>
+</ModalLayout>
 
 <h3 class="m-3">Histórico de Transacciones</h3>
 
-@code {
+<TableLayout lista="lista" T="RegistroDTO" MostrarOpcionales="false" Retorno="EventCallback.Factory.Create<RegistroDTO>(this, CargarTransaccion)"/>
 
+@code {
+    List<RegistroDTO> lista = new List<RegistroDTO>();
+    RegistroQuery filtro = new RegistroQuery();
+    bool Mostrar = false;
+    RegistroDTO Registro = new RegistroDTO();
+    protected override async Task OnInitializedAsync()
+    {
+        await ListarMovimientos();
+    }
+    private async Task ListarMovimientos()
+    {
+        var response = await auditoriaService.Listar(filtro);
+        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
+    }
+    private void CargarTransaccion(RegistroDTO registro)
+    {
+        Registro = registro;
+    }
 }

@@ -112,9 +112,18 @@ namespace SistemaGS.WebAssembly.Extensiones
                 valor = Regex.Replace(valor, @"(,\d{0,2}).*", "$1");
             }
 
-            decimal.TryParse(valor, out decimal resultado);
+            decimal resultado;
+            if (decimal.TryParse(valor, out resultado))
+            {
+                resultado = resultado > 9999999 ? 9999999 : resultado;
+                resultado = resultado < 0 ? 0 : resultado;
+            }
+            else if (Regex.IsMatch(valor, @"^\d+,$")) 
+            {
+                decimal.TryParse($"{valor}0",out resultado);
+            }
 
-            return resultado;
+                return resultado;
         }
         public static string FormatearValor(object valor)
         {

@@ -7,6 +7,7 @@ using SistemaGS.DTO.Query;
 using SistemaGS.Model;
 using SistemaGS.Repository.Contrato;
 using SistemaGS.Service.Contrato;
+using SistemaGS.Util;
 
 namespace SistemaGS.Service.Implementacion
 {
@@ -14,19 +15,26 @@ namespace SistemaGS.Service.Implementacion
     {
         private readonly IGenericoRepository<Ayuda> _modelRepository;
         private readonly IAyudaRepository _AyudaRepository;
+        private readonly IGenericoRepository<Persona> _PersonaRepository;
 
         private readonly IMapper _mapper;
-        public AyudaService(IGenericoRepository<Ayuda> modelRepository, IAyudaRepository AyudaRepository, IMapper mapper)
+        public AyudaService(IGenericoRepository<Ayuda> modelRepository, IAyudaRepository AyudaRepository, IGenericoRepository<Persona> personaRepository,IMapper mapper)
         {
             _modelRepository = modelRepository;
             _AyudaRepository = AyudaRepository;
+            _PersonaRepository = personaRepository;
             _mapper = mapper;
         }
         public async Task<AyudaDTO> Crear(AyudaDTO Model)
         {
             try
             {
-                var responseDB = await _modelRepository.Crear(_mapper.Map<Ayuda>(Model));
+                Ayuda transform = _mapper.Map<Ayuda>(Model);
+                transform.Funcionario = Model.Funcionario == 0 ? null : Model.Funcionario;
+                transform.Detalle = JsonConvert.SerializeObject(Model.Detalle);
+                transform.ListaItems = JsonConvert.SerializeObject(Model.ListaItems);
+
+                var responseDB = await _modelRepository.Crear(transform);
                 if (responseDB != null) return _mapper.Map<AyudaDTO>(responseDB);
                 else throw new TaskCanceledException("No se pudo crear");
             }
@@ -40,7 +48,14 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                if (await _modelRepository.Consultar(a => a.IdAyuda == Model.IdAyuda).AnyAsync()) return await _modelRepository.Editar(_mapper.Map<Ayuda>(Model));
+                if (await _modelRepository.Consultar(a => a.IdAyuda == Model.IdAyuda).AnyAsync())
+                {
+                    Ayuda transform = _mapper.Map<Ayuda>(Model);
+                    transform.Funcionario = Model.Funcionario == 0 ? null : Model.Funcionario;
+                    transform.Detalle = JsonConvert.SerializeObject(Model.Detalle);
+                    transform.ListaItems = JsonConvert.SerializeObject(Model.ListaItems);
+                    return await _modelRepository.Editar(transform);
+                } 
                 else throw new TaskCanceledException("La ayuda seleccionada no existe");
             }
             catch (Exception ex)
@@ -73,13 +88,66 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }
+
+        public async Task<byte[]> Imprimir(int idAyuda, int option, AyudaQuery? filtro = null)
+        {
+            try
+            {
+                byte[] documento;
+                var ayuda = await Obtener(idAyuda);
+                switch (option)
+                {
+                    case 1:
+                        {
+                            PersonaDTO Solicitante = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Solicitante).FirstOrDefault() ?? throw new TaskCanceledException("El solicitante de la ayuda no existe"));
+                            PersonaDTO Funcionario = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Funcionario).FirstOrDefault() ?? throw new TaskCanceledException("El funcionario de la ayuda no existe"));
+                            documento = Impresion.GeneratePDFplanilla(ayuda, Solicitante, Funcionario);
+                            break;
+                        }
+                    case 2:
+                        {
+                            PersonaDTO Solicitante = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Solicitante).FirstOrDefault() ?? throw new TaskCanceledException("El solicitante de la ayuda no existe"));
+                            PersonaDTO Funcionario = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Funcionario).FirstOrDefault() ?? throw new TaskCanceledException("El funcionario de la ayuda no existe"));
+                            documento = Impresion.GeneratePDFdetalle(ayuda, Solicitante, Funcionario);
+                            break;
+                        }
+                    case 3:
+                        {
+                            List<AyudaDTO> ayudas = _mapper.Map<List<AyudaDTO>>(_AyudaRepository.Listar(filtro!));
+                            documento = Impresion.GeneratePDFreporte(filtro!, ayudas);
+                            break;
+                        }
+                    default:
+                        {
+                            throw new TaskCanceledException("Operación inválida");
+                        }
+                }
+                return documento;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }        
+        }
+
         public async Task<List<AyudaDTO>> Lista(AyudaQuery filtro)
         {
             try
             {
                 var model = await _AyudaRepository.Listar(filtro);
-
-                if (model != null) return _mapper.Map<List<AyudaDTO>>(model);
+                if (model != null) 
+                {
+                    List<AyudaDTO> transform = new List<AyudaDTO>();
+                    foreach (Ayuda ayuda in model)
+                    {
+                        AyudaDTO t = _mapper.Map<AyudaDTO>(ayuda);
+                        t.Detalle = JsonConvert.DeserializeObject<Dictionary<string, string>>(ayuda.Detalle!) ?? new Dictionary<string, string>();
+                        t.ListaItems = JsonConvert.DeserializeObject<List<ListaItemDTO>>(ayuda.ListaItems!) ?? new List<ListaItemDTO>();
+                        transform.Add(t);
+                    }
+                    return transform;
+                }
                 else throw new TaskCanceledException("No existen coincidencias");
             }
             catch (Exception ex)
@@ -93,7 +161,13 @@ namespace SistemaGS.Service.Implementacion
             try
             {
                 var model = await _modelRepository.Consultar(a => a.IdAyuda == idAyuda).FirstOrDefaultAsync();
-                if (model != null) return _mapper.Map<AyudaDTO>(model);
+                if (model != null) 
+                {
+                    AyudaDTO transform = _mapper.Map<AyudaDTO>(model);
+                    transform.Detalle = JsonConvert.DeserializeObject<Dictionary<string, string>>(model.Detalle!) ?? new Dictionary<string, string>();
+                    transform.ListaItems = JsonConvert.DeserializeObject<List<ListaItemDTO>>(model.ListaItems!) ?? new List<ListaItemDTO>();
+                    return transform;
+                }
                 else throw new TaskCanceledException("No existen coincidencias");
             }
             catch (Exception ex)

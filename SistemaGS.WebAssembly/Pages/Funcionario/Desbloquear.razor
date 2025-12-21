@@ -36,7 +36,7 @@
     </InputSelect>
 
     <div class="form-label fw-bold mb-1">Cantidad</div>
-    <InputNumber class="form-control" min"="0" @bind-Value="cantidad"/>
+    <InputNumber class="form-control" min"="0" max="9999999" maxlenght="7" @bind-Value="cantidad"/>
 
 </ModalLayout>
 
@@ -88,7 +88,7 @@
                                         <th class="text-center">Categoria</th>
                                         <th class="text-center">Unidad</th>
                                         <th class="text-center">Cantidad Solicitada</th>
-                                        <th class="text-center">Cantidad Asignada</th>
+                                        <th class="text-center">Cantidad a mover</th>
                                         <th class="text-center">Asignar</th>
                                     </tr>
                                 </thead>
@@ -97,6 +97,10 @@
                                     {
                                         foreach (var item in ayuda.ListaItems)
                                         {
+                                            var mov = movimientos.FirstOrDefault(m => m.Item.IdItem == item.ItemLista.IdItem);
+                                            mov ??= new InventarioDTO();
+                                            string signo = string.IsNullOrEmpty(mov.TipoOperacion) ? (mov.TipoOperacion == "ASI" ? "+" : "-") : "";
+                                            string color = string.IsNullOrEmpty(mov.TipoOperacion) ? (mov.TipoOperacion == "ASI" ? "text-success" : "text-danger") : "text-light";
                                             <tr>
                                                 <td valign="middle">@item.IdLista</td>
                                                 <td valign="middle" align="center">@item.ItemLista.IdItem</td>
@@ -104,10 +108,10 @@
                                                 <td valign="middle">@item.ItemLista!.Categoria</td>
                                                 <td valign="middle" align="center">@item.ItemLista!.Unidad</td>
                                                 <td valign="middle" align="center">@item.CantidadSolicitada</td>
-                                                <td valign="middle" align="center">@item.CantidadEntregada </td>
+                                                <td valign="middle" align="center" class="@color">@($"{signo}{mov.Cantidad}")</td>
 
                                                 <td align="center">
-                                                    <button @onclick="@(() => {Mostrar = true; position = item;})">
+                                                    <button class="btn btn-outline-light" @onclick="@(() => {Mostrar = true; position = item;})">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
                                                 </td>
@@ -220,7 +224,7 @@
         bool val2 = cantidad <= 0;
         bool val3 = cantidad > item.CantidadSolicitada;
 
-        if (val1 || val2)
+        if (val1 || val2 || val3)
         {
             if(val1) toastService.ShowWarning("No hay el stock necesario para asignar esa cantidad");
             if(val2) toastService.ShowWarning("Se debe de asignar algo");
@@ -241,14 +245,11 @@
                     Concepto = $"Asignación ayuda {ayuda.IdAyuda}; posición {item.IdLista}",
                     Fecha = DateTime.Today
                 });
-            item.CantidadEntregada += cantidad;
         }
         else 
         {
             movimientos.Remove(encontrado);
-            item.CantidadEntregada -= encontrado.Cantidad;
             encontrado.Cantidad = cantidad;
-            item.CantidadEntregada += encontrado.Cantidad;
             movimientos.Add(encontrado);
         }
     }
@@ -282,14 +283,11 @@
                 Concepto = $"Retiro ayuda {ayuda.IdAyuda}; posición {item.IdLista}",
                 Fecha = DateTime.Today
             });
-            item.CantidadEntregada -= cantidad;
         }
         else
         {
             movimientos.Remove(encontrado);
-            item.CantidadEntregada += encontrado.Cantidad;
             encontrado.Cantidad = cantidad;
-            item.CantidadEntregada -= encontrado.Cantidad;
             movimientos.Add(encontrado);
         }
     }

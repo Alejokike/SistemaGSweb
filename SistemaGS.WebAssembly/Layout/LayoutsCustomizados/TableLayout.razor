@@ -60,7 +60,7 @@
                         @if (MostrarBotones)
                         {
                             <td valign="middle" align="center">
-                                <button type="button" class="btn btn-outline-dark" @onclick="(async () => await Retorno.InvokeAsync(obj))">
+                                <button type="button" class="btn btn-outline-light" @onclick="(async () => await Retorno.InvokeAsync(obj))">
                                     <i class="bi bi-box-arrow-up-right text-primary fs-5"></i>
                                 </button>
                             </td>
@@ -97,19 +97,28 @@
     {
         esAyuda = typeof(T) == typeof(AyudaDTO);
     }
-
+    protected override void OnParametersSet()
+    {
+        if (Init)
+        {
+            Dispose();
+            StateHasChanged();
+            Init = false;
+        }
+        base.OnParametersSet();
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!Init && lista.Any())
+        if (!firstRender && !Init && lista.Any())
         {
             await JS.InvokeVoidAsync("InitTable", "#Tabla");
             Init = true;
         }
-        await base.OnAfterRenderAsync(firstRender);
     }
+
     public void Dispose()
     {
-        JS.InvokeVoidAsync("DestroyTable", "#Tabla");
+        if(lista.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla");
     }
 
     Dictionary<string, string> colores = new Dictionary<string, string>()

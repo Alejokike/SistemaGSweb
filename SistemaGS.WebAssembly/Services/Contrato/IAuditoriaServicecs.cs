@@ -8,7 +8,6 @@ namespace SistemaGS.WebAssembly.Services.Contrato
     {
         Task<ResponseDTO<List<RegistroDTO>>> Listar(RegistroQuery filtro);
         Task<ResponseDTO<RegistroDTO>> Obtener(int id);
-        Task<ResponseDTO<RegistroDTO>> Registrar(RegistroDTO registro);
 
     }
 }

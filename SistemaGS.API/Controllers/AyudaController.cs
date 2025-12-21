@@ -3,7 +3,7 @@ using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
 using SistemaGS.Service.Contrato;
-using SistemaGS.Service.Implementacion;
+using System.Reflection.Metadata;
 
 namespace SistemaGS.API.Controllers
 {
@@ -12,11 +12,9 @@ namespace SistemaGS.API.Controllers
     public class AyudaController : Controller
     {
         private readonly IAyudaService _ayudaService;
-        private readonly IHttpContextAccessor _contextAccessor;
-        public AyudaController(IAyudaService usuarioService, IHttpContextAccessor contextAccessor   )
+        public AyudaController(IAyudaService ayudaService)
         {
-            _ayudaService = usuarioService;
-            _contextAccessor = contextAccessor;
+            _ayudaService = ayudaService;
         }
         [HttpGet("Lista")]
         public async Task<IActionResult> Lista([FromQuery] AyudaQuery filtro)
@@ -98,6 +96,38 @@ namespace SistemaGS.API.Controllers
             {
                 response.EsCorrecto = true;
                 response.Resultado = await _ayudaService.Eliminar(idAyuda);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
+        [HttpGet("Imprimir/{idAyuda:int}/{option:int}")]
+        public async Task<IActionResult> Imprimir(int idAyuda, int option)
+        {
+            var response = new ResponseDTO<byte[]>();
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _ayudaService.Imprimir(idAyuda, option);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
+        [HttpGet("ImprimirReporte")]
+        public async Task<IActionResult> Imprimir([FromQuery] AyudaQuery filtro)
+        {
+            var response = new ResponseDTO<byte[]>();
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _ayudaService.Imprimir(0, 3, filtro);
             }
             catch (Exception ex)
             {

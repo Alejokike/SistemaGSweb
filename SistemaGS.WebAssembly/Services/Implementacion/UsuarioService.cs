@@ -1,6 +1,5 @@
 ﻿using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
-using SistemaGS.WebAssembly.Extensiones;
 using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Json;
 
@@ -38,8 +37,18 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         public async Task<ResponseDTO<bool>> Editar(UsuarioDTO model)
         {
             var response = await _httpClient.PutAsJsonAsync("Usuario/Editar", model);
-            var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
-            return result!;
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
+                return result!;
+            }
+            else
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error: {response.StatusCode}, Body: {errorText}");
+                var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
+                return result!;
+            }
         }
         public async Task<ResponseDTO<bool>> Eliminar(int Id)
         {

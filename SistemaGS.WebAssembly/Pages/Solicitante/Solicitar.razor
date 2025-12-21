@@ -40,7 +40,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Razón de la solicitud</label>
-                        <InputTextArea class="form-control form-control-sm" required placeholder="Ingrese la necesidad para ortorgar esta ayuda" @bind-value="@Ayuda.Detalle["Solicitud"]" @oninput="@(e => Ayuda.Detalle["Solicitud"] = e.Value?.ToString() ?? "")" />
+                        <InputTextArea class="form-control form-control-sm" required placeholder="Ingrese la necesidad para ortorgar esta ayuda" @bind-value="@Ayuda.Detalle["Solicitud"]" />
                         <ValidationMessage For="@(() => Ayuda.Detalle)" />
                     </div>
 
@@ -155,8 +155,10 @@
                         <tbody>
                             @if (Ayuda.ListaItems.Any())
                             {
+                                int i = 1;
                                 foreach (var item in Ayuda.ListaItems)
                                 {
+                                    item.IdLista = i++;
                                     <tr>
                                         <td valign="middle" align="center">@item.IdLista</td>
                                         <td valign="middle">@item.ItemLista!.Nombre</td>
@@ -165,7 +167,7 @@
                                         <td valign="middle" align="center">
                                             @if (item.ItemLista.Unidad == "VE")
                                             {
-                                                <InputNumber class="form-control" min="0" step="0.01" style="width: 200px" @bind-value="item.CantidadSolicitada" @oninput="(e => Utilidades.ValidateNumeric(e, item.ItemLista.Unidad))" />
+                                                <InputNumber class="form-control" min="0" max="999999" maxlenght="6" step="0.01" style="width: 200px" @bind-value="item.CantidadSolicitada"/>
                                             }
                                             else
                                             {
@@ -173,7 +175,7 @@
                                                     <button type="button" class="btn btn-outline-dark" @onclick="(() => { if (item.CantidadSolicitada > 0) item.CantidadSolicitada--; })">
                                                         <i class="oi oi-minus"></i>
                                                     </button>
-                                                    <input class="form-control" readonly style="width:50px" @bind-value="item.CantidadSolicitada">
+                                                    <div class="form-control" style="width:50px">@item.CantidadSolicitada.ToString("N0")</div>
                                                     <button type="button" class="btn btn-outline-dark" @onclick="(() => item.CantidadSolicitada++)">
                                                         <i class="oi oi-plus"></i>
                                                     </button>
@@ -246,7 +248,8 @@
     private async Task ListarInventario()
     {
         var response = await inventarioService.ListarInventario(filtro);
-        if (response.EsCorrecto && response.Resultado != null) inventario = response.Resultado.Where(i => i.Unidad == "VE" || i.Unidad == "MU").ToList();
+        if (response.EsCorrecto && response.Resultado != null) inventario = response.Resultado.ToList();
+        /*.Where(i => i.Unidad == "VE" || i.Unidad == "MU")*/
     }
 
     private async Task SolicitarAyuda()
@@ -280,7 +283,7 @@
                 toastService.ShowSuccess("La solicitud fué creada");
                 _navService.NavigateTo("/");
             }
-            else toastService.ShowWarning($"Error: {response.Mensaje}");
+            else toastService.ShowError($"Error: {response.Mensaje}");
         }
     }
 
@@ -353,7 +356,7 @@
         }
         if (!Init[1] && Ayuda.ListaItems.Any())
         {
-            JS.InvokeVoidAsync("InitTable", "#Tabla2");
+            //JS.InvokeVoidAsync("InitTable", "#Tabla2");
             Init[1] = true;
         }
         return base.OnAfterRenderAsync(firstRender);
@@ -361,6 +364,6 @@
     public void Dispose()
     {
         if (inventario.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla1");
-        if (Ayuda.ListaItems.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla2");
+        //if (Ayuda.ListaItems.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla2");
     }
 }

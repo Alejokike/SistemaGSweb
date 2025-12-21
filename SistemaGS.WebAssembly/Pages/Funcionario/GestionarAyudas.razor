@@ -35,8 +35,6 @@
     }
     private async Task CargarAyuda(AyudaDTO ayuda)
     {
-        string option = ayuda.Estado == "En Proceso" ? "Validar" : "Ver";
-
         SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
         {
             Title = "Acción Ayuda",
@@ -44,7 +42,7 @@
             Icon = SweetAlertIcon.Info,
             ShowCancelButton = true,
             ShowDenyButton = true,
-            ConfirmButtonText = $"{option} Solicitud",
+            ConfirmButtonText = $"Ver Solicitud",
             ConfirmButtonColor = "#0dcaf0",
             DenyButtonText = "Desbloquear Ayuda",
             DenyButtonColor = "#0d6efd",
@@ -53,19 +51,18 @@
         });
         if (result.IsConfirmed)
         {
-            option = ayuda.Estado == "En Proceso" ? $"/ValidarAyuda/{ayuda.IdAyuda}" : $"/Ayuda/{ayuda.IdAyuda}";
-            navigationManager.NavigateTo(option);
+            navigationManager.NavigateTo($"/Ayuda/{ayuda.IdAyuda}");
             return;
         }
         if (result.IsDenied)
         {
-            if(ayuda.ListaItems.Any(li => li.IdLista != 0)) navigationManager.NavigateTo($"/Desbloquear/{ayuda.IdAyuda}");
+            if (ayuda.Detalle.TryGetValue("Observaciones", out string? observaciones) && !string.IsNullOrEmpty(observaciones)) navigationManager.NavigateTo($"/Desbloquear/{ayuda.IdAyuda}");
             else
             {
                 result = await Swat.FireAsync(new SweetAlertOptions
                 {
                     Title = "Error",
-                    Text = $"No se ha validado ningún ítem de la ayuda",
+                    Text = $"No se ha revisado previamente la ayuda, revise antes de desbloquear",
                     Icon = SweetAlertIcon.Error,
                     ConfirmButtonText = "Cerrar",
                 });
@@ -142,7 +139,7 @@
                 })
             });
 
-            ayuda.Estado = "Rechazada";
+            ayuda.Estado = "Cerrada";
             ayuda.FechaEntrega = DateTime.Today;
             ayuda.Detalle["Cerrada"] = result.Value.ToString();
 

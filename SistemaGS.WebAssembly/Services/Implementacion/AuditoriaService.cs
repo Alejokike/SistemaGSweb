@@ -7,19 +7,35 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
 {
     public class AuditoriaService : IAuditoriaService
     {
-        public Task<ResponseDTO<List<RegistroDTO>>> Listar(RegistroQuery filtro)
+        public async Task<ResponseDTO<List<RegistroDTO>>> Listar(RegistroQuery filtro)
         {
-            throw new NotImplementedException();
+            var lista = new List<RegistroDTO>();
+            lista.Add(new RegistroDTO()
+            {
+                IdRegistro = 1,
+                TablaAfectada = "Prueba",
+                IdRegistroAfectado = 0,
+                UsuarioResponsable = 0,
+                Accion = "Prueba",
+                FechaAccion = DateTime.Today,
+                Detalle = "Prueba"
+            });
+            return await new Task<ResponseDTO<List<RegistroDTO>>>(() => new ResponseDTO<List<RegistroDTO>>()
+            {
+                EsCorrecto = true,
+                Mensaje = "",
+                Resultado = lista
+            });
         }
 
-        public Task<ResponseDTO<RegistroDTO>> Obtener(int id)
+        public async Task<ResponseDTO<RegistroDTO>> Obtener(int id)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<ResponseDTO<RegistroDTO>> Registrar(RegistroDTO registro)
-        {
-            throw new NotImplementedException();
+            return await new Task<ResponseDTO<RegistroDTO>>(() => new ResponseDTO<RegistroDTO>()
+            {
+                EsCorrecto = true,
+                Mensaje = "",
+                Resultado = new RegistroDTO()
+            });
         }
     }
 }
