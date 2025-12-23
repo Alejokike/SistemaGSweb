@@ -1,0 +1,42 @@
+.page {
+    background-image: url(https://www.lecheria.gov.ve/assets/img/lecheria-bg.jpg);
+}
+
+/*Custom Alcaldía*/
+
+svg:not(:host).svg-inline--fa, svg:not(:root).svg-inline--fa {
+    overflow: visible;
+    box-sizing: content-box;
+}
+
+.svg-inline--fa {
+    display: var(--fa-display, inline-block);
+    height: 1em;
+    overflow: visible;
+    vertical-align: -.125em;
+}
+
+svg:not(:root) {
+    overflow-clip-margin: content-box;
+    overflow: hidden;
+}
+
+:host, :root {
+    --fa-font-solid: normal 900 1em / 1 "Font Awesome 6 Free";
+    --fa-font-regular: normal 400 1em / 1 "Font Awesome 6 Free";
+    --fa-font-light: normal 300 1em / 1 "Font Awesome 6 Pro";
+    --fa-font-thin: normal 100 1em / 1 "Font Awesome 6 Pro";
+    --fa-font-duotone: normal 900 1em / 1 "Font Awesome 6 Duotone";
+    --fa-font-duotone-regular: normal 400 1em / 1 "Font Awesome 6 Duotone";
+    --fa-font-duotone-light: normal 300 1em / 1 "Font Awesome 6 Duotone";
+    --fa-font-duotone-thin: normal 100 1em / 1 "Font Awesome 6 Duotone";
+    --fa-font-brands: normal 400 1em / 1 "Font Awesome 6 Brands";
+    --fa-font-sharp-solid: normal 900 1em / 1 "Font Awesome 6 Sharp";
+    --fa-font-sharp-regular: normal 400 1em / 1 "Font Awesome 6 Sharp";
+    --fa-font-sharp-light: normal 300 1em / 1 "Font Awesome 6 Sharp";
+    --fa-font-sharp-thin: normal 100 1em / 1 "Font Awesome 6 Sharp";
+    --fa-font-sharp-duotone-solid: normal 900 1em / 1 "Font Awesome 6 Sharp Duotone";
+    --fa-font-sharp-duotone-regular: normal 400 1em / 1 "Font Awesome 6 Sharp Duotone";
+    --fa-font-sharp-duotone-light: normal 300 1em / 1 "Font Awesome 6 Sharp Duotone";
+    --fa-font-sharp-duotone-thin: normal 100 1em / 1 "Font Awesome 6 Sharp Duotone";
+}

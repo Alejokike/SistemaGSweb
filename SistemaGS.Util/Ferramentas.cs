@@ -1,7 +1,6 @@
 ﻿using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
 using System.Globalization;
@@ -320,7 +319,6 @@ namespace SistemaGS.Util
 
             return PlanillaPDF;
         }
-
         public static byte[] GeneratePDFdetalle(AyudaDTO ayuda, PersonaDTO Solicitante, PersonaDTO Funcionario)
         {
             QuestPDF.Settings.License = LicenseType.Community;
@@ -381,7 +379,9 @@ namespace SistemaGS.Util
                             });
                         });
 
-                        col1.Item().Padding(3f).LineHorizontal(2.5f);
+                        col1.Spacing(5);
+                        col1.Item().LineHorizontal(1.5f);
+                        col1.Spacing(5);
 
                         #region Detalle
 
@@ -464,10 +464,10 @@ namespace SistemaGS.Util
                             foreach (var item in ayuda.ListaItems)
                             {
                                 tabla.Cell().BorderBottom(0.5f).BorderColor("#D9D9D9")
-                                .Padding(2).Text(item.ItemLista.Nombre).FontSize(9);
+                                .Padding(2).Text(item.ItemLista.Nombre).FontSize(11);
 
                                 tabla.Cell().BorderBottom(0.5f).BorderColor("#D9D9D9")
-                                .Padding(2).Text(item.ItemLista.Categoria).FontSize(9);
+                                .Padding(2).Text(item.ItemLista.Categoria).FontSize(11);
 
                                 tabla.Cell().BorderBottom(0.5f).BorderColor("#D9D9D9")
                                 .Padding(2).Text(item.ItemLista.Unidad == "VE" ? item.CantidadSolicitada.ToString("N2") : item.CantidadSolicitada.ToString("N0")).FontSize(9).AlignCenter();
@@ -480,10 +480,10 @@ namespace SistemaGS.Util
 
                         col1.Item().PageBreak();
 
-                        col1.Item().Padding(10)
+                        col1.Item().Background(Colors.Amber.Lighten3).Padding(20)
                             .Column(column =>
                             {
-                                column.Item().Text("Total").BackgroundColor(Colors.Amber.Accent1).FontSize(14);
+                                column.Item().Text("Total").Bold().FontSize(14);
                                 column.Item().AlignLeft().Text(txt => 
                                 {
                                     txt.Span("Total Solicitado (VE): ").SemiBold();
@@ -500,7 +500,7 @@ namespace SistemaGS.Util
                                     txt.Span(ayuda.ListaItems.Where(li => li.ItemLista.Unidad == "EU").Sum(li => li.CantidadSolicitada).ToString("N0"));
                                 });
 
-                                column.Spacing(10);
+                                column.Item().Padding(5);
 
                                 column.Item().AlignLeft().Text(txt => 
                                 {
@@ -523,8 +523,8 @@ namespace SistemaGS.Util
                                 decimal porcentaje = totalE > 0 ? (totalE / totalS) * 100 : 0;
                                 column.Item().AlignRight().Text(txt => 
                                 {
-                                    txt.Span("Completado: %").SemiBold().FontSize(12);
-                                    txt.Span(porcentaje.ToString("N2")).Italic().FontSize(12);
+                                    txt.Span("Completado: ").SemiBold().FontSize(12);
+                                    txt.Span(porcentaje.ToString("N2") + '%').Italic().FontSize(12);
                                 });
                             });
 
@@ -548,7 +548,6 @@ namespace SistemaGS.Util
 
             return DetallePDF;
         }
-
         public static byte[] GeneratePDFreporte(AyudaQuery filtro, List<AyudaDTO> ayudas)
         {
             QuestPDF.Settings.License = LicenseType.Community;
@@ -752,6 +751,9 @@ namespace SistemaGS.Util
 
                                 tabla.Cell().BorderBottom(0.5f).BorderColor("#D9D9D9")
                                 .Padding(2).Text(item.Nombre).FontSize(9);
+
+                                tabla.Cell().BorderBottom(0.5f).BorderColor("#D9D9D9")
+                                .Padding(2).Text(item.Categoria).FontSize(9);
 
                                 tabla.Cell().BorderBottom(0.5f).BorderColor("#D9D9D9")
                                 .Padding(2).Text(item.Unidad == "VE" ? item.CantidadSolicitada.ToString("N2") : item.CantidadSolicitada.ToString("N0")).FontSize(9).AlignCenter();

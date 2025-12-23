@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
+using SistemaGS.Repository.DBContext;
 using SistemaGS.Service.Contrato;
 
 namespace SistemaGS.API.Controllers
@@ -10,10 +12,12 @@ namespace SistemaGS.API.Controllers
     [ApiController]
     public class InventarioController : ControllerBase
     {
+        private readonly DbsistemaGsContext _dbContext;
         private readonly IInventarioService _inventarioService;
-        public InventarioController(IInventarioService inventarioService)
+        public InventarioController(IInventarioService inventarioService, DbsistemaGsContext dbContext)
         {
             _inventarioService = inventarioService;
+            _dbContext = dbContext;
         }
         [HttpGet("Listar")]
         public async Task<IActionResult> Lista([FromQuery] InventarioQuery filtro)
@@ -114,6 +118,80 @@ namespace SistemaGS.API.Controllers
                 response.EsCorrecto = false;
                 response.Mensaje = ex.Message;
             }
+            return Ok(response);
+        }
+        [HttpPost("ItemsAjax")]
+        public async Task<IActionResult> ItemsAjax([FromBody] DataTablesRequest request)
+        {
+            var query = _dbContext.Items.AsQueryable();
+            var total = _dbContext.Items.Count();
+
+            if (!string.IsNullOrEmpty(request.search?.value))
+            {
+                var searchValue = request.search.value.ToLower();
+                query = query.Where(i =>
+                    (i.IdItem.ToString() + i.Nombre + i.Categoria + i.Unidad)
+                    .ToLower()
+                    .Contains(searchValue));
+            }
+
+            var filtrados = query.Count();
+
+            if (request.order != null && request.order.Count > 0)
+            {
+                var orden = request.order.First();
+                var columna = request.columns[orden.column].data;
+
+                if (orden.dir == "asc")
+                    query = query.OrderBy(e => EF.Property<object>(e, columna));
+                else
+                    query = query.OrderByDescending(e => EF.Property<object>(e, columna));
+            }
+
+            List<ItemDTO> datos = new List<ItemDTO>();
+            if(request.length == -1)
+            {
+                datos = await query
+                .Select(i => new ItemDTO
+                {
+                    IdItem = i.IdItem,
+                    Nombre = i.Nombre,
+                    Categoria = i.Categoria,
+                    Unidad = i.Unidad,
+                    Descripcion = i.Descripcion,
+                    Cantidad = i.Cantidad,
+                    Activo = i.Activo ?? false,
+                    FechaCreacion = i.FechaCreacion ?? DateTime.Today
+                })
+                .ToListAsync();
+            }
+            else
+            {
+                datos = await query
+                .Skip(request.start)
+                .Take(request.length)
+                .Select(i => new ItemDTO
+                {
+                    IdItem = i.IdItem,
+                    Nombre = i.Nombre,
+                    Categoria = i.Categoria,
+                    Unidad = i.Unidad,
+                    Descripcion = i.Descripcion,
+                    Cantidad = i.Cantidad,
+                    Activo = i.Activo ?? false,
+                    FechaCreacion = i.FechaCreacion ?? DateTime.Today
+                })
+                .ToListAsync();
+            }
+
+            var response = new DataTablesResponse<ItemDTO>
+            {
+                draw = request.draw,
+                recordsTotal = total,
+                recordsFiltered = filtrados,
+                data = datos
+            };
+
             return Ok(response);
         }
     }

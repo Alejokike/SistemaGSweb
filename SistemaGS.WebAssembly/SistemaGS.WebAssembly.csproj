@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\js\DataTableExecuteM.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
     <PackageReference Include="Blazored.Toast" Version="4.1.0" />
     <PackageReference Include="bootstrap" Version="5.3.8" />
@@ -21,6 +25,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SistemaGS.DTO\SistemaGS.DTO.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Layout\Deprecated\" />
   </ItemGroup>
 
 </Project>

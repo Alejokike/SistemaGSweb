@@ -11,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.PropertyNamingPolicy = null; });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
@@ -52,15 +53,14 @@ if (!app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+
 app.UseCors("Nueva Politica");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
-/*
-AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-{
-    Console.WriteLine($"Unhandled exception: {e.ExceptionObject}");
-};
-*/
+
 app.Run();

@@ -56,10 +56,10 @@
                             </div>
                         }
 
-                        <div class="mb-3">
+                        @* <div class="mb-3">
                             <label class="form-label fw-bold">Comentarios de la entrega</label>
                             <InputTextArea class="form-control" required @bind-value="@ayuda.Detalle["Aprobado"]" />
-                        </div>
+                        </div> *@
 
                         <div class="mb-3">
                         <label class="form-label fw-bold">Categoría de la ayuda</label>
@@ -99,8 +99,8 @@
                                         {
                                             var mov = movimientos.FirstOrDefault(m => m.Item.IdItem == item.ItemLista.IdItem);
                                             mov ??= new InventarioDTO();
-                                            string signo = string.IsNullOrEmpty(mov.TipoOperacion) ? (mov.TipoOperacion == "ASI" ? "+" : "-") : "";
-                                            string color = string.IsNullOrEmpty(mov.TipoOperacion) ? (mov.TipoOperacion == "ASI" ? "text-success" : "text-danger") : "text-light";
+                                            string signo = !string.IsNullOrEmpty(mov.TipoOperacion) ? (mov.TipoOperacion == "ASI" ? "+" : "-") : "";
+                                            string color = !string.IsNullOrEmpty(mov.TipoOperacion) ? (mov.TipoOperacion == "ASI" ? "text-success" : "text-danger") : "text-light";
                                             <tr>
                                                 <td valign="middle">@item.IdLista</td>
                                                 <td valign="middle" align="center">@item.ItemLista.IdItem</td>
@@ -108,10 +108,10 @@
                                                 <td valign="middle">@item.ItemLista!.Categoria</td>
                                                 <td valign="middle" align="center">@item.ItemLista!.Unidad</td>
                                                 <td valign="middle" align="center">@item.CantidadSolicitada</td>
-                                                <td valign="middle" align="center" class="@color">@($"{signo}{mov.Cantidad}")</td>
+                                                <td valign="middle" align="center" class="@color">@($"{signo}{mov.Cantidad.ToString("N2")}")</td>
 
                                                 <td align="center">
-                                                    <button class="btn btn-outline-light" @onclick="@(() => {Mostrar = true; position = item;})">
+                                                    <button class="btn btn-light" @onclick="@(() => {Mostrar = true; position = item;})">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
                                                 </td>

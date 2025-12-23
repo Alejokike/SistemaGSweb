@@ -1,5 +1,63 @@
-﻿<h3>RecuperarCredenciales</h3>
+﻿@page "/RecuperarCredenciales"
+@layout LoginLayout
+
+@inject IUsuarioService _usuarioService;
+@inject NavigationManager navManager;
+@inject IToastService _toastService;
+@inject AuthenticationStateProvider authenticationStateProvider;
+
+<div class="col-lg-5">
+    <div class="card rounded-lg mt-5">
+        <div class="card-header border-yellow-600">
+            <div class="container d-flex justify-content-between align-items-center mb-2 mt-2" style="max-width: 300px; margin: 0 auto;">
+                <img src="img/FundaciónGSletrasnegras.png" class="img-fluid" style="max-width: 100px;" alt="Logo Fundación GS" />
+                <img src="img/LogoAlcaldiaLetrasAzules.png" class="img-fluid" style="max-width: 100px;" alt="Logo Alcaldía" />
+            </div>
+        </div>
+        <div class="card-body">
+            <EditForm Model="model" OnValidSubmit="Iniciar">
+                <DataAnnotationsValidator />
+                <div class="form-floating mb-3">
+                    <input class="form-control" id="inputUsername" type="text" placeholder="Ingrese nombre de usuario" @bind-value="model.NombreUsuario" autocomplete="off" />
+                    <label for="inputUsername">Nombre de Usuario</label>
+                    <ValidationMessage For="@(() => model.NombreUsuario)" />
+                </div>
+                <div class="form-floating mb-3">
+                    <input class="form-control" id="inputPassword" type="password" placeholder="Ingrese contraseña" @bind-value="model.Clave" autocomplete="off" />
+                    <label for="inputPassword">Contraseña</label>
+                    <ValidationMessage For="@(() => model.Clave)" />
+                </div>
+
+                <div class="d-grid gap-1 mt-4 mb-0">
+                    <button class="btn btn-primary" type="submit">Ingresar</button>
+                </div>
+            </EditForm>
+        </div>
+        <div class="card-footer text-center py-3">
+            <div class="small"><a href="/Register">¿No tienes una cuenta? ¡Registrate!</a></div>
+            <div class="small"><a href="/Register">¿Olvidaste tu clave? Recuperala con tu correo</a></div>
+        </div>
+    </div>
+</div>
 
 @code {
+    private LoginDTO model = new LoginDTO();
 
+    private async Task Iniciar()
+    {
+        var response = await _usuarioService.Autorizacion(model);
+        if (response.EsCorrecto)
+        {
+            SesionDTO sesion = (SesionDTO)response.Resultado!;
+
+            var AuthExt = (AutExt)authenticationStateProvider;
+            await AuthExt.ActualizarEstadoAut(sesion);
+
+            navManager.NavigateTo("/");
+        }
+        else
+        {
+            _toastService.ShowWarning(response.Mensaje!);
+        }
+    }
 }

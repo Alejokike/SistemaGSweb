@@ -97,28 +97,31 @@
     {
         esAyuda = typeof(T) == typeof(AyudaDTO);
     }
+
     protected override void OnParametersSet()
     {
         if (Init)
         {
-            Dispose();
-            StateHasChanged();
-            Init = false;
+            if (lista.Any())
+            {
+                Dispose();
+                StateHasChanged();
+                Init = false;
+            }
         }
-        base.OnParametersSet();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender && !Init && lista.Any())
+        if (!Init && lista.Any())
         {
             await JS.InvokeVoidAsync("InitTable", "#Tabla");
-            Init = true;
+            Init = true;         
         }
     }
 
     public void Dispose()
     {
-        if(lista.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla");
+        if (lista.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla");
     }
 
     Dictionary<string, string> colores = new Dictionary<string, string>()

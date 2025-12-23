@@ -17,8 +17,8 @@ namespace SistemaGS.DTO.ModelDTO
         public string Descripcion { get; set; } = null!;
         [Required(ErrorMessage = "Ingrese una unidad")]
         public string Unidad { get; set; } = null!;
-        [Required(ErrorMessage = "Ingrese una cantidad")]
-        [RegularExpression("^\\d+(,\\d{1,2})?$", ErrorMessage = "Formato inválido")]
+        //[Required(ErrorMessage = "Ingrese una cantidad")]
+        [RegularExpression(@"^\d+([.,]\d{1,2})?$", ErrorMessage = "Formato inválido")]
         public decimal Cantidad { get; set; }
         [Display(AutoGenerateField = false)]
         public bool Activo { get; set; }

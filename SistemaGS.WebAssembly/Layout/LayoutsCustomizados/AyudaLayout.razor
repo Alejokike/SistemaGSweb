@@ -25,7 +25,10 @@
                     {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Observaciones del funcionario</label>
-                            <InputText class="form-control" placeholder="Ingrese las observaciones vistas del caso, en que consiste la solicitud y cualquier información de interés..." @bind-Value="@(ayuda.Detalle["Observaciones"])" />
+                            <InputText class="form-control mb-1" placeholder="Ingrese las observaciones vistas del caso, en que consiste la solicitud y cualquier información de interés..." @bind-Value="@(ayuda.Detalle["Observaciones"])" />
+                            <button class="btn btn-success" @onclick="async () => await Comentar()">
+                                Confirmar comentario
+                            </button>
                         </div>
                     }
                     else
@@ -116,7 +119,7 @@
                     </li>
                     <li>
                         <button class="btn btn-success m-3" @onclick="ImprimirDetalle">
-                            <i class="bi bi-filetype-pdf text-white fs-5"></i> Imprimir lista de ítems
+                            <i class="bi bi-filetype-pdf text-white fs-5"></i> Imprimir detalle
                         </button>
                     </li>
                 </ul>
@@ -237,6 +240,13 @@
         }
     }
 
+    private async Task Comentar()
+    {
+        var response = await ayudaService.Editar(ayuda);
+        if (response.EsCorrecto) toastService.ShowSuccess("Se ha añadido el comentario");
+        else toastService.ShowError($"Error: {response.Mensaje}");
+    }
+
     private string Detallar(ItemDTO item)
     {
         string validar = item.IdItem != 0 ? item.IdItem.ToString() : "No revisado por un funcionario";
@@ -251,7 +261,6 @@
            </ul>";
         return resultado;
     }
-
     private async Task MostrarItem(ItemDTO item)
     {
         SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
@@ -263,7 +272,6 @@
             ConfirmButtonText = "Cerrar"
         });
     }
-
     private async Task ImprimirAyuda()
     {
         var response = await ayudaService.Imprimir(ayuda.IdAyuda, 1);

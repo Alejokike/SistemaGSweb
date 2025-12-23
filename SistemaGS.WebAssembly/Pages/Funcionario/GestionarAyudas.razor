@@ -142,7 +142,7 @@
 
             ayuda.Estado = "Cerrada";
             ayuda.FechaEntrega = DateTime.Today;
-            ayuda.Detalle["Cerrada"] = result.Value.ToString();
+            ayuda.Detalle["Aprobado"] = result.Value.ToString();
 
             var response = await ayudaService.Editar(ayuda);
             if (response.EsCorrecto) toastService.ShowSuccess("La ayuda fué cerrada");

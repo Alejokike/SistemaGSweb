@@ -1,0 +1,110 @@
+﻿@using System.Reflection
+@using System.ComponentModel.DataAnnotations
+
+@typeparam T;
+@inject IInventarioService inventarioService;
+@inject IJSRuntime JS;
+
+<style>
+    #Tabla td{
+        text-align: center;
+    }
+</style>
+
+<FiltroItem filtro="filtro" Estado="false" retorno="() => {Dispose(); Init = false;}" />
+
+<div class="table-responsive mt-2">
+    <table id="Tabla" class="table table-sm bg-light table-bordered hover">
+        <thead class="table-dark">
+            <tr>
+                @foreach(var prop in typeof(T).GetProperties())
+                {
+                    if (!prop.PropertyType.IsPrimitive &&
+                    prop.PropertyType != typeof(DateTime) &&
+                    (prop.PropertyType != typeof(string) && prop.PropertyType != typeof(decimal)) &&
+                    prop.PropertyType != typeof(DateTime?)) continue;
+                    
+                    DisplayAttribute? custom = prop.GetCustomAttribute<DisplayAttribute>();
+                    
+                    if (!MostrarOpcionales && custom != null && custom.GetAutoGenerateField() == false) continue;
+
+                    string nombre = custom?.Name ?? prop.Name;
+
+                    <th valign="middle" align="center" class="text-center">@nombre</th>
+                }
+                @if (MostrarBotones)
+                {
+                    <th valign="middle" align="center" class="text-center">Detalle</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="@(typeof(T).GetProperties().Count() + 1)">
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public bool MostrarOpcionales { get; set; } = false;
+    [Parameter] public bool MostrarBotones { get; set; } = true;
+    [Parameter] public EventCallback<ItemDTO> Retorno { get; set; }
+
+    private ItemQuery filtro { get; set; } = new ItemQuery();
+
+    bool esAyuda = false;
+    bool Init = false;
+
+    protected override void OnInitialized()
+    {
+        esAyuda = typeof(T) == typeof(AyudaDTO);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!Init)
+        {
+            var columnas = typeof(T).GetProperties()
+            .Where(p =>
+            {
+                DisplayAttribute? custom = p.GetCustomAttribute<DisplayAttribute>();
+
+                return 
+                !MostrarOpcionales && custom != null && custom.GetAutoGenerateField() == false &&
+                (
+                   p.PropertyType.IsPrimitive
+                || p.PropertyType == typeof(string)
+                || p.PropertyType == typeof(decimal)
+                );
+            })
+            .Select(p =>
+            {
+                return new Data()
+                { 
+                    data = p.Name
+                };
+            })
+            .ToList();
+
+            await JS.InvokeVoidAsync("InitTableInventarioAjax", "#Tabla", columnas);
+            Init = true;
+        }
+    }
+    public class Data()
+    {
+        public string? data { get; set; } = null;
+    }
+    [JSInvokable]
+    public async Task MostrarDetalleItem(int id)
+    {
+        var response = await inventarioService.ObtenerItem(id);
+        if (response.EsCorrecto && response.Resultado != null) await Retorno.InvokeAsync(response.Resultado);
+        else await Retorno.InvokeAsync(new ItemDTO());
+    }
+    public void Dispose()
+    {
+        JS.InvokeVoidAsync("DestroyTable", "#Tabla");
+    }
+}

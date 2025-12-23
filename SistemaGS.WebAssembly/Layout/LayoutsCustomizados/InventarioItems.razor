@@ -9,9 +9,9 @@
 </div>
 
 <div class="card-body">
-
     <FiltroItem filtro="filtro" Estado="Estado" retorno="EventCallback.Factory.Create<ItemQuery>(this, ListarInventario)" />
     <TableLayout lista="inventario" T="ItemDTO" Retorno="@(async (ItemDTO i) => {await retorno.InvokeAsync(i); toastService.ShowSuccess("Información cargada");})"/>
+    @* <InventarioAjax T="ItemDTO" Retorno="@(async (ItemDTO i) => await retorno.InvokeAsync(i))"/> *@
 </div>
 
 @code{
@@ -24,6 +24,7 @@
     {
         await ListarInventario();
     }
+
     private async Task ListarInventario()
     {
         var respuesta = await inventarioService.ListarInventario(filtro);

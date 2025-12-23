@@ -7,7 +7,7 @@
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
                     @{
-                        if (context.User.Identity?.IsAuthenticated != true) navManager.NavigateTo("/login");
+                        if (context.User.Identity?.IsAuthenticated != true) navManager.NavigateTo("/FundacionGS");
                         else
                         {
                             <h1 class="alert alert-danger m-5">No esta autorizado para ver esta página</h1>
@@ -18,7 +18,7 @@
         </Found>
         <NotFound>
             <PageTitle>No econtrado</PageTitle>
-            <LayoutView Layout="@typeof(MainLayout)">
+            <LayoutView Layout="@typeof(LoginLayout)">
                 <h1 class="alert alert-warning m-5" role="alert">ERROR 404: No existe esta página.</h1>
             </LayoutView>
         </NotFound>

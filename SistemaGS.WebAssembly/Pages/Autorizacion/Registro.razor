@@ -8,7 +8,9 @@
 
 <div class="col-lg-8">
     <div class="card rounded-lg mt-5">
-        <div class="card-header"><h3 class="text-center font-weight-bold my-4">Crear Cuenta</h3></div>
+        <div class="card-header border-yellow-600">
+            <h3 class="text-2xl text-center font-weight-bold my-4 drop-shadow-lg tracking-wide">Crear Cuenta</h3>
+        </div>
         <div class="card-body">
             <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
@@ -20,13 +22,12 @@
             </ul>
 
             <div class="tab-content">
-                <div class="row justify-content-center  mt-3">
+                <div class="row justify-content-center gap-2 mt-3">
                     <div class="col-sm-12 col-md-8 col-xl-10">
                         <EditForm EditContext="@editContext" OnValidSubmit="GuardarCambios">
                             <ValidationSummary />
                             @if (activeTab == "cuenta")
                             {
-                                <h5>Datos de cuenta</h5>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
                                     <input type="text" maxlength="8" class="form-control" @bind-value="model.Cedula" @oninput=@(() => model.Persona.Cedula = model.Cedula)>
@@ -56,11 +57,13 @@
                                     <input type="password" class="form-control" @bind-value="model.ConfirmarClave">
                                 </div>
                                 <ValidationMessage For="@(() => model.ConfirmarClave)" />
+
+                                <div class="mt-3">
+                                    <button type="submit" class="btn btn-primary m-3">Registrarse</button>
+                                </div>
                             }
                             else
                             {
-                                <h5>Datos personales</h5>
-
                                 <div class="input-group">
                                     <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
                                     <InputNumber maxlength="8" class="form-control" readonly @bind-value="model.Persona.Cedula" />
@@ -68,21 +71,21 @@
                                 <ValidationMessage For="@(() => model.Persona.Cedula)" />
 
                                 <div class="form-row mt-3">
-                                    <div class="input-group col-md-6">
+                                    <div class="input-group col-md-6 mb-1">
                                         <ValidationMessage For="@(() => model.Persona.Nombre)" />
                                     </div>
-                                    <div class="input-group col-md-6">
+                                    <div class="input-group col-md-6 mb-1">
                                         <ValidationMessage For="@(() => model.Persona.Apellido)" />
                                     </div>
                                 </div>
 
                                 <div class="form-row mt-3">
-                                    <div class="input-group col-md-6">
+                                    <div class="input-group col-md-6 mb-1">
                                         <span class="input-group-text bg-light" id="basic-addon3">Nombres</span>
                                         <InputText maxlength="60" class="form-control" @bind-value="model.Persona.Nombre" />
                                     </div>
 
-                                    <div class="input-group col-md-6">
+                                    <div class="input-group col-md-6 mb-1">
                                         <span class="input-group-text bg-light" id="basic-addon3">Apellidos</span>
                                         <InputText maxlength="60" class="form-control" @bind-value="model.Persona.Apellido" />
                                     </div>
@@ -112,21 +115,21 @@
                                 <ValidationMessage For="@(() => model.Persona.Genero)" />
 
                                 <div class="form-row mt-3">
-                                    <div class="input-group col-md-6">
+                                    <div class="input-group col-md-6 mb-1">
                                         <ValidationMessage For="@(() => model.Persona.Profesion)" />
                                     </div>
-                                    <div class="input-group col-md-6">
+                                    <div class="input-group col-md-6 mb-1">
                                         <ValidationMessage For="@(() => model.Persona.Ocupacion)" />
                                     </div>
                                 </div>
 
                                 <div class="form-row mt-3">
-                                    <div class="input-group col-md-6">
+                                    <div class="input-group col-md-6 mb-1">
                                         <span class="input-group-text bg-light" id="basic-addon3">Profesión</span>
                                         <InputText maxlength="30" class="form-control" @bind-value="model.Persona.Profesion" />
                                     </div>
 
-                                    <div class="input-group col-md-6">
+                                    <div class="input-group col-md-6 mb-1">
                                         <span class="input-group-text bg-light" id="basic-addon3">Ocupación</span>
                                         <InputText maxlength="30" class="form-control" @bind-value="model.Persona.Ocupacion" />
                                     </div>
@@ -162,10 +165,6 @@
                                 </div>
                                 <ValidationMessage For="@(() => model.Persona.TelefonoHabitacion)" />
                             }
-
-                            <div class="mt-3">
-                                <button type="submit" class="btn btn-primary m-3">Registrarse</button>
-                            </div>
                         </EditForm>
                     </div>
                 </div>

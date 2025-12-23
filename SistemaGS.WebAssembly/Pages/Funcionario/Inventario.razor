@@ -14,7 +14,7 @@
 
         <ul class="nav nav-tabs mb-3">
             <li class="nav-item">
-                <button class="nav-link @(activeTab == "inventario" ? "active" : null)" @onclick="@(() => {activeTab = "inventario";})">Inventario</button>
+                <button class="nav-link @(activeTab == "inventario" ? "active" : null)" @onclick="@(() => {activeTab = "inventario"; })">Inventario</button>
             </li>
             <li class="nav-item">
                 <button class="nav-link @(activeTab == "historico" ? "active" : null)" @onclick="@(() => { activeTab = "historico";})">Movimientos</button>
@@ -24,7 +24,6 @@
         <div class="tab-content">
 
             <div class="card mb-3">
-                
                 @if (activeTab == "inventario")
                 {
                     <InventarioItems Estado="false" retorno="@((ItemDTO r) => {model.Item  = r; agregar = false;})"/>
@@ -49,19 +48,17 @@
             </div>
 
             <div class="card-body">
-                @{
-                    int? id = null;
-                }
-                <div class="input-group mt-2 mb-2">
+
+                @* <div class="input-group mt-2 mb-2">
                     <label class="input-group-text bg-light">Cargar ítem</label>
                     <InputNumber min="0" step="1" class="form-control" placeholder="Ingresa el ID del ítem del movimiento" @bind-value="@id" oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
-                    <i class="bi bi-info-circle input-group-text bg-primary fs-5" style="color: white" title="Para dar entrada a un ítem que no exista en inventario, dejar el campo en 0"></i>
-                    <button type="button" class="btn btn-outline-dark" @onclick="@(() => ObtenerItem(id ?? 0))">
+                    <i class="bi bi-info-circle input-group-text bg-primary text-white fs-5" title="Para dar entrada a un ítem que no exista en inventario, dejar el campo en 0"></i>
+                    <button type="button" class="btn btn-light" @onclick="@( async() => {await ObtenerItem(id); id = 0;})">
                         <i class="bi bi-pencil-square text-primary fs-5"></i>
                     </button>
-                </div>
+                </div> *@
 
-                <EditForm EditContext="@editContext" OnValidSubmit="RegistrarOperacion">
+                <EditForm EditContext="@editContext" OnValidSubmit="async () => await RegistrarOperacion()">
                     <ValidationSummary />
 
                     <div class="input-group mt-3">
@@ -139,7 +136,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Cantidad</label>
-                        <InputNumber class="form-control" min="0" max="999999" maxlenght="6" @bind-value="model.Cantidad" @onchange="@((e) => model.Cantidad = Utilidades.ValidateNumeric(e, model.Unidad ?? "EU"))" />
+                        <InputNumber class="form-control" min="0" max="999999" maxlenght="6" @bind-value="model.Cantidad" />
                         <ValidationMessage For="@(() => model.Cantidad)" />
                     </div>
                     
@@ -199,6 +196,7 @@
 
     #region Registrar
 
+    //private int id = 0;
     private bool agregar = true;
 
     private async Task ObtenerItem(int iditem)
@@ -209,6 +207,7 @@
             agregar = true;
             return;
         }
+
         var buscar = await inventarioService.ObtenerItem(iditem, "");
         if (buscar.EsCorrecto && buscar.Resultado != null)
         {
@@ -235,7 +234,7 @@
         {
             toastService.ShowSuccess("Movimiento registrado");
             model = new InventarioDTO(){Item = new ItemDTO()};
-
+            agregar = true;
             StateHasChanged();
         }
         else toastService.ShowError($"Error: {response.Mensaje}");
