@@ -1,4 +1,5 @@
-﻿using SistemaGS.DTO.ModelDTO;
+﻿using SistemaGS.DTO.AuthDTO;
+using SistemaGS.DTO.ModelDTO;
 using System.ComponentModel.DataAnnotations;
 
 namespace SistemaGS.DTO
@@ -14,5 +15,6 @@ namespace SistemaGS.DTO
         public string Correo { get; set; } = null!;
         public string NombreUsuario { get; set; } = null!;
         public RolDTO Rol { get; set; } = null!;
+        public AuthResponse AuthResponse { get; set; } = new AuthResponse();
     }
 }

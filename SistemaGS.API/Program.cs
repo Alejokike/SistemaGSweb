@@ -7,6 +7,12 @@ using SistemaGS.Repository.Implementacion;
 using SistemaGS.Service.Contrato;
 using SistemaGS.Service.Implementacion;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using SistemaGS.API.Extensions;
+using SistemaGS.API.Infraestructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,12 +22,31 @@ builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerial
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerAuth();
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
+    {
+        opt.RequireHttpsMetadata = true;
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"]!)),
+            ValidIssuer = builder.Configuration["JWT:Issuer"],
+            ValidAudience = builder.Configuration["JWT:Audience"],
+            ClockSkew = TimeSpan.Zero,
+        };
+    });
+
+builder.Services.AddScoped<DataAccess>();
 
 builder.Services.AddDbContext<DbsistemaGsContext>(options =>
     {
        options.UseSqlServer(builder.Configuration.GetConnectionString("CadenaSQL"));
     }
 );
+
+builder.Services.AddScoped<TokenProvider>();
 
 builder.Services.AddTransient(typeof(IGenericoRepository<>), typeof(GenericoRepository<>));
 builder.Services.AddScoped<IInventarioRepository, InventarioRepository>();
@@ -47,7 +72,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

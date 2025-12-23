@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SistemaGS.DTO.AuthDTO;
+using System.ComponentModel.DataAnnotations;
 
 namespace SistemaGS.DTO
 {

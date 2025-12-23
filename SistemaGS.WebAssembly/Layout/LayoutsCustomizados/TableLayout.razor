@@ -121,7 +121,14 @@
 
     public void Dispose()
     {
-        if (lista.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla");
+        try
+        {
+            if (lista.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla");
+        }
+        catch (Exception)
+        {
+            
+        }
     }
 
     Dictionary<string, string> colores = new Dictionary<string, string>()
