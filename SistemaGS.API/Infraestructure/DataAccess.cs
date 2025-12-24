@@ -66,7 +66,7 @@ namespace SistemaGS.API.Infraestructure
         }
         public bool DisableUserTokenByCedula(int Cedula)
         {
-            string sql = "UPDATE [RrefreshToken] Set [Enabled] = 0 WHERE [Cedula] = @cedula";
+            string sql = "UPDATE [RefreshToken] Set [Enabled] = 0 WHERE [Cedula] = @cedula";
 
             int result = connection.Execute(sql, new
             {
@@ -77,7 +77,7 @@ namespace SistemaGS.API.Infraestructure
         }
         public bool DisableUserToken(string token)
         {
-            string sql = "UPDATE [RrefreshToken] Set [Enabled] = 0 WHERE [Token] = @token";
+            string sql = "UPDATE [RefreshToken] Set [Enabled] = 0 WHERE [Token] = @token";
 
             int result = connection.Execute(sql, new
             {
@@ -99,7 +99,7 @@ namespace SistemaGS.API.Infraestructure
         }
         public int FindUserByToken(string token)
         {
-            string sql = "SELECT [Cedula] FROM [RefreshTable] WHERE [Token] = @token";
+            string sql = "SELECT [Cedula] FROM [RefreshToken] WHERE [Token] = @token";
             return connection.QueryFirstOrDefault<int>(sql, new { token });
         }
     }

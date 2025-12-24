@@ -97,7 +97,7 @@ namespace SistemaGS.API.Controllers
         public async Task<ActionResult<AuthResponse>> Refresh()
         {
             AuthResponse response = new AuthResponse();
-
+            
             string? refreshToken = Request.Cookies["refreshtoken"];
             if (string.IsNullOrEmpty(refreshToken)) return BadRequest();
 
