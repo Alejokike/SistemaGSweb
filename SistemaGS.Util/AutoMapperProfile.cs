@@ -22,6 +22,7 @@ namespace SistemaGS.Util
                 .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation));
             CreateMap<UsuarioDTO, Usuario>()
                 .ForMember(dest => dest.IdRol, opt => opt.MapFrom(src => src.Rol.IdRol));
+            CreateMap<UsuarioPersistent, UsuarioDTO>();
 
             CreateMap<Persona, PersonaDTO>();
             CreateMap<PersonaDTO, Persona>();
@@ -42,7 +43,10 @@ namespace SistemaGS.Util
                 .ForMember(dest => dest.ListaItems, opt => opt.Ignore());
             CreateMap<AyudaDTO, Ayuda>()
                 .ForMember(dest => dest.Detalle, opt => opt.Ignore())
-                .ForMember(dest => dest.ListaItems, opt => opt.Ignore()); ;
+                .ForMember(dest => dest.ListaItems, opt => opt.Ignore());
+
+            CreateMap<Registro, RegistroDTO>();
+            CreateMap<RegistroDTO, Registro>();
         }
     }
 }

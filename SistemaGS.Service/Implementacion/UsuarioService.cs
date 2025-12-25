@@ -30,7 +30,10 @@ namespace SistemaGS.Service.Implementacion
             {
                 if (await _modelRepository.Consultar(l => l.NombreUsuario == Model.NombreUsuario && l.Activo == true).AnyAsync())
                 {
-                    var fromDBmodel = await _modelRepository.Consultar(p => p.NombreUsuario == Model.NombreUsuario && p.Clave == Ferramentas.ConvertToSha256(Model.Clave) && p.Activo == true).FirstOrDefaultAsync();
+                    Usuario usuario = _modelRepository.Consultar(u => u.NombreUsuario == Model.NombreUsuario).FirstOrDefault() ?? new Usuario();
+                    string clave = Ferramentas.ConvertToSha256(Ferramentas.ConvertToSha256(Model.Clave) + usuario.Cedula);
+                    
+                    var fromDBmodel = await _modelRepository.Consultar(p => p.NombreUsuario == Model.NombreUsuario && p.Clave == clave && p.Activo == true).FirstOrDefaultAsync();
 
                     if (fromDBmodel != null)
                     {
@@ -48,13 +51,13 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }
-        public async Task<UsuarioDTO> Crear(UsuarioDTO Model)
+        public async Task<UsuarioDTO> Crear(UsuarioPersistent Model)
         {
             try
             {
-                var DbUsuario = _mapper.Map<Usuario>(Model);
+                var DbUsuario = _mapper.Map<Usuario>(_mapper.Map<UsuarioDTO>(Model));
                 var DbPersona = _mapper.Map<Persona>(Model.Persona);
-                DbUsuario.Clave = Ferramentas.ConvertToSha256(DbUsuario.Clave);
+                DbUsuario.Clave = Ferramentas.ConvertToSha256(Ferramentas.ConvertToSha256(DbUsuario.Clave) + DbUsuario.Cedula);
 
                 if (await _UsuarioRepository.Registrar(DbUsuario, DbPersona)) return await Obtener(Model.Cedula!.Value);
                 else return new UsuarioDTO() { Persona = new PersonaDTO(), Rol = new RolDTO()}; 
@@ -65,14 +68,14 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }
-        public async Task<bool> Editar(UsuarioDTO Model)
+        public async Task<bool> Editar(UsuarioPersistent Model)
         {
             try
             {
-                var parseoU = _mapper.Map<Usuario>(Model);
+                var parseoU = _mapper.Map<Usuario>(_mapper.Map<UsuarioDTO>(Model));
                 var parseoP = _mapper.Map<Persona>(Model.Persona);
 
-                parseoU.Clave = Ferramentas.ConvertToSha256(Model.Clave);
+                parseoU.Clave = Ferramentas.ConvertToSha256(Ferramentas.ConvertToSha256(Model.Clave) + parseoU.Cedula);
                 parseoU.ResetearClave = false;
 
                 bool respuesta = await _UsuarioRepository.Editar(parseoU, parseoP);

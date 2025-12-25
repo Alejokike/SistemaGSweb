@@ -1,5 +1,7 @@
-﻿using SistemaGS.DTO;
+﻿using Newtonsoft.Json;
+using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
+using SistemaGS.WebAssembly.Extensiones;
 using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Json;
 
@@ -14,13 +16,23 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         }
         public async Task<ResponseDTO<SesionDTO>> Autorizacion(LoginDTO model)
         {
-            var response = await _httpClient.PostAsJsonAsync("Usuario/Autorizacion", model);
+            LoginDTO login = JsonConvert.DeserializeObject<LoginDTO>(JsonConvert.SerializeObject(model))!;
+            login.Clave = Ferramentas.ConvertToSha256(login.Clave);
+            model.Clave = "";
+
+            var response = await _httpClient.PostAsJsonAsync("Usuario/Autorizacion", login);
+            
             var result = await response.Content.ReadFromJsonAsync<ResponseDTO<SesionDTO>>();
             return result!;
         }
         public async Task<ResponseDTO<UsuarioDTO>> Crear(UsuarioDTO model)
         {
-            var response = await _httpClient.PostAsJsonAsync("Usuario/Crear", model);
+            UsuarioPersistent usuario = JsonConvert.DeserializeObject<UsuarioPersistent>(JsonConvert.SerializeObject(model))!;
+            usuario.Clave = Ferramentas.ConvertToSha256(model.Clave);
+            usuario.ConfirmarClave = "";
+
+            var response = await _httpClient.PostAsJsonAsync("Usuario/Crear", usuario);
+
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<ResponseDTO<UsuarioDTO>>();
@@ -36,7 +48,12 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         }
         public async Task<ResponseDTO<bool>> Editar(UsuarioDTO model)
         {
-            var response = await _httpClient.PutAsJsonAsync("Usuario/Editar", model);
+            UsuarioPersistent usuario = JsonConvert.DeserializeObject<UsuarioPersistent>(JsonConvert.SerializeObject(model))!;
+            usuario.Clave = Ferramentas.ConvertToSha256(model.Clave);
+            usuario.ConfirmarClave = "";
+
+            var response = await _httpClient.PutAsJsonAsync("Usuario/Editar", usuario);
+
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();

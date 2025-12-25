@@ -55,7 +55,7 @@ namespace SistemaGS.API.Controllers
             return Ok(response);
         }
         [HttpPost("Crear")]
-        public async Task<IActionResult> Crear([FromBody]UsuarioDTO model)
+        public async Task<IActionResult> Crear([FromBody]UsuarioPersistent model)
         {
             var response = new ResponseDTO<UsuarioDTO>();
             try
@@ -130,7 +130,7 @@ namespace SistemaGS.API.Controllers
         }
 
         [HttpPut("Editar")]
-        public async Task<IActionResult> Editar([FromBody] UsuarioDTO model)
+        public async Task<IActionResult> Editar([FromBody] UsuarioPersistent model)
         {
             var response = new ResponseDTO<bool>();
             try

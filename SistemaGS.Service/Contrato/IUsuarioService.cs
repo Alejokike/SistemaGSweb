@@ -8,8 +8,8 @@ namespace SistemaGS.Service.Contrato
         Task<List<UsuarioDTO>> Lista(int Rol, string buscar);
         Task<UsuarioDTO> Obtener(int Cedula);
         Task<SesionDTO> Autorizacion(LoginDTO Model);
-        Task<UsuarioDTO> Crear(UsuarioDTO Model);
-        Task<bool> Editar(UsuarioDTO Model);
+        Task<UsuarioDTO> Crear(UsuarioPersistent Model);
+        Task<bool> Editar(UsuarioPersistent Model);
         Task<bool> Eliminar(int Cedula);
     }
 }

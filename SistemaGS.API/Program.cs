@@ -88,4 +88,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.UseMiddleware<AuditMid>();
+
 app.Run();

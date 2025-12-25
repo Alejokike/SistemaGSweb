@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.IdentityModel.Logging;
 
 namespace SistemaGS.WebAssembly.Extensiones
 {
@@ -426,4 +427,21 @@ namespace SistemaGS.WebAssembly.Extensiones
             return PlanillaPDF;
         }
     }
+    /*
+    public class Copia()
+    {
+        public T Map<T>(T Model)
+        {
+            if (Model == null) return Model;
+
+            T copy;
+            Type type = typeof(T);
+
+            foreach(var prop in Model.GetType().GetProperties())
+            {
+                copy.GetType().
+            }
+        }
+    }
+    */
 }

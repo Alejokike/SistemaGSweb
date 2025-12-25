@@ -45,7 +45,7 @@
                     <h5>Datos de cuenta</h5>
                     <div class="input-group">
                         <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
-                        <input type="text" maxlength="8" class="form-control" readonly="@(ID != 0 ? true : null)" @bind-value="model.Cedula" @oninput=@(() => model.Persona.Cedula = model.Cedula)>
+                        <input type="text" maxlength="8" placeholder="Ingrese su número de cédula... Ej:12345678" class="form-control" readonly="@(ID != 0 ? true : null)" @bind-value="model.Cedula" @oninput=@(() => model.Persona.Cedula = model.Cedula)>
                     </div>
                     <ValidationMessage For="@(() => model.Cedula)" />
 
@@ -65,25 +65,25 @@
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Nombre de Usuario</span>
-                        <input type="text" class="form-control" maxlength="50" @bind-value="model.NombreUsuario">
+                        <input type="text" placeholder="Ingrese nombre de usuario... Ej:miUsuario123" class="form-control" maxlength="50" @bind-value="model.NombreUsuario">
                     </div>
                     <ValidationMessage For="@(() => model.NombreUsuario)" />
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Correo</span>
-                        <input type="text" class="form-control" maxlength="50" @bind-value="model.Correo">
+                        <input type="text" placeholder="Ingrese correo electrónico... Ej:miCorreo@gmail.com" class="form-control" maxlength="50" @bind-value="model.Correo">
                     </div>
                     <ValidationMessage For="@(() => model.Correo)" />
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Contraseña</span>
-                        <input type="password" class="form-control" @bind-value="model.Clave">
+                        <input type="password" placeholder="Ingrese nueva contraseña (en caso de que no la quiera cambiar, ingrese la anterior)" class="form-control" @bind-value="model.Clave">
                     </div>
                     <ValidationMessage For="@(() => model.Clave)" />
 
                     <div class="input-group mt-3">
                         <span class="input-group-text bg-light" id="basic-addon3">Confirmar Contraseña</span>
-                        <input type="password" class="form-control" @bind-value="model.ConfirmarClave">
+                        <input type="password" placeholder="Confirme la contraseña" class="form-control" @bind-value="model.ConfirmarClave">
                     </div>
                     <ValidationMessage For="@(() => model.ConfirmarClave)" />
 
