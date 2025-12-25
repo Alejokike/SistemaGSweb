@@ -103,7 +103,7 @@
                         </div>
                         @if (PersonasCM - PersonasLM > 0)
                         {
-                            int varLM = AyudasLM <= 0 ? 100 : ((PersonasCM / PersonasLM) - 1) * 100;
+                            int varLM = PersonasLM <= 0 ? 100 : ((PersonasCM / PersonasLM) - 1) * 100;
 
                             <div class="h6 mb-0 text-success d-inline">
                                 <small>VS. LM</small> + @varLM.ToString("N2") % <i class="bi bi-graph-up-arrow"></i>
@@ -228,24 +228,23 @@
             )
         );
 
-        PersonasCM = Ayudas.DistinctBy(a => a.Solicitante).Count(a =>
+        PersonasCM = Ayudas.Where(a =>
             a.Estado == "Cerrada" &&
             (a.FechaEntrega.HasValue &&
                 (
                     a.FechaEntrega.Value >= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1) &&
                     a.FechaEntrega.Value <= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1)
                 )
-            )
-        );
-        PersonasLM = Ayudas.DistinctBy(a => a.Solicitante).Count(a =>
+            )).Select(a => a.Solicitante).Distinct().Count();
+
+        PersonasLM = Ayudas.Where(a =>
             a.Estado == "Cerrada" &&
             (a.FechaEntrega.HasValue &&
                 (
                     a.FechaEntrega.Value >= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-1) &&
                     a.FechaEntrega.Value <= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1)
                 )
-            )
-        );
+            )).Select(a => a.Solicitante).Distinct().Count();
 
         RechazadasCM = Ayudas.Count(a =>
             a.Estado == "Rechazada" &&

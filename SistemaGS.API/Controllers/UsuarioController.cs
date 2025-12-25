@@ -70,6 +70,40 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
+        
+        [HttpPut("Editar")]
+        public async Task<IActionResult> Editar([FromBody] UsuarioPersistent model)
+        {
+            var response = new ResponseDTO<bool>();
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _usuarioService.Editar(model);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
+        [HttpDelete("Eliminar/{id:int}")]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var response = new ResponseDTO<bool>();
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _usuarioService.Eliminar(id);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
+        //Security
         [HttpPost("Autorizacion")]
         public async Task<IActionResult> Autorizacion([FromBody] LoginDTO model)
         {
@@ -84,7 +118,7 @@ namespace SistemaGS.API.Controllers
                 response.Resultado.AuthResponse.RefreshToken = token.RefreshToken;
 
                 _dataAccess.DisableUserTokenByCedula(response.Resultado.Cedula);
-                _dataAccess.InsertRefreshToken(token.RefreshToken, response.Resultado.Cedula);                
+                _dataAccess.InsertRefreshToken(token.RefreshToken, response.Resultado.Cedula);
             }
             catch (Exception ex)
             {
@@ -97,7 +131,7 @@ namespace SistemaGS.API.Controllers
         public async Task<ActionResult<AuthResponse>> Refresh()
         {
             AuthResponse response = new AuthResponse();
-            
+
             string? refreshToken = Request.Cookies["refreshtoken"];
             if (string.IsNullOrEmpty(refreshToken)) return BadRequest();
 
@@ -128,32 +162,21 @@ namespace SistemaGS.API.Controllers
 
             return Ok();
         }
+        [HttpGet("Auditoria")]
+        public async Task<IActionResult> Auditoria([FromQuery] LoginDTO model)
+        {
+            var response = new ResponseDTO<SesionDTO>();
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _usuarioService.Autorizacion(model);
 
-        [HttpPut("Editar")]
-        public async Task<IActionResult> Editar([FromBody] UsuarioPersistent model)
-        {
-            var response = new ResponseDTO<bool>();
-            try
-            {
-                response.EsCorrecto = true;
-                response.Resultado = await _usuarioService.Editar(model);
-            }
-            catch (Exception ex)
-            {
-                response.EsCorrecto = false;
-                response.Mensaje = ex.Message;
-            }
-            return Ok(response);
-        }
-        
-        [HttpDelete("Eliminar/{id:int}")]
-        public async Task<IActionResult> Eliminar(int id)
-        {
-            var response = new ResponseDTO<bool>();
-            try
-            {
-                response.EsCorrecto = true;
-                response.Resultado = await _usuarioService.Eliminar(id);
+                var token = _tokenProvider.GenerateToken(await _usuarioService.Obtener(response.Resultado.Cedula));
+                response.Resultado.AuthResponse.AccessToken = token.AccessToken;
+                response.Resultado.AuthResponse.RefreshToken = token.RefreshToken;
+
+                _dataAccess.DisableUserTokenByCedula(response.Resultado.Cedula);
+                _dataAccess.InsertRefreshToken(token.RefreshToken, response.Resultado.Cedula);
             }
             catch (Exception ex)
             {

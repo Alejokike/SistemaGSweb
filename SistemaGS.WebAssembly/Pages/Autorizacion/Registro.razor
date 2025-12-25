@@ -231,6 +231,7 @@
 
         model.Rol.IdRol = 3;
         model.Activo = true;
+        model.ResetearClave = true;
         model.FechaCreacion = DateTime.Now;
 
         var response = await _usuarioService.Crear(model);
