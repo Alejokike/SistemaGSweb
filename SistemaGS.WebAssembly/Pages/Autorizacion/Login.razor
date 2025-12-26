@@ -50,7 +50,7 @@
         {
             SesionDTO sesion = (SesionDTO) response.Resultado!;
 
-            var AuthExt = (AutExt)authenticationStateProvider;
+            var AuthExt = (AutExt) authenticationStateProvider;
             await AuthExt.ActualizarEstadoAut(sesion);
 
             navManager.NavigateTo("/");

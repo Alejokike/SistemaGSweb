@@ -1,4 +1,5 @@
 ﻿@inject IInventarioService inventarioService;
+@inject SweetAlertService Swat;
 
 <div class="card-header">
     <h4 class="text-center text-black">
@@ -49,7 +50,7 @@
         </div>
     </EditForm>
 
-    <TableLayout lista="Movimientos" T="InventarioDTO" Retorno="() => { return; }" />
+    <TableLayout listaOrigen="Movimientos" T="InventarioDTO" Retorno="async (InventarioDTO m) => { await MostrarItem(m.Item); }" />
 </div>
 
 @code{
@@ -65,5 +66,30 @@
         var response = await inventarioService.Lista(filtro);
         if (response.EsCorrecto) Movimientos = response.Resultado!;
         else new List<InventarioDTO>();
+    }
+    private string Detallar(ItemDTO item)
+    {
+        string validar = item.IdItem != 0 ? item.IdItem.ToString() : "No revisado por un funcionario";
+        string resultado =
+           $@"<ul>
+           <li><strong>ID:</strong> {validar}</li>
+           <li><strong>Nombre:</strong> {item.Nombre}</li>
+           <li><strong>categoría:</strong> {item.Categoria}</li>
+           <li><strong>Unidad:</strong> {item.Unidad}</li>
+           <li><strong>Descripción:</strong> {item.Descripcion}</li>
+           <li><strong>Stock en Inventario:</strong> {item.Cantidad}</li>
+           </ul>";
+        return resultado;
+    }
+    private async Task MostrarItem(ItemDTO item)
+    {
+        SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
+        {
+            Title = "Detalle ítem",
+            Html = Detallar(item),
+            Icon = item.IdItem == 0 ? SweetAlertIcon.Question : SweetAlertIcon.Success,
+            ShowCancelButton = false,
+            ConfirmButtonText = "Cerrar"
+        });
     }
 }

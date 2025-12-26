@@ -7,7 +7,7 @@
 <h3 class="m-3">Histórico</h3>
 
 <FiltroAyuda filtro="filtro" Funcionario="false" Estado="false" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" />
-<TableLayout lista="lista" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, RecibirSeleccion))"/>
+<TableLayout listaOrigen="lista" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, RecibirSeleccion))"/>
 
 <button type="button" class="btn btn-primary" @onclick="ImprimirReporte">
     <i class="bi bi-printer fs-5"></i> Imprimir listado

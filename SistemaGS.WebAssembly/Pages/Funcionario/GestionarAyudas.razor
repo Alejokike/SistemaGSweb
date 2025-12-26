@@ -11,7 +11,7 @@
 <h3 class="m-3">Gestionar Ayudas</h3>
 
 <FiltroAyuda filtro="filtro" Estado="false" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" Funcionario="false"/>
-<TableLayout lista="lista" T="AyudaDTO" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, CargarAyuda))"></TableLayout>
+<TableLayout listaOrigen="lista" T="AyudaDTO" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, CargarAyuda))"></TableLayout>
 
 @code{
     [Parameter]

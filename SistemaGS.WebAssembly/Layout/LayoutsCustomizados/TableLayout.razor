@@ -2,8 +2,37 @@
 @using System.ComponentModel.DataAnnotations
 
 @typeparam T;
-@inject IJSRuntime JS;
-@implements IDisposable;
+
+<style>
+    .clickable {
+        cursor: pointer;
+        transition: background-color 0.2s ease; /* animación suave */
+    }
+
+        .clickable:hover {
+            background-color: #f0f0f0; /* color de fondo al pasar el mouse */
+            color: #000; /* opcional: cambia el color del texto */
+        }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mt-2" style="z-index: 0;">
+    <div class="input-group" style="width: 100px;">
+        <InputSelect class="form-select" 
+        ValueExpression="@(() => Mostrar)"
+        Value="Mostrar" 
+        ValueChanged="@((int i) => {Mostrar = i; Filtrar();})">
+            <option class="form-text" value="10" selected>10</option>
+            <option class="form-text" value="50">50</option>
+            <option class="form-text" value="100">100</option>
+            <option class="form-text" value="0">Todos</option>
+        </InputSelect>
+    </div>
+
+    <div class="input-group align-items-center" style="width: 400px;">
+        <div class="form-label me-1">Busqueda general: </div>
+        <InputText class="form-control" @bind-Value="Busqueda" @oninput="(e) => BuscarFiltroGeneral(e)"></InputText>
+    </div>
+</div>
 
 <div class="table-responsive mt-2">
     <table id="Tabla" class="table table-sm bg-light table-bordered hover">
@@ -22,7 +51,23 @@
 
                     string nombre = custom?.Name ?? prop.Name;
 
-                    <th valign="middle" align="center" class="text-center">@nombre</th>
+                    <th valign="middle" align="center" class="clickable" @onclick="() => CambiarOrden(prop.Name)">
+                        @* <div class="d-inline-flex align-items-center justify-content-between"> *@
+                        <div class="position-relative align-items-center p-0">
+                            @if (Ordenar == prop.Name)
+                            {
+                                if (OrderBy)
+                                {
+                                    <i class="bi bi-sort-up position-absolute start-0 ms-2 me-2"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-sort-down position-absolute start-0 ms-2 me-2"></i>
+                                }
+                            }
+                            <span class="d-block text-center ms-2">@nombre</span>
+                        </div>
+                    </th>
                 }
                 @if (MostrarBotones)
                 {
@@ -82,52 +127,164 @@
     </table>
 </div>
 
+<div class="d-flex justify-content-between align-items-center col-12" style="z-index: 0;">
+    <div class="form-label">
+        filtrados @Filtrados de @TotalRegistros registros (Página @Pagina de @CantPaginas)
+    </div>
+    <div class="input-group" style="width: auto;">
+        <button class="btn btn-secondary text-white" @onclick="() => {if(Pagina > 1) {Pagina--; Filtrar();}}">
+            <i class="bi bi-arrow-left-circle-fill"></i>
+        </button>
+        <div class="form-control text-center" style="width: 50px;">
+            @Pagina
+        </div>
+        <button class="btn btn-secondary text-white" @onclick="() => { if (Pagina < CantPaginas) {Pagina++; Filtrar();} }">
+            <i class="bi bi-arrow-right-circle-fill"></i>
+        </button>
+    </div>
+</div>
+
 @code {
     [Parameter]
-    public List<T> lista { get; set; } = new();
+    public List<T> listaOrigen { get; set; } = new();
     [Parameter] public bool MostrarOpcionales {get;set;} = false;
     [Parameter] public bool MostrarBotones {get;set;} = true;
     [Parameter]
     public EventCallback<T> Retorno { get; set; }
 
     bool esAyuda = false;
+
+    private List<T> lista { get; set; } = new();
+
+    private int Mostrar = 10;
+
+    string Busqueda = "";
+    string Ordenar = "";
+    bool OrderBy = true;
+
+    int CantPaginas;
+    int Pagina = 1;
+
     bool Init = false;
+    long TotalRegistros;
+    long Filtrados;
 
     protected override void OnInitialized()
     {
         esAyuda = typeof(T) == typeof(AyudaDTO);
+        ActualizarParametros();
     }
-
     protected override void OnParametersSet()
     {
-        if (Init)
-        {
-            if (lista.Any())
-            {
-                Dispose();
-                StateHasChanged();
-                Init = false;
-            }
-        }
+        ActualizarParametros();
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private void ActualizarParametros()
     {
-        if (!Init && lista.Any())
-        {
-            await JS.InvokeVoidAsync("InitTable", "#Tabla");
-            Init = true;         
+        if (!Init && listaOrigen.Any()) 
+        { 
+            Filtrados = TotalRegistros = listaOrigen.Count();
+            Init = true;
         }
+        else Filtrados = listaOrigen.Count();
+        CantPaginas = Convert.ToInt32(Math.Ceiling((double)Filtrados / (double)Mostrar));
+        Busqueda = "";
+        Pagina = 1;
+        Filtrar();
     }
 
-    public void Dispose()
+    private void CambiarOrden(string prop)
     {
+        if(Ordenar != prop)
+        {
+            Ordenar = prop;
+            OrderBy = true;
+        }
+        else if(Ordenar == prop && OrderBy)
+        {
+            OrderBy = false;
+        }
+        else
+        {
+            Ordenar = "";
+            OrderBy = true;
+        }
+        Filtrar();
+    }
+
+    private void Filtrar()
+    {
+        lista.Clear();
+
+        if (!listaOrigen.Any()) return;
+
+        IEnumerable<T>? consulta = listaOrigen.AsEnumerable();
+
+        //Orden
+        if (!string.IsNullOrEmpty(Ordenar))
+        {
+            consulta = OrderBy ? 
+            consulta.OrderBy(obj =>
+            {
+                var prop = typeof(T).GetProperty(Ordenar);
+                return prop!.GetValue(obj, null);
+            }) 
+            : 
+            consulta.OrderByDescending(obj =>
+            {
+                var prop = typeof(T).GetProperty(Ordenar);
+                return prop!.GetValue(obj, null);
+            });
+        }
+
+        //Filtro General
+        if (!string.IsNullOrEmpty(Busqueda))
+        {
+            consulta = listaOrigen
+            .Where(obj =>
+            {
+                var propiedades = obj!.GetType().GetProperties();
+                string valor = "";
+                foreach (var prop in propiedades)
+                {
+                    if (!prop.PropertyType.IsPrimitive &&
+                    prop.PropertyType != typeof(DateTime) &&
+                    (prop.PropertyType != typeof(string) && prop.PropertyType != typeof(decimal)) &&
+                    prop.PropertyType != typeof(DateTime?)) continue;
+
+                    DisplayAttribute? custom = prop.GetCustomAttribute<DisplayAttribute>();
+                    if (!MostrarOpcionales && custom != null && custom.GetAutoGenerateField() == false) continue;
+
+                    valor += Utilidades.FormatearValor(prop.GetValue(obj) ?? "N/A").ToLower();
+                }
+                return valor.ToLower().Contains(Busqueda.ToLower());
+            });
+        }
+
+        Filtrados = consulta.Count();
+
+        //Paginacion
+        if (Mostrar != 0) consulta = 
+        consulta
+        .Skip((Pagina - 1) * Mostrar).Take(Mostrar);
+
+        lista = consulta.ToList();
+    }
+
+    private CancellationTokenSource? _cts;
+    private async Task BuscarFiltroGeneral(ChangeEventArgs e)
+    {
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
         try
         {
-            if (lista.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla");
+            await Task.Delay(500, _cts.Token);
+
+            Busqueda = (e.Value ?? "").ToString() ?? "";
+            Filtrar();
         }
-        catch (Exception)
+        catch (TaskCanceledException)
         {
-            
+
         }
     }
 
