@@ -1,63 +1,196 @@
 ﻿@page "/RecuperarCredenciales"
 @layout LoginLayout
 
-@inject IUsuarioService _usuarioService;
+@inject IEmailService emailService;
 @inject NavigationManager navManager;
-@inject IToastService _toastService;
-@inject AuthenticationStateProvider authenticationStateProvider;
+@inject IToastService toastService;
 
 <div class="col-lg-5">
     <div class="card rounded-lg mt-5">
         <div class="card-header border-yellow-600">
-            <div class="container d-flex justify-content-between align-items-center mb-2 mt-2" style="max-width: 300px; margin: 0 auto;">
-                <img src="img/FundaciónGSletrasnegras.png" class="img-fluid" style="max-width: 100px;" alt="Logo Fundación GS" />
-                <img src="img/LogoAlcaldiaLetrasAzules.png" class="img-fluid" style="max-width: 100px;" alt="Logo Alcaldía" />
-            </div>
+            <h3 class="text-2xl text-center font-weight-bold my-4 drop-shadow-lg tracking-wide">Recuperar Contraseña</h3>
         </div>
         <div class="card-body">
-            <EditForm Model="model" OnValidSubmit="Iniciar">
-                <DataAnnotationsValidator />
-                <div class="form-floating mb-3">
-                    <input class="form-control" id="inputUsername" type="text" placeholder="Ingrese nombre de usuario" @bind-value="model.NombreUsuario" autocomplete="off" />
-                    <label for="inputUsername">Nombre de Usuario</label>
-                    <ValidationMessage For="@(() => model.NombreUsuario)" />
-                </div>
-                <div class="form-floating mb-3">
-                    <input class="form-control" id="inputPassword" type="password" placeholder="Ingrese contraseña" @bind-value="model.Clave" autocomplete="off" />
-                    <label for="inputPassword">Contraseña</label>
-                    <ValidationMessage For="@(() => model.Clave)" />
-                </div>
+            @switch (Estado)
+            {
+                case 0:
+                    {
+                        <EditForm Model="correo" OnValidSubmit="@(async () => {await MandarCorreo(); IsSending = true;})">
+                            <DataAnnotationsValidator />
+                            <div class="form-floating mb-3">
+                                <InputText class="form-control" id="inputCorreo" type="text" placeholder="Ingrese su correo" @bind-value="correo.correo" autocomplete="off" />
+                                <label for="inputCorreo">Correo electrónico</label>
+                                <ValidationMessage For="@(() => correo.correo)" />
+                            </div>
+                            <div class="d-grid gap-1 mt-4 mb-0">
+                                <button class="btn btn-primary" disabled="@(IsSending ? true : null)" type="submit">@(IsSending ? "Enviando, espere un momento" : "Enviar clave al correo")</button>
+                            </div>
+                        </EditForm>
 
-                <div class="d-grid gap-1 mt-4 mb-0">
-                    <button class="btn btn-primary" type="submit">Ingresar</button>
-                </div>
-            </EditForm>
+                        break;
+                    }
+                case 1:
+                    {
+                        <div class="form-floating mb-3">
+                            <InputText class="form-control" id="inputClave" placeholder="Ingrese su correo" @bind-value="Clave" autocomplete="off" />
+                            <label for="inputClave">Ingrese clave temporal</label>
+                        </div>
+                        <div class="d-grid gap-1 mt-4 mb-0">
+                            <button class="btn btn-primary" @onclick="ConfirmarClave">Enviar</button>
+                        </div>
+                        break;
+                    }
+                case 2:
+                    {
+                        <EditForm Model="usuario" OnValidSubmit="async () => await CambiarClave()">
+                            <DataAnnotationsValidator />
+
+                            <div class="form-floating mb-3">
+                                <InputText type="password" class="form-control" id="clave" placeholder="Igrese clave nueva" @bind-value="usuario.Clave" autocomplete="off" />
+                                <label for="clave">Contraseña</label>
+                                <ValidationMessage For="@(() => usuario.Clave)" />
+                            </div>
+                            <div class="form-floating mb-3">
+                                <InputText type="password" class="form-control" id="confirmar" placeholder="Confirme clave nueva" @bind-value="usuario.ConfirmarClave" autocomplete="off" />
+                                <label for="confirmar">Confirmar Contraseña</label>
+                                <ValidationMessage For="@(() => usuario.ConfirmarClave)" />
+                            </div>
+
+                            <div class="d-grid gap-1 mt-4 mb-0">
+                                <button class="btn btn-primary" disabled="@(IsSending ? true : null)" type="submit">Cambiar Clave</button>
+                            </div>
+                        </EditForm>
+                        break;
+                    }
+                default:
+                    {
+                        <span>Te felicito si puedes ver esto</span>
+                        break;
+                    }
+            }
         </div>
         <div class="card-footer text-center py-3">
-            <div class="small"><a href="/Register">¿No tienes una cuenta? ¡Registrate!</a></div>
-            <div class="small"><a href="/Register">¿Olvidaste tu clave? Recuperala con tu correo</a></div>
+            <div class="small"><a href="/login">Volver a inicio de sesión</a></div>
         </div>
     </div>
 </div>
 
 @code {
-    private LoginDTO model = new LoginDTO();
+    int Estado = 0;
 
-    private async Task Iniciar()
+    Correo correo { get; set; } = new Correo();
+
+    string ClaveTemporal = "";
+    string Clave = "";
+
+    UsuarioDTO usuario = new UsuarioDTO();
+
+    private bool IsSending = false;
+    private async Task MandarCorreo()
     {
-        var response = await _usuarioService.Autorizacion(model);
-        if (response.EsCorrecto)
+        if (IsSending) return;
+
+        IsSending = true;
+
+        var response = await emailService.ObtenerUsuarioByCorreo(correo.correo);
+        if (response.EsCorrecto && response.Resultado != null)
         {
-            SesionDTO sesion = (SesionDTO)response.Resultado!;
+            usuario = response.Resultado;
+            usuario.Clave = "";
 
-            var AuthExt = (AutExt)authenticationStateProvider;
-            await AuthExt.ActualizarEstadoAut(sesion);
-
-            navManager.NavigateTo("/");
+            ClaveTemporal = Ferramentas.GenerateCode();
+            var CorreoEnviado = await emailService.EnviarCorreo(new DTO.Email.EmailDTO()
+                {
+                    From = "germaine96@ethereal.email",
+                    To = "germaine96@ethereal.email",
+                    Subject = "Recuperar clave Sistema GS",
+                    Body = $@"
+                    <html>
+                        <body style='font-family: Open Sans, sans-serif; color:#333;'>
+                            <div style='max-width:600px; margin:auto; padding:20px; border:1px solid #ddd; border-radius:10px;'>
+                                <h2 style='font-family: Montserrat, sans-serif; color:#9B2873;'>¡Hola {usuario.NombreUsuario}!</h2>
+                                <p style='font-size:1.1rem;'>
+                                    Su nueva clave temporal es:
+                                    <span style='font-weight:bold; color:#00B3CB;'>{ClaveTemporal}</span>
+                                </p>
+                                <p style='margin-top:15px;'>
+                                    No la comparta con nadie. En caso de no haberla solicitado, reporte el problema a nuestro equipo de soporte.
+                                </p>
+                                <div style='margin-top:25px; text-align:center;'>
+                                    <a href='https://wa.me/584147913306'
+                                       style='background-color:#9B2873; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold;'>
+                                       Contactar soporte
+                                    </a>
+                                </div>
+                            </div>
+                        </body>
+                    </html>
+                    "
+                });
+            if (CorreoEnviado.Resultado)
+            {
+                Estado = 1;
+                toastService.ShowSuccess("Se ha enviado su clave temporal al correo ingresado, por favor no cierre esta ventana");
+                IsSending = false;
+                StateHasChanged();
+            }
+            else
+            {
+                toastService.ShowWarning($"No se pudo enviar el correo, Error: {CorreoEnviado.Mensaje}");
+                IsSending = false;
+            }
         }
         else
         {
-            _toastService.ShowWarning(response.Mensaje!);
+            toastService.ShowError("El correo ingresado no existe");
+            IsSending = false;
         }
+    }
+
+    private void ConfirmarClave()
+    {
+        if (Clave != ClaveTemporal) toastService.ShowError("Clave inválida");
+        else 
+        {
+            Estado = 2;
+            IsSending = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CambiarClave()
+    {
+        if (IsSending) return;
+
+        if(usuario.ConfirmarClave != usuario.Clave)
+        {
+            toastService.ShowWarning("Las contraseñas no coinciden");
+            return;
+        }
+        
+        IsSending = true;
+
+        usuario.Persona = new PersonaDTO()
+            {
+                Cedula = usuario.Cedula,
+                Nombre = "Lorem",
+                Apellido = "Ipsum",
+                FechaNacimiento = DateTime.Now,
+                Genero = "D",
+                Profesion = "Dolor",
+                Ocupacion = "Sit Amet",
+                LugarTrabajo = "Deus Pater",
+                DireccionTrabajo = "Deus Pater",
+                TelefonoTrabajo = "0212-1234567",
+                DireccionHabitacion = "Samba",
+                TelefonoHabitacion = "0212-1234567"
+            };
+        var response = await emailService.CambiarClave(usuario);
+        if (response.EsCorrecto) 
+        {
+            toastService.ShowSuccess("Contraseña recuperada con éxito");
+            navManager.NavigateTo("/login");
+        }
+        else toastService.ShowWarning("No se pudo recuperar la contraseña, contacte con el personal de la fundación");
     }
 }

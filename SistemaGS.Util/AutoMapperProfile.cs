@@ -22,7 +22,10 @@ namespace SistemaGS.Util
                 .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.IdRolNavigation));
             CreateMap<UsuarioDTO, Usuario>()
                 .ForMember(dest => dest.IdRol, opt => opt.MapFrom(src => src.Rol.IdRol));
+            
             CreateMap<UsuarioPersistent, UsuarioDTO>();
+            CreateMap<UsuarioPersistent, Usuario>()
+                .ForMember(dest => dest.IdRol, opt => opt.MapFrom(src => src.Rol.IdRol));
 
             CreateMap<Persona, PersonaDTO>();
             CreateMap<PersonaDTO, Persona>();

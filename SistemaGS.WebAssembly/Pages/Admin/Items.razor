@@ -1,7 +1,121 @@
 ﻿@page "/Items"
 
-<h3>AdministrarItems</h3>
+@inject IInventarioService inventarioService;
+@inject IToastService toastService;
+
+<h3 clss="mt-3">Administrar Items</h3>
+
+<FiltroItem filtro="filtro" Estado="Estado" retorno="EventCallback.Factory.Create<ItemQuery>(this, ListarInventario)" />
+<TableLayout listaOrigen="inventario" T="ItemDTO" Retorno="@(async (ItemDTO i) => { await retorno.InvokeAsync(i); toastService.ShowSuccess("Información cargada"); })" />
+
+<div class="row-cols-12 mt-3">
+    <div class="col-sm-12">
+        <div class="card mb-3">
+
+            <div class="card-header text-center">
+                <h5>Realizar movimiento</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="input-group mt-2 mb-2">
+                    <label class="input-group-text bg-light">Cargar ítem</label>
+                    <InputNumber min="0" step="1" class="form-control" placeholder="Ingresa el ID del ítem del movimiento" @bind-value="model.IdItem" oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
+                    <i class="bi bi-info-circle input-group-text bg-primary text-white fs-5" title="Para dar entrada a un ítem que no exista en inventario, dejar el campo en 0"></i>
+                    <button type="button" class="btn btn-light">
+                        <i class="bi bi-pencil-square text-primary fs-5"></i>
+                    </button>
+                </div>
+
+                <EditForm Model="model" OnValidSubmit="Guardar">
+                    <ValidationSummary />
+
+                    <div class="form-row mt-3 mb-2">
+
+                        <div class="col-md-4 flex-column">
+                            <div class="input-group">
+                                <label class="input-group-text bg-light">ID ítem</label>
+                                <InputNumber min="0" class="form-control" disabled @bind-value="model.IdItem" />
+                            </div>
+                            <ValidationMessage For="@(() => model.IdItem)" />
+                        </div>
+
+                        <div class="col-md-4 flex-column">
+                            <div class="input-group">
+                                <label class="input-group-text bg-light">Nombre</label>
+                                <InputText class="form-control" disabled="@(agregar ? null : true)" @bind-value="model.Nombre" />
+                            </div>
+                            <ValidationMessage For="@(() => model.Nombre)" />
+                        </div>
+
+                        <div class="col-md-4 flex-column">
+                            <div class="input-group">
+                                <label class="input-group-text bg-light">Categoría</label>
+                                <InputSelect class="form-select" disabled="@(agregar ? null : true)" @bind-value="model.Categoria">
+                                    <option value="" selected>--Seleccione una categoría</option>
+                                    <option value="Médicamentos">Médicamentos</option>
+                                    <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
+                                    <option value="Prótesis">Prótesis</option>
+                                    <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
+                                    <option value="Servicios médicos">Servicios médicos</option>
+                                    <option value="Bienes de apoyo social">Bienes de apoyo social</option>
+                                    <option value="Fondos y financiamiento">Fondos y financiamiento</option>
+                                    <option value="Otros">Otros</option>
+                                </InputSelect>
+                            </div>
+                            <ValidationMessage For="@(() => model.Categoria)" />
+                        </div>
+
+                    </div>
+
+                    <span class="form-label mt-3" id="basic-addon3">Descripción</span>
+                    <InputTextArea class="form-control" disabled="@(agregar ? null : true)" placeholder="Ingrese para que sirve el ítem" @bind-value="model.Descripcion" />
+                    <ValidationMessage For="@(() => model.Descripcion)" />
+
+                    <div class="mb-3">
+                        <label class="form-label"></label>
+                        <InputSelect class="form-select" disabled="@(agregar ? null : true)" @bind-value="model.Unidad">
+                            <option value="" selected>--Seleccione una unidad</option>
+                            <option value="EU">Unidad Estándar</option>
+                            <option value="MU">Unidad Médica</option>
+                            <option value="VE">Bolívares</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => model.Unidad)" />
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="d-grid gap-1">
+                            <button class="btn btn-outline-primary float-end" type="submit">Cargar movimiento</button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
+    public bool Estado { get; set; } = true;
+    public EventCallback<ItemDTO> retorno { get; set; }
+    private ItemQuery filtro { get; set; } = new ItemQuery();
+    private List<ItemDTO> inventario = new List<ItemDTO>();
 
+    private bool agregar = true;
+    private ItemDTO model = new ItemDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ListarInventario();
+    }
+
+    private async Task ListarInventario()
+    {
+        var respuesta = await inventarioService.ListarInventario(filtro);
+        if (respuesta.EsCorrecto && respuesta.Resultado != null) inventario = respuesta.Resultado;
+    }
+
+    private void Guardar()
+    {
+        
+    }
 }

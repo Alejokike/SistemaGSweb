@@ -1,6 +1,5 @@
 ﻿using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using SistemaGS.DTO;
 using SistemaGS.DTO.AuthDTO;
 using SistemaGS.DTO.ModelDTO;
 using System.Security.Claims;
@@ -63,6 +62,6 @@ namespace SistemaGS.API.Infraestructure
     {
         public string AccessToken { get; set; } = "";
 
-        public RefreshToken RefreshToken { get; set; }
+        public RefreshToken RefreshToken { get; set; } = null!;
     }
 }

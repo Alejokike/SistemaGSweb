@@ -11,7 +11,6 @@ using SistemaGS.WebAssembly.Services.Implementacion;
 using Microsoft.AspNetCore.Components.Authorization;
 using SistemaGS.WebAssembly.Extensiones;
 using SistemaGS.WebAssembly.Services;
-using Microsoft.Net.Http.Headers;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -32,6 +31,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IAyudaService, AyudaService>();
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<AccessTokenService>();

@@ -60,7 +60,7 @@ namespace SistemaGS.Service.Implementacion
                 DbUsuario.Clave = Ferramentas.ConvertToSha256(DbUsuario.Clave + DbUsuario.Cedula);
 
                 if (await _UsuarioRepository.Registrar(DbUsuario, DbPersona)) return await Obtener(Model.Cedula!.Value);
-                else return new UsuarioDTO() { Persona = new PersonaDTO(), Rol = new RolDTO()}; 
+                else throw new TaskCanceledException("No se pudo crear");
             }
             catch (Exception ex)
             {

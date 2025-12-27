@@ -1,5 +1,4 @@
-﻿using SistemaGS.DTO.AuthDTO;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SistemaGS.DTO
 {
@@ -15,5 +14,11 @@ namespace SistemaGS.DTO
         */
         [Required(ErrorMessage = "Ingrese Contraseña")]
         public string Clave { get; set; } = null!;
+    }
+    public class Correo()
+    {
+        [Required(ErrorMessage = "Ingrese el correo electrónico")]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Ingrese un correo electrónico válido")]
+        public string correo { get; set; } = null!;
     }
 }

@@ -31,7 +31,7 @@
         <button class="nav-link @(activeTab == "cuenta" ? "active" : "")" @onclick="@(() => activeTab = "cuenta")">Datos Cuenta</button>
     </li>
     <li class="nav-item">
-        <button class="nav-link @(activeTab == "personal" ? "active" : "")" @onclick="@(() => activeTab = "personal")">Datos Personales</button>
+        <button class="nav-link @(activeTab == "personal" ? "active" : "")" @onclick="@(() => {activeTab = "personal"; model.Persona.Cedula = model.Cedula;})">Datos Personales</button>
     </li>
 </ul>
 
@@ -42,7 +42,7 @@
                 <ValidationSummary />
                 @if (activeTab == "cuenta")
                 {
-                    <h5>Datos de cuenta</h5>
+                    <h5 class="p-2">Datos de cuenta</h5>
                     <div class="input-group">
                         <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
                         <input type="text" maxlength="8" placeholder="Ingrese su número de cédula... Ej:12345678" class="form-control" readonly="@(ID != 0 ? true : null)" @bind-value="model.Cedula" @oninput=@(() => model.Persona.Cedula = model.Cedula)>
@@ -112,13 +112,13 @@
                 }
                 else
                 {
-                    <h5>Datos personales</h5>
+                    <h5 class="p-2">Datos personales</h5>
 
                     <div class="input-group">
                         <span class="input-group-text bg-light" id="basic-addon3">Cédula</span>
                         <InputNumber maxlength="8" class="form-control" readonly @bind-value="model.Persona.Cedula" />
                     </div>
-                    <ValidationMessage For="@(() => model.Persona.Cedula)" />
+                    // <ValidationMessage For="@(() => model.Persona.Cedula)" />
 
                     <div class="form-row mt-3">
                         <div class="input-group col-md-6">
@@ -214,6 +214,7 @@
                         <InputText maxlenght="12" class="form-control" @bind-value="model.Persona.TelefonoHabitacion" />
                     </div>
                     <ValidationMessage For="@(() => model.Persona.TelefonoHabitacion)" />
+                    <div class="mb-5"></div>
                 }
             </EditForm>
         </div>
