@@ -3,7 +3,6 @@ using SistemaGS.Service.Contrato;
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.API.Infraestructure;
-using SistemaGS.DTO.AuthDTO;
 
 namespace SistemaGS.API.Controllers
 {
@@ -113,7 +112,7 @@ namespace SistemaGS.API.Controllers
                 response.EsCorrecto = true;
                 response.Resultado = await _usuarioService.Autorizacion(model);
 
-                var token = _tokenProvider.GenerateToken(await _usuarioService.Obtener(response.Resultado.Cedula));
+                var token = _tokenProvider.GenerateToken(response.Resultado);
                 response.Resultado.AuthResponse.AccessToken = token.AccessToken;
                 response.Resultado.AuthResponse.RefreshToken = token.RefreshToken;
 
@@ -127,6 +126,7 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
+        /*
         [HttpPost("Refresh")]
         public async Task<ActionResult<AuthResponse>> Refresh()
         {
@@ -185,5 +185,6 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
+        */
     }
 }

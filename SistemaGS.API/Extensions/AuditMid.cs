@@ -8,11 +8,9 @@ namespace SistemaGS.API.Extensions
     public class AuditMid
     {
         private readonly RequestDelegate requestDelegate;
-        private readonly ISecurityService securityService;
-        public AuditMid(RequestDelegate requestDelegate, ISecurityService securityService)
+        public AuditMid(RequestDelegate requestDelegate)
         {
             this.requestDelegate = requestDelegate;
-            this.securityService = securityService;
         }
         public async Task Invoke(HttpContext context)
         {
@@ -22,11 +20,25 @@ namespace SistemaGS.API.Extensions
                 context.Request.Method ==  HttpMethods.Delete
                 )
             {
-                int UsuarioResponsable = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
-                string? usuario = context.User.Identity?.Name ?? "Anónimo";
-                PathString accion = context.Request.Path;
-                string? metodo = context.Request.Method;
-                DateTime fecha = DateTime.Now;
+                bool? autenticado = context.User.Identity?.IsAuthenticated;
+
+                //RegistroDTO registro = new RegistroDTO()
+                //{
+                var TablaAfectada = context.Request.Path.Value?.Split('/')[2] ?? "";
+                var IdRegistroAfectado = int.TryParse(context.Request.Path.Value?.Split('/').Last(), out int result) ? result : 0;
+                var Accion = context.Request.Path.Value?.Split('/')[3] ?? "";
+                var UsuarioResponsable = autenticado.HasValue && autenticado.Value ? Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0")) : 0;
+                var Detalle = "Prueba";
+                var FechaAccion = DateTime.Now;
+                //};
+
+                //Console.WriteLine(registro.ToString());
+
+                //int UsuarioResponsable = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
+                //string? usuario = context.User.Identity?.Name ?? "Anónimo";
+                //PathString accion = context.Request.Path;
+                //string? metodo = context.Request.Method;
+                //DateTime fecha = DateTime.Now;
 
                 /*
                 try
@@ -48,7 +60,6 @@ namespace SistemaGS.API.Extensions
                 }
                 */
             }
-
             await requestDelegate(context);
         }
     }

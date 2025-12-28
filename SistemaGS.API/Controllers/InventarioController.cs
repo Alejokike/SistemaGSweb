@@ -120,6 +120,9 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
+        
+
+        //Descartado temporalmente
         [HttpPost("ItemsAjax")]
         public async Task<IActionResult> ItemsAjax([FromBody] DataTablesRequest request)
         {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using SistemaGS.DTO.AuthDTO;
-using SistemaGS.DTO.ModelDTO;
+using SistemaGS.DTO;
 using System.Security.Claims;
 using System.Text;
 
@@ -14,7 +14,7 @@ namespace SistemaGS.API.Infraestructure
         {
             _configuration = configuration;
         }
-        public Token GenerateToken(UsuarioDTO userAccount)
+        public Token GenerateToken(SesionDTO userAccount)
         {
             string accessToken = GenerateAccessToken(userAccount);
             RefreshToken refreshToken = GenerateRefreshToken();
@@ -36,7 +36,7 @@ namespace SistemaGS.API.Infraestructure
 
             return refreshToken;
         } 
-        private string GenerateAccessToken(UsuarioDTO userAccount)
+        private string GenerateAccessToken(SesionDTO userAccount)
         {
             string secretKey = _configuration["JWT:SecretKey"]!;
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -50,7 +50,7 @@ namespace SistemaGS.API.Infraestructure
                     new Claim(ClaimTypes.Role, userAccount.Rol.Nombre),
                     new Claim(ClaimTypes.Email, userAccount.Correo)
                     ]),
-                Expires = DateTime.Now.AddMinutes(1),
+                Expires = DateTime.UtcNow.AddDays(30),
                 SigningCredentials = credentials,
                 Issuer = _configuration["JWT:Issuer"],
                 Audience = _configuration["JWT:Audience"]
@@ -61,7 +61,6 @@ namespace SistemaGS.API.Infraestructure
     public class Token
     {
         public string AccessToken { get; set; } = "";
-
         public RefreshToken RefreshToken { get; set; } = null!;
     }
 }

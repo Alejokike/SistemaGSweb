@@ -50,7 +50,6 @@ namespace SistemaGS.API.Infraestructure
         */
         public bool InsertRefreshToken(RefreshToken refreshToken, int Cedula)
         {
-            
             string sql = "INSERT INTO [RefreshToken] (Token, CreatedDate, Expires, Enabled, Cedula) VALUES (@token, @createddate, @expires, @enabled, @cedula)";
             
             int result = connection.Execute(sql,new

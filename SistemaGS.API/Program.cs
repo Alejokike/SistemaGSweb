@@ -52,6 +52,7 @@ builder.Services.AddTransient(typeof(IGenericoRepository<>), typeof(GenericoRepo
 builder.Services.AddScoped<IInventarioRepository, InventarioRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IAyudaRepository, AyudaRepository>();
+builder.Services.AddScoped<ISecurityRepository, SecurityRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -59,6 +60,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IAyudaService, AyudaService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ISecurityService, SecurityService>();
 
 builder.Services.AddCors(options =>
 {
@@ -84,7 +86,6 @@ app.UseHttpsRedirection();
 app.UseCors("Nueva Politica");
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();

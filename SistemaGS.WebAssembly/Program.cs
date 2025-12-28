@@ -17,8 +17,15 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5006/api/") });
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5006/api/") });
+builder.Services.AddScoped<AuthMessageHandler>();
+builder.Services.AddScoped(sp => 
+{
+    var handler = sp.GetRequiredService<AuthMessageHandler>();
+    handler.InnerHandler = new HttpClientHandler();
+    return new HttpClient(handler) { BaseAddress = new Uri("http://localhost:5006/api/") };
+});
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();
@@ -35,7 +42,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<AccessTokenService>();
-builder.Services.AddAuthorizationCore();
+
 builder.Services.AddScoped<AuthenticationStateProvider, AutExt>();
+builder.Services.AddAuthorizationCore();
 
 await builder.Build().RunAsync();
