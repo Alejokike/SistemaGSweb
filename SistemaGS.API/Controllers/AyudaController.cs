@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SistemaGS.API.Extensions;
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
@@ -54,6 +55,7 @@ namespace SistemaGS.API.Controllers
             return Ok(response);
         }
         [HttpPost("Crear")]
+        [ServiceFilter(typeof(CorreoFilter))]
         public async Task<IActionResult> Crear([FromBody] AyudaDTO ayuda)
         {
             var response = new ResponseDTO<AyudaDTO>();
@@ -71,6 +73,7 @@ namespace SistemaGS.API.Controllers
             return Ok(response);
         }
         [HttpPut("Editar")]
+        [ServiceFilter(typeof(CorreoFilter))]
         public async Task<IActionResult> Editar([FromBody] AyudaDTO ayuda)
         {
             var response = new ResponseDTO<bool>();
