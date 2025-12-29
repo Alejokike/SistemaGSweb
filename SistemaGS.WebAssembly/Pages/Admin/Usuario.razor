@@ -225,6 +225,9 @@
     [Parameter] 
     public int ID { get; set; }
 
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     string Rol = "Administrador";
 
     private string Titulo = "Nuevo usuario";
@@ -306,6 +309,8 @@
 
     private async Task GuardarCambios()
     {
+        if (loadingService.IsLoading) return;
+
         if(model.Clave != model.ConfirmarClave)
         {
             toastService.ShowWarning("Las contraseñas no coinciden");
@@ -320,7 +325,10 @@
             string[] roles = { "Administrador", "Funcionario", "Solicitante" };
             model.Rol.Nombre = roles[model.Rol.IdRol - 1];
 
+            loadingService.Show();
             var response = await usuarioService.Editar(model);
+            loadingService.Hide();
+
             if (response.EsCorrecto)
             {
                 mensaje = "Usuario modificado";
@@ -339,7 +347,10 @@
             model.ResetearClave = true;
             model.FechaCreacion = DateTime.Today;
 
+            loadingService.Show();
             var response = await usuarioService.Crear(model);
+            loadingService.Hide();
+
             if (response.EsCorrecto)
             {
                 mensaje = "Usuario creado";
@@ -350,7 +361,6 @@
                 mensaje = response.Mensaje ?? "No se pudo crear";
             }
         }
-
         if (respuesta)
         {
             toastService.ShowSuccess(mensaje);

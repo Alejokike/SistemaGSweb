@@ -3,9 +3,6 @@
 
 @using Newtonsoft.Json;
 
-@inject IJSRuntime JS;
-@implements IDisposable;
-
 @inject IInventarioService inventarioService;
 @inject IAyudaService ayudaService;
 @inject IToastService toastService;
@@ -82,52 +79,11 @@
     <div class="col-sm-12">
         <div class="card mb-3">
             <div class="card-header">
-                <h5>Seleccione los ítems para añadir a la ayuda</h5>
+                <h4 class="text-black">
+                    Seleccione los ítems para agregar
+                </h4>
             </div>
-            <div class="table-responsive mt-2">
-                <table id="Tabla1" class="table table-sm bg-light table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th class="text-center">ID</th>
-                            <th class="text-center">Nombre</th>
-                            <th class="text-center">Categoria</th>
-                            <th class="text-center">Descripción</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (inventario.Any())
-                        {
-                            foreach (var item in inventario)
-                            {
-                                <tr>
-                                    <td valign="middle" align="center">@item.IdItem</td>
-                                    <td valign="middle" align="center">@item.Nombre</td>
-                                    <td valign="middle" align="center">@item.Categoria</td>
-                                    <td valign="middle" align="center">@item.Descripcion</td>
-                                    <td valign="middle" align="center">
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-outline-dark" @onclick="(() => AgregarItem(item))">
-                                            <i class="oi oi-plus"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="5">
-                                    <div class="alert alert-warning" role="alert">
-                                        No hay ítems para mostrar
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+            <InventarioItems Estado="false" retorno="@((ItemDTO r) => AgregarItemLista(r))" />
         </div>
     </div>
 </div>
@@ -138,7 +94,7 @@
     <div class="col-sm-12">
         <div class="card mb-3">
             <div class="card-header">
-                <h5>Lista de ítems</h5>
+                <h4>Lista de ítems</h4>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -214,6 +170,9 @@
     [Parameter] public int ID { get; set; }
     [Parameter] public int IDayuda { get; set; }
 
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private AyudaDTO Ayuda = new AyudaDTO()
     {
         ListaItems = new List<ListaItemDTO>(),
@@ -226,16 +185,15 @@
         }
     };
 
-    List<ItemDTO> inventario = new List<ItemDTO>();
-
-    ItemQuery filtro = new ItemQuery();
-
     protected override async Task OnParametersSetAsync()
     {
         if(IDayuda != 0)
         {
+            if(loadingService.IsLoading) return;
+            loadingService.Show();
             var response = await ayudaService.Obtener(IDayuda);
             if (response.EsCorrecto && response.Resultado != null) Ayuda = response.Resultado;
+            loadingService.Hide();
         }
         else
         {
@@ -243,17 +201,12 @@
             Ayuda.FechaSolicitud = DateTime.Today;
             Ayuda.Estado = "Por Aprobar";
         }
-        await ListarInventario();
-    }
-    private async Task ListarInventario()
-    {
-        var response = await inventarioService.ListarInventario(filtro);
-        if (response.EsCorrecto && response.Resultado != null) inventario = response.Resultado.ToList();
-        /*.Where(i => i.Unidad == "VE" || i.Unidad == "MU")*/
     }
 
     private async Task SolicitarAyuda()
     {
+        if(loadingService.IsLoading) return;
+
         if (!Ayuda.ListaItems.Any())
         {
             toastService.ShowWarning("La ayuda no contiene ningún ítem");
@@ -267,7 +220,10 @@
 
         if(IDayuda != 0)
         {
+            loadingService.Show();
             var response = await ayudaService.Editar(Ayuda);
+            loadingService.Hide();
+
             if (response.EsCorrecto)
             {
                 toastService.ShowSuccess("La solicitud fué editada");
@@ -277,7 +233,10 @@
         }
         else
         {
+            loadingService.Show();
             var response = await ayudaService.Crear(Ayuda);
+            loadingService.Hide();
+
             if (response.EsCorrecto && response.Resultado != null)
             {
                 toastService.ShowSuccess("La solicitud fué creada");
@@ -288,23 +247,7 @@
     }
 
     #region Item
-
-    private bool agregar = false;
-    ItemDTO item = new ItemDTO()
-    {
-        Unidad = "EU"
-    };
-
-    private void AgregarItem(ItemDTO Item)
-    {
-        item = Item;
-        AgregarItemLista();
-        item = new ItemDTO()
-        {
-            Unidad = "EU"
-        };
-    }
-    private void AgregarItemLista()
+    private void AgregarItemLista(ItemDTO item)
     {
         if (Ayuda.ListaItems.Any(i => (i.ItemLista!.Nombre ?? "").ToLower() == item.Nombre.ToLower()))
         {
@@ -325,45 +268,11 @@
                 IdLista = (id + 1),
                 ItemLista = item
             });
-
-        item = new ItemDTO()
-        {
-            Unidad = "EU"
-        };
     }
     private void EliminarItem(int id)
     {
         var response = Ayuda.ListaItems.FirstOrDefault(i => i.IdLista == id);
         if (response != null) Ayuda.ListaItems.Remove(response);
     }
-    private void LimpiarItem()
-    {
-        item = new ItemDTO()
-        {
-            Unidad = "EU"
-        };
-        agregar = !agregar;
-    }
-
-    #endregion
-    bool[] Init = new bool[] {false, false};
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!Init[0] && inventario.Any())
-        {
-            JS.InvokeVoidAsync("InitTable", "#Tabla1");
-            Init[0] = true;
-        }
-        if (!Init[1] && Ayuda.ListaItems.Any())
-        {
-            //JS.InvokeVoidAsync("InitTable", "#Tabla2");
-            Init[1] = true;
-        }
-        return base.OnAfterRenderAsync(firstRender);
-    }
-    public void Dispose()
-    {
-        if (inventario.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla1");
-        //if (Ayuda.ListaItems.Any()) JS.InvokeVoidAsync("DestroyTable", "#Tabla2");
-    }
+    #endregion    
 }

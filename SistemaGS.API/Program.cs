@@ -52,7 +52,6 @@ builder.Services.AddTransient(typeof(IGenericoRepository<>), typeof(GenericoRepo
 builder.Services.AddScoped<IInventarioRepository, InventarioRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IAyudaRepository, AyudaRepository>();
-builder.Services.AddScoped<ISecurityRepository, SecurityRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

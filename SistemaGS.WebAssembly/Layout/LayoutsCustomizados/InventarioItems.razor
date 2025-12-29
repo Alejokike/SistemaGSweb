@@ -1,12 +1,6 @@
 ﻿@inject IInventarioService inventarioService;
 @inject IToastService toastService;
 
-<div class="card-header">
-    <h4 class="text-center text-black">
-        Inventario
-    </h4>
-</div>
-
 <div class="card-body">
     <FiltroItem filtro="filtro" Estado="Estado" retorno="EventCallback.Factory.Create<ItemQuery>(this, ListarInventario)" />
     <TableLayout listaOrigen="inventario" T="ItemDTO" Retorno="@(async (ItemDTO i) => {await retorno.InvokeAsync(i); toastService.ShowSuccess("Información cargada");})"/>
@@ -16,6 +10,10 @@
 @code{
     [Parameter] public bool Estado { get; set; } = true;
     [Parameter] public EventCallback<ItemDTO> retorno { get; set; }
+
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private ItemQuery filtro { get; set; } = new ItemQuery();
     private List<ItemDTO> inventario = new List<ItemDTO>();
 
@@ -26,7 +24,10 @@
 
     private async Task ListarInventario()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var respuesta = await inventarioService.ListarInventario(filtro);
         if (respuesta.EsCorrecto && respuesta.Resultado != null) inventario = respuesta.Resultado;
+        loadingService.Hide();
     }
 }

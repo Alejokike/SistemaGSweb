@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure;
 using Microsoft.EntityFrameworkCore;
 using SistemaGS.DTO;
 using SistemaGS.DTO.AuthDTO;
@@ -14,14 +13,61 @@ namespace SistemaGS.Service.Implementacion
 {
     public class SecurityService : ISecurityService
     {
-        //private readonly ISecurityRepository _securityRepository;
+        private readonly IGenericoRepository<Registro> _auditoriaRepository;
         private readonly IGenericoRepository<Usuario> _usuarioRepository;
         private readonly IMapper _mapper;
-        public SecurityService(IGenericoRepository<Usuario> usuarioRepository, /*ISecurityRepository securityRepository,*/ IMapper mapper)
+        public SecurityService(IGenericoRepository<Usuario> usuarioRepository, IGenericoRepository<Registro> auditoriaRepository, IMapper mapper)
         {
             _usuarioRepository = usuarioRepository;
-            //_securityRepository = securityRepository;
+            _auditoriaRepository = auditoriaRepository;
             _mapper = mapper;
+        }
+        public async Task<bool> Registrar(RegistroDTO registro)
+        {
+            try
+            {
+                var responseDB = await _auditoriaRepository.Crear(_mapper.Map<Registro>(registro));
+                return responseDB is not null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+        public async Task<List<RegistroDTO>> Listar(RegistroQuery filtro)
+        {
+            try
+            {
+                var registros = _auditoriaRepository.Consultar();
+
+                var lista = from r in registros
+                            where
+                            (r.FechaAccion >= filtro.FechaIni && r.FechaAccion <= filtro.FechaFin) &&
+                            (string.IsNullOrEmpty(filtro.Accion) || r.Accion == filtro.Accion) &&
+                            (filtro.UsuarioResponsable == 0 || filtro.UsuarioResponsable == r.UsuarioResponsable)
+                            select r;
+                return _mapper.Map<List<RegistroDTO>>(await lista.ToListAsync());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+        public async Task<RegistroDTO> Obtener(int id)
+        {
+            try
+            {
+                var responseDB = await _auditoriaRepository.Consultar(r => r.IdRegistro == id).FirstOrDefaultAsync();
+                if (responseDB is not null) return _mapper.Map<RegistroDTO>(responseDB);
+                else throw new TaskCanceledException("No existe ese registro");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
         }
         public async Task<SesionDTO> Autorizacion(LoginDTO login)
         {
@@ -61,25 +107,11 @@ namespace SistemaGS.Service.Implementacion
         {
             throw new NotImplementedException();
         }
-
-        public Task<List<RegistroDTO>> Listar(RegistroQuery filtro)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task Logout(string refreshtoken)
         {
             throw new NotImplementedException();
         }
-
-        
-
         public Task<AuthResponse> Refresh(string refreshtoken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Registrar(RegistroDTO registro)
         {
             throw new NotImplementedException();
         }

@@ -54,6 +54,9 @@
 </div>
 
 @code{
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private InventarioQuery filtro = new InventarioQuery();
     private List<InventarioDTO> Movimientos = new List<InventarioDTO>();
 
@@ -63,9 +66,12 @@
     }
     private async Task HistoricoInventario()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await inventarioService.Lista(filtro);
         if (response.EsCorrecto) Movimientos = response.Resultado!;
         else new List<InventarioDTO>();
+        loadingService.Hide();
     }
     private string Detallar(ItemDTO item)
     {

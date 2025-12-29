@@ -48,12 +48,12 @@
         
                 int IdLogged = Convert.ToInt32(@context.User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)!.Value);
 
-                foreach (UsuarioDTO item in Lista)
-                {
-                    bool disable = IdLogged == item.Cedula;
-        
-                    <div class="col mb-5">
-                        <div class="card h-100">
+            foreach (UsuarioDTO item in Lista)
+            {
+                bool disable = IdLogged == item.Cedula;
+
+                <div class="col mb-5">
+                    <div class="card h-100">
                             <div class="card-body p-4">
                                 <div class="text-center">
                                     <i class="oi oi-person" style="font-size:50px"></i>
@@ -67,7 +67,7 @@
                             <div class="card-footer bg-transparent">
                                 <div class="row justify-content-between">
                                     <a class="col-5 btn btn-sm btn-outline-primary mt-auto" href="/usuario/@item.Cedula"><i class="oi oi-pencil fs-5"></i>Editar</a>
-                                    <button class="col-5 btn btn-sm btn-outline-danger mt-auto" type="button" disabled="@disable" @onclick="(async () => await Eliminar(item))">
+                                    <button class="col-5 btn btn-sm btn-outline-danger mt-auto" type="button" disabled="@disable" @onclick="@(async () => await Eliminar(item))">
                                         <i class="oi oi-trash fs-5"></i> Eliminar
                                     </button>
                                 </div>
@@ -91,6 +91,9 @@
     </Authorized>
 </AuthorizeView>
 @code {
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private List<UsuarioDTO>? Lista = null;
     private string buscar = "";
     private int rol = 0;
@@ -115,6 +118,8 @@
 
     private async Task Eliminar(UsuarioDTO model)
     {
+        if (loadingService.IsLoading) return;
+
         SweetAlertResult result = await swat.FireAsync(new SweetAlertOptions
         {
             Title = "Eliminar este usuario",
@@ -127,7 +132,9 @@
 
         if (result.IsConfirmed)
         {
+            loadingService.Show();
             var response = await usuarioService.Eliminar(model.Cedula ?? 0);
+            loadingService.Hide();
             if (response.EsCorrecto)
             {
                 await ObtenerUsuarios();

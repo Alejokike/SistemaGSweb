@@ -170,6 +170,9 @@
     [Parameter]
     public int IDAyuda { get; set; }
 
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private int cedula;
     private bool Mostrar = false;
     private ListaItemDTO position = new ListaItemDTO();
@@ -294,7 +297,10 @@
 
     private async Task Guardar()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await inventarioService.Desbloquear(movimientos, ayuda.IdAyuda);
+        loadingService.Hide();
         if (response.EsCorrecto) navigationManager.NavigateTo("/Ayudas");
         else toastService.ShowError($"Error: {response.Mensaje}");
     }

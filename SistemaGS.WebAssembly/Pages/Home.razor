@@ -19,17 +19,17 @@
                             Total Ayudas entregadas mes en curso
                         </div>
                         <div class="h5 mb-0 fw-bold text-muted">
-                            @AyudasCM
+                            @d.AyudasCM
                         </div>
-                    @if (AyudasCM - AyudasLM > 0)
+                    @if (d.AyudasCM - d.AyudasLM > 0)
                     {
-                        int varLM = AyudasLM <= 0 ? 100 : ((AyudasCM / AyudasLM) - 1) * 100;
+                        int varLM = d.AyudasLM <= 0 ? 100 : ((d.AyudasCM / d.AyudasLM) - 1) * 100;
 
                         <div class="h6 mb-0 text-success ">
                             <small>VS. LM</small> + @varLM.ToString("N2") % <i class="bi bi-graph-up-arrow"></i>
                         </div>
                     }
-                    else if (AyudasCM - AyudasLM == 0)
+                    else if (d.AyudasCM - d.AyudasLM == 0)
                     {
                         <div class="h6 mb-0 text-info">
                             <small>VS. LM</small> 0.00 %
@@ -37,7 +37,7 @@
                     }
                     else
                     {
-                        int varLM = AyudasLM <= 0 ? 100 : ((AyudasCM / AyudasLM) - 1) * 100;
+                        int varLM = d.AyudasLM <= 0 ? 100 : ((d.AyudasCM / d.AyudasLM) - 1) * 100;
 
                         <div class="h6 mb-0 text-muted text-danger">
                             <small>VS. LM</small>- @varLM.ToString("N2") % <i class="bi bi-graph-down-arrow"></i>
@@ -59,17 +59,17 @@
                             Total Ayudas entregadas año en curso
                         </div>
                         <div class="h5 mb-0 fw-bold text-muted">
-                            @AyudasCY
+                            @d.AyudasCY
                         </div>
-                        @if (AyudasCY - AyudasLY > 0)
+                        @if (d.AyudasCY - d.AyudasLY > 0)
                         {
-                            int varLM = AyudasLY <= 0 ? 100 : ((AyudasCY / AyudasLY) - 1) * 100;
+                            int varLM = d.AyudasLY <= 0 ? 100 : ((d.AyudasCY / d.AyudasLY) - 1) * 100;
 
                             <div class="h6 mb-0 text-success ">
                                 <small>VS. LY</small> + @varLM.ToString("N2") % <i class="bi bi-graph-up-arrow"></i>
                             </div>
                         }
-                        else if (AyudasCY - AyudasLY == 0)
+                        else if (d.AyudasCY - d.AyudasLY == 0)
                         {
                             <div class="h6 mb-0 text-info">
                                 <small>VS. LY</small> 0.00 %
@@ -77,7 +77,7 @@
                         }
                         else
                         {
-                            int varLM = AyudasLY <= 0 ? 100 : ((AyudasCY / AyudasLY) - 1) * 100;
+                            int varLM = d.AyudasLY <= 0 ? 100 : ((d.AyudasCY / d.AyudasLY) - 1) * 100;
 
                             <div class="h6 mb-0 text-muted text-danger">
                                 <small>VS. LY</small>- @varLM.ToString("N2") % <i class="bi bi-graph-down-arrow"></i>
@@ -99,17 +99,17 @@
                             Total Solicitantes Atendidos
                         </div>
                         <div class="h5 mb-0 fw-bold text-muted">
-                            @PersonasCM
+                            @d.PersonasCM
                         </div>
-                        @if (PersonasCM - PersonasLM > 0)
+                        @if (d.PersonasCM - d.PersonasLM > 0)
                         {
-                            int varLM = PersonasLM <= 0 ? 100 : ((PersonasCM / PersonasLM) - 1) * 100;
+                            int varLM = d.PersonasLM <= 0 ? 100 : ((d.PersonasCM / d.PersonasLM) - 1) * 100;
 
                             <div class="h6 mb-0 text-success d-inline">
                                 <small>VS. LM</small> + @varLM.ToString("N2") % <i class="bi bi-graph-up-arrow"></i>
                             </div>
                         }
-                        else if (PersonasCM - PersonasLM == 0)
+                        else if (d.PersonasCM - d.PersonasLM == 0)
                         {
                             <div class="h6 mb-0 text-info">
                                 <small>VS. LM</small> 0.00 %
@@ -117,7 +117,7 @@
                         }
                         else
                         {
-                            int varLM = PersonasLM <= 0 ? 100 : ((PersonasCM / PersonasLM) - 1) * 100;
+                            int varLM = d.PersonasLM <= 0 ? 100 : ((d.PersonasCM / d.PersonasLM) - 1) * 100;
 
                             <div class="h6 mb-0 text-muted text-danger">
                                 <small>VS. LM</small>- @varLM.ToString("N2") % <i class="bi bi-graph-down-arrow"></i>
@@ -139,17 +139,17 @@
                             Total ayudas rechazadas
                         </div>
                         <div class="h5 mb-0 fw-bold text-muted">
-                            @RechazadasCM
+                            @d.RechazadasCM
                         </div>
-                        @if (RechazadasCM - RechazadasLM > 0)
+                        @if (d.RechazadasCM - d.RechazadasLM > 0)
                         {
-                            int varLM = RechazadasLM <= 0 ? 100 : ((RechazadasCM / RechazadasLM) - 1) * 100;
+                            int varLM = d.RechazadasLM <= 0 ? 100 : ((d.RechazadasCM / d.RechazadasLM) - 1) * 100;
 
                             <div class="h6 mb-0 text-danger">
                                 <small>VS. LM</small> + @varLM.ToString("N2") % <i class="bi bi-graph-up-arrow"></i>
                             </div>
                         }
-                        else if (RechazadasCM - RechazadasLM == 0)
+                        else if (d.RechazadasCM - d.RechazadasLM == 0)
                         {
                             <div class="h6 mb-0 text-info">
                                 <small>VS. LM</small> 0.00 %
@@ -157,7 +157,7 @@
                         }
                         else
                         {
-                            int varLM = RechazadasLM <= 0 ? 100 : ((RechazadasCM / RechazadasLM) - 1) * 100;
+                            int varLM = d.RechazadasLM <= 0 ? 100 : ((d.RechazadasCM / d.RechazadasLM) - 1) * 100;
 
                             <div class="h6 mb-0 text-muted text-success">
                                 <small>VS. LM</small>- @varLM.ToString("N2") % <i class="bi bi-graph-down-arrow"></i>
@@ -175,26 +175,22 @@
 </AuthorizeView>
 
 @code{
-    int AyudasCM;
-    int AyudasLM;
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
 
-    int AyudasCY;
-    int AyudasLY;
-
-    int PersonasCM;
-    int PersonasLM;
-
-    int RechazadasCM;
-    int RechazadasLM;
+    DashboardDTO d { get; set; } = new DashboardDTO();
 
     protected override async Task OnInitializedAsync()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
+
         List<AyudaDTO> Ayudas = new List<AyudaDTO>();
         var response = await ayudaService.Listar(new AyudaQuery() { Estado = "Cerrada,Rechazada"});
         if (response.EsCorrecto && response.Resultado != null) Ayudas = response.Resultado;
         else return;
 
-        AyudasCM = Ayudas.Count(a => 
+        d.AyudasCM = Ayudas.Count(a => 
             a.Estado == "Cerrada" && 
             (a.FechaEntrega.HasValue && 
                 (
@@ -203,7 +199,7 @@
                 )
             )
         );
-        AyudasLM = Ayudas.Count(a =>
+        d.AyudasLM = Ayudas.Count(a =>
             a.Estado == "Cerrada" &&
             (a.FechaEntrega.HasValue &&
                 (
@@ -213,14 +209,14 @@
             )
         );
 
-        AyudasCY = Ayudas.Count(a =>
+        d.AyudasCY = Ayudas.Count(a =>
             a.Estado == "Cerrada" &&
             (
                 a.FechaEntrega.HasValue &&
                 a.FechaEntrega.Value.Year == DateTime.Today.Year
             )
         );
-        AyudasLY = Ayudas.Count(a =>
+        d.AyudasLY = Ayudas.Count(a =>
             a.Estado == "Cerrada" &&
             (
                 a.FechaEntrega.HasValue &&
@@ -228,7 +224,7 @@
             )
         );
 
-        PersonasCM = Ayudas.Where(a =>
+        d.PersonasCM = Ayudas.Where(a =>
             a.Estado == "Cerrada" &&
             (a.FechaEntrega.HasValue &&
                 (
@@ -237,7 +233,7 @@
                 )
             )).Select(a => a.Solicitante).Distinct().Count();
 
-        PersonasLM = Ayudas.Where(a =>
+        d.PersonasLM = Ayudas.Where(a =>
             a.Estado == "Cerrada" &&
             (a.FechaEntrega.HasValue &&
                 (
@@ -246,7 +242,7 @@
                 )
             )).Select(a => a.Solicitante).Distinct().Count();
 
-        RechazadasCM = Ayudas.Count(a =>
+        d.RechazadasCM = Ayudas.Count(a =>
             a.Estado == "Rechazada" &&
             (a.FechaEntrega.HasValue &&
                 (
@@ -255,7 +251,7 @@
                 )
             )
         );
-        RechazadasLM = Ayudas.Count(a =>
+        d.RechazadasLM = Ayudas.Count(a =>
             a.Estado == "Rechazada" &&
             (a.FechaEntrega.HasValue &&
                 (
@@ -264,5 +260,6 @@
                 )
             )
         );
+        loadingService.Hide();
     }
 }

@@ -26,6 +26,11 @@
             <div class="card mb-3">
                 @if (activeTab == "inventario")
                 {
+                    <div class="card-header">
+                        <h4 class="text-center text-black">
+                            Inventario
+                        </h4>
+                    </div>
                     <InventarioItems Estado="false" retorno="@((ItemDTO r) => {model.Item  = r; agregar = false;})"/>
                 }
                 else
@@ -153,6 +158,9 @@
 </div>
 
 @code{
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     string activeTab = "inventario";
 
     private InventarioDTO model = new InventarioDTO()
@@ -224,11 +232,15 @@
 
     private async Task RegistrarOperacion()
     {
+        if (loadingService.IsLoading) return;
+
         model.Unidad = model.Item.Unidad;
         model.Fecha = DateTime.Today;
         if (model.Unidad != "VE") model.Cantidad = Math.Floor(model.Cantidad);
 
+        loadingService.Show();
         var response = await inventarioService.Registrar(model);
+        loadingService.Hide();
 
         if (response.EsCorrecto)
         {

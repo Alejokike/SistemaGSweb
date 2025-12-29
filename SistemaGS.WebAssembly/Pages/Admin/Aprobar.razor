@@ -10,10 +10,9 @@
 @attribute [Authorize(Roles = "Administrador")]
 
 <div class="d-flex flex-column min-vh-90">
-@* Formulario Ayuda *@
+    @* Formulario Ayuda *@
     <div class="flex-grow-1">
         <div class="row-cols-12 mt-3">
-
             @if (ContSA + ContSC > 2)
             {
                 <div class="col-sm-12">
@@ -37,8 +36,6 @@
                     </div>
                 </div>
             }
-
-
             <div class="col-sm-12">
                 <div class="card mb-3">
                     <div class="card-body">
@@ -155,7 +152,11 @@
 
 @code {
     [Parameter]
-    public int IDAyuda { get; set; } 
+    public int IDAyuda { get; set; }
+
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private AyudaDTO ayuda { get; set; } = new AyudaDTO()
     {
         ListaItems = new List<ListaItemDTO>(),
@@ -173,7 +174,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (loadingService.IsLoading) return;
+
+        loadingService.Show();
+
         var response = await ayudaService.Obtener(IDAyuda);
+        
+
         if (response.EsCorrecto && response.Resultado != null) ayuda = response.Resultado;
         else
         {
@@ -181,6 +188,8 @@
             return;
         }
         await listarS();
+
+        loadingService.Hide();
     }
     int ContSA = 0;
     int ContSC = 0;
@@ -222,10 +231,16 @@
 
     private async Task AprobarAyuda()
     {
+        if (loadingService.IsLoading) return;
+
+        loadingService.Show();
+
         ayuda.Estado = ayuda.Estado == "Por Aprobar" ? "En Proceso" : "Por Aprobar";
 
         if (ayuda.Estado == "En Proceso") await EnProceso();
         else await PorAprobar();
+
+        loadingService.Hide();
     }
     private async Task EnProceso()
     {
@@ -271,15 +286,17 @@
             return;
         }
         ayuda.Funcionario = 0;
+
         var ayudaResponse = await ayudaService.Editar(ayuda);
         if (ayudaResponse.EsCorrecto) toastService.ShowSuccess("La aprobación fué revocada");
         else toastService.ShowSuccess($"Error: {ayudaResponse.Mensaje}");
 
         navigationManager.NavigateTo("/Ayudas");
     }
-
     private async Task RechazarAyuda()
     {
+        if (loadingService.IsLoading) return;
+
         if (ayuda.Estado == "Por Aprobar")
         {
             SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
@@ -311,7 +328,10 @@
                 ayuda.FechaEntrega = DateTime.Today;
                 ayuda.Detalle["Rechazado"] = result.Value.ToString();
 
+                loadingService.Show();
                 var response = await ayudaService.Editar(ayuda);
+                loadingService.Hide();
+
                 if (response.EsCorrecto)
                 {
                     toastService.ShowSuccess("La ayuda fué rechazada");
@@ -333,7 +353,6 @@
             });
         }
     }
-
     List<UsuarioDTO> Funcionarios = new List<UsuarioDTO>();
     private CancellationTokenSource? _cts;
     private async Task BuscarFuncionario(ChangeEventArgs e)

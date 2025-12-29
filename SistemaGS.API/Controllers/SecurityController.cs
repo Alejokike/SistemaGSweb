@@ -3,6 +3,7 @@ using SistemaGS.API.Infraestructure;
 using SistemaGS.DTO;
 using SistemaGS.DTO.AuthDTO;
 using SistemaGS.DTO.ModelDTO;
+using SistemaGS.DTO.Query;
 using SistemaGS.Service.Contrato;
 
 namespace SistemaGS.API.Controllers
@@ -86,22 +87,14 @@ namespace SistemaGS.API.Controllers
 
             return Ok();
         }
-        /*
         [HttpGet("Auditoria")]
-        public async Task<IActionResult> Auditoria([FromQuery] LoginDTO model)
+        public async Task<IActionResult> Auditoria([FromQuery] RegistroQuery filtro)
         {
-            var response = new ResponseDTO<SesionDTO>();
+            var response = new ResponseDTO<List<RegistroDTO>>();
             try
             {
                 response.EsCorrecto = true;
-                response.Resultado = await _usuarioService.Autorizacion(model);
-
-                var token = _tokenProvider.GenerateToken(await _usuarioService.Obtener(response.Resultado.Cedula));
-                response.Resultado.AuthResponse.AccessToken = token.AccessToken;
-                response.Resultado.AuthResponse.RefreshToken = token.RefreshToken;
-
-                _dataAccess.DisableUserTokenByCedula(response.Resultado.Cedula);
-                _dataAccess.InsertRefreshToken(token.RefreshToken, response.Resultado.Cedula);
+                response.Resultado = await _securityService.Listar(filtro);
             }
             catch (Exception ex)
             {
@@ -110,6 +103,21 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        */
+        [HttpGet("Obtener/{id:int}")]
+        public async Task<IActionResult> Obtener(int id)
+        {
+            var response = new ResponseDTO<RegistroDTO>();
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _securityService.Obtener(id);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
     }
 }

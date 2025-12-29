@@ -5,7 +5,7 @@ using SistemaGS.WebAssembly.Services.Contrato;
 
 namespace SistemaGS.WebAssembly.Services.Implementacion
 {
-    public class AuditoriaService : IAuditoriaService
+    public class SecurityService : ISecurityService
     {
         public async Task<ResponseDTO<List<RegistroDTO>>> Listar(RegistroQuery filtro)
         {

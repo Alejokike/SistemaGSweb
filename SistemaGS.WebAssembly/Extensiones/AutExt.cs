@@ -13,7 +13,6 @@ namespace SistemaGS.WebAssembly.Extensiones
         {
             _localStorage = localStorage;
         }
-
         public async Task ActualizarEstadoAut(SesionDTO? sesionUsuario)
         {
             ClaimsPrincipal claimsPrincipal;
@@ -35,10 +34,8 @@ namespace SistemaGS.WebAssembly.Extensiones
                 claimsPrincipal = _sinInformacion;
                 await _localStorage.RemoveItemAsync("sesionUsuario");
             }
-
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
         }
-
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var sesionUsuario = await _localStorage.GetItemAsync<SesionDTO>("sesionUsuario");

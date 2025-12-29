@@ -23,6 +23,9 @@
     [Parameter]
     public int ID { get; set; }
 
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     AyudaQuery filtro = new AyudaQuery();
     List<AyudaDTO> lista = new List<AyudaDTO>();
 
@@ -38,8 +41,11 @@
     }
     private async Task ListarAyuda()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await ayudaService.Listar(filtro);
         if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
+        loadingService.Hide();
     }
     private void CargarAyuda(AyudaDTO ayuda)
     {

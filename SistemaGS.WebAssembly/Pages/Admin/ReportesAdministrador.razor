@@ -9,11 +9,14 @@
 <FiltroAyuda filtro="filtro" Estado="false" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" />
 <TableLayout listaOrigen="lista" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, RecibirSeleccion))"/>
 
-<button type="button" class="btn btn-primary" @onclick="ImprimirReporte">
+<button type="button" class="btn btn-primary" disabled="@(loadingService.IsLoading ? true : null)" @onclick="ImprimirReporte">
     <i class="bi bi-printer fs-5"></i> Imprimir listado
 </button>
 
 @code {
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     List<AyudaDTO> lista = new List<AyudaDTO>();
     AyudaDTO seleccion = new AyudaDTO();
     AyudaQuery filtro = new AyudaQuery();
@@ -28,8 +31,11 @@
     }
     private async Task ListarAyuda()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await ayudaService.Listar(filtro);
         if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
+        loadingService.Hide();
     }
     private void RecibirSeleccion(AyudaDTO ayuda)
     {
@@ -37,6 +43,10 @@
     }
     private async Task ImprimirReporte()
     {
+        if(loadingService.IsLoading) return;
+
+        loadingService.Show();
+
         var response = await ayudaService.ImprimirReporte(filtro);
         if (response.EsCorrecto && response.Resultado != null)
         {
@@ -44,5 +54,7 @@
             await JS.InvokeVoidAsync("downloadFileFromBytes", $"Reporte Ayudas fecha {DateTime.Today.ToString("dd-MM-yyyy")}.pdf", data);
         }
         else toastService.ShowError($"Error: {response.Mensaje}");
+
+        loadingService.Hide();
     }
 }

@@ -10,6 +10,7 @@ namespace SistemaGS.Service.Contrato
         //Auditoría
         Task<bool> Registrar(RegistroDTO registro);
         Task<List<RegistroDTO>> Listar(RegistroQuery filtro);
+        Task<RegistroDTO> Obtener(int id);
 
         //Seguridad
         Task<SesionDTO> Autorizacion(LoginDTO login);

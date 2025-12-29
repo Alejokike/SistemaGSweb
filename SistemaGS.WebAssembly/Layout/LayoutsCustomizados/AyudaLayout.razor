@@ -203,6 +203,9 @@
             }
         };
 
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private UsuarioDTO solicitante = new UsuarioDTO()
         {
             Persona = new PersonaDTO(),
@@ -274,16 +277,27 @@
     }
     private async Task ImprimirAyuda()
     {
+        if (loadingService.IsLoading) return;
+
+        loadingService.Show();
+
         var response = await ayudaService.Imprimir(ayuda.IdAyuda, 1);
+
         if (response.EsCorrecto && response.Resultado != null)
         {
             string data = Convert.ToBase64String(response.Resultado);
             await JS.InvokeVoidAsync("downloadFileFromBytes", $"planilla ayuda {ayuda.IdAyuda} fecha {ayuda.FechaSolicitud.ToShortDateString()}.pdf", data);
         }
         else toastService.ShowError($"Error: {response.Mensaje}");
+
+        loadingService.Hide();
     }
     private async Task ImprimirDetalle()
     {
+        if (loadingService.IsLoading) return;
+
+        loadingService.Show();
+
         var response = await ayudaService.Imprimir(ayuda.IdAyuda, 2);
         if (response.EsCorrecto && response.Resultado != null)
         {
@@ -291,5 +305,7 @@
             await JS.InvokeVoidAsync("downloadFileFromBytes", $"Detalle ayuda {ayuda.IdAyuda} fecha {ayuda.FechaSolicitud.ToShortDateString()}.pdf", data);
         }
         else toastService.ShowError($"Error: {response.Mensaje}");
+
+        loadingService.Hide();
     }
 }

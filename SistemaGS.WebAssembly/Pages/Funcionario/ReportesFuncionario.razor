@@ -16,6 +16,10 @@
 @code {
     [Parameter]
     public int ID { get; set; }
+
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     List<AyudaDTO> lista = new List<AyudaDTO>();
     AyudaDTO seleccion = new AyudaDTO();
     AyudaQuery filtro = new AyudaQuery();
@@ -31,8 +35,11 @@
     }
     private async Task ListarAyuda()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await ayudaService.Listar(filtro);
         if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
+        loadingService.Hide();
     }
     private void RecibirSeleccion(AyudaDTO ayuda)
     {
@@ -40,7 +47,10 @@
     }
     private async Task ImprimirReporte()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await ayudaService.ImprimirReporte(filtro);
+        loadingService.Hide();
         if (response.EsCorrecto && response.Resultado != null)
         {
             string data = Convert.ToBase64String(response.Resultado);

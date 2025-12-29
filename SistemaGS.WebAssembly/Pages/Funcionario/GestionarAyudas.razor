@@ -17,6 +17,9 @@
     [Parameter]
     public int ID { get; set; }
 
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     AyudaQuery filtro = new AyudaQuery();
     List<AyudaDTO> lista = new List<AyudaDTO>();
 
@@ -31,8 +34,11 @@
     }
     private async Task ListarAyuda()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await ayudaService.Listar(filtro);
-        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado.Where(la => la.Funcionario == ID && (la.Estado == "En Proceso" || la.Estado == "Lista Para Entregar")).ToList();
+        if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
+        loadingService.Hide();
     }
     private async Task CargarAyuda(AyudaDTO ayuda)
     {
@@ -109,6 +115,8 @@
     }
     private async Task CerrarAyuda(AyudaDTO ayuda)
     {
+        if (loadingService.IsLoading) return;
+
         navigationManager.NavigateTo($"/Ayuda/{ayuda.IdAyuda}");
         SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
         {
@@ -144,7 +152,10 @@
             ayuda.FechaEntrega = DateTime.Today;
             ayuda.Detalle["Aprobado"] = result.Value.ToString();
 
+            loadingService.Show();
             var response = await ayudaService.Editar(ayuda);
+            loadingService.Hide();
+
             if (response.EsCorrecto) toastService.ShowSuccess("La ayuda fué cerrada");
         }
         

@@ -1,5 +1,5 @@
 ﻿@page "/HistoricoTransacciones"
-@inject IAuditoriaService auditoriaService;
+@inject ISecurityService securityService;
 @inject NavigationManager navigationManager;
 
 <ModalLayout Mostrar="Mostrar"
@@ -49,7 +49,7 @@
     }
     private async Task ListarMovimientos()
     {
-        var response = await auditoriaService.Listar(filtro);
+        var response = await securityService.Listar(filtro);
         if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
     }
     private void CargarTransaccion(RegistroDTO registro)

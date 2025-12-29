@@ -36,6 +36,9 @@
     [Parameter]
     public int IDAyuda {get;set;}
 
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private AyudaDTO ayuda = new AyudaDTO()
     {
         ListaItems = new List<ListaItemDTO>(),
@@ -61,7 +64,12 @@
     }
     protected override async Task OnParametersSetAsync()
     {
+        if (loadingService.IsLoading) return;
+
+        loadingService.Show();
         var response = await ayudaService.Obtener(IDAyuda);
+        loadingService.Hide();
+
         if (response.EsCorrecto && response.Resultado != null) ayuda = response.Resultado;
         else navigationManager.NavigateTo("/Ayudas");
 

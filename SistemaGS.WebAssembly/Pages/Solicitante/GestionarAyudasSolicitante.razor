@@ -17,6 +17,9 @@
     [Parameter]
     public int ID { get; set; }
 
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     AyudaQuery filtro = new AyudaQuery();
     List<AyudaDTO> lista = new List<AyudaDTO>();
 
@@ -31,8 +34,11 @@
     }
     private async Task ListarAyudas()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await ayudaService.Listar(filtro);
         if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
+        loadingService.Hide();
     }
     private async Task CargarAyuda(AyudaDTO ayuda)
     {
@@ -77,6 +83,8 @@
     {
         if(ayuda.Estado == "Por Aprobar")
         {
+            if (loadingService.IsLoading) return;
+
             SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
             {
                 Title = "Aviso",
@@ -88,7 +96,10 @@
             });
             if (result.IsConfirmed)
             {
+                loadingService.Show();
                 var response = await ayudaService.Eliminar(ayuda.IdAyuda);
+                loadingService.Hide();
+
                 if (response.EsCorrecto) toastService.ShowSuccess("La solicitud fué eliminada");
                 else toastService.ShowWarning($"Error: {response.Mensaje}");
 
