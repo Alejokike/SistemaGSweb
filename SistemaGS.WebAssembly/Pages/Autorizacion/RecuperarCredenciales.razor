@@ -101,8 +101,8 @@
             ClaveTemporal = Ferramentas.GenerateCode();
             var CorreoEnviado = await emailService.EnviarCorreo(new DTO.Email.EmailDTO()
                 {
-                    From = "germaine96@ethereal.email",
-                    To = "germaine96@ethereal.email",
+                    From = "sistema@sistemags.gov",
+                    To = usuario.Correo,
                     Subject = "Recuperar clave Sistema GS",
                     Body = $@"
                     <html>

@@ -1,6 +1,7 @@
 ﻿@page "/"
 
 @inject IAyudaService ayudaService;
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @attribute [Authorize]
 
@@ -182,9 +183,18 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var User = authState.User;
+
+        if (User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)?.Value == "Solicitante") return;
+
         if (loadingService.IsLoading) return;
         loadingService.Show();
 
+        var response = await ayudaService.Dashboard();
+        if (response.EsCorrecto && response.Resultado != null) d = response.Resultado;
+
+        /*
         List<AyudaDTO> Ayudas = new List<AyudaDTO>();
         var response = await ayudaService.Listar(new AyudaQuery() { Estado = "Cerrada,Rechazada"});
         if (response.EsCorrecto && response.Resultado != null) Ayudas = response.Resultado;
@@ -232,7 +242,6 @@
                     a.FechaEntrega.Value <= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1)
                 )
             )).Select(a => a.Solicitante).Distinct().Count();
-
         d.PersonasLM = Ayudas.Where(a =>
             a.Estado == "Cerrada" &&
             (a.FechaEntrega.HasValue &&
@@ -260,6 +269,8 @@
                 )
             )
         );
+        */
+
         loadingService.Hide();
     }
 }

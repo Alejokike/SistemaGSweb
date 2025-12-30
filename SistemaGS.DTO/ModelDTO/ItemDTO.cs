@@ -4,6 +4,20 @@ namespace SistemaGS.DTO.ModelDTO
 {
     public class ItemDTO
     {
+        public ItemDTO()
+        {
+        }
+        public ItemDTO(ItemDTO item)
+        {
+            this.IdItem = item.IdItem;
+            this.Nombre = item.Nombre;
+            this.Categoria = item.Categoria;
+            this.Descripcion = item.Descripcion;
+            this.Unidad = item.Unidad;
+            this.Cantidad = item.Cantidad;
+            this.Activo = item.Activo;
+            this.FechaCreacion = item.FechaCreacion;
+        }
         //[RegularExpression("^\\d+$\r\n", ErrorMessage = "Los códigos son netamente númericos")]
         [Display(Name = "ID")]
         public int IdItem { get; set; }
@@ -18,11 +32,12 @@ namespace SistemaGS.DTO.ModelDTO
         [Required(ErrorMessage = "Ingrese una unidad")]
         public string Unidad { get; set; } = null!;
         //[Required(ErrorMessage = "Ingrese una cantidad")]
-        [RegularExpression(@"^\d+([.,]\d{1,2})?$", ErrorMessage = "Formato inválido")]
+        [Display(Name = "Cantidad", AutoGenerateField = false)]
+        [RegularExpression(@"^\d+([,]\d{1,2})?$", ErrorMessage = "Formato inválido")]
         public decimal Cantidad { get; set; }
-        [Display(AutoGenerateField = false)]
+        [Display(AutoGenerateField = false, Description = "Admin")]
         public bool Activo { get; set; }
-        [Display(Name = "Fecha de Creación", AutoGenerateField = false)]
+        [Display(Name = "Fecha de Creación", AutoGenerateField = false, Description = "Admin")]
         public DateTime FechaCreacion { get; set; }
     }
 }

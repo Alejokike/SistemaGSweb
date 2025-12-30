@@ -1,17 +1,18 @@
 ﻿using Blazored.LocalStorage;
 using SistemaGS.DTO;
-using System.Net;
+using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 
 namespace SistemaGS.WebAssembly.Extensiones
 {
     public class AuthMessageHandler : DelegatingHandler
     {
         private readonly ILocalStorageService _localStorageService;
-        public AuthMessageHandler(ILocalStorageService localStorageService)
+        private readonly ISecurityService _securityService;
+        public AuthMessageHandler(ILocalStorageService localStorageService, ISecurityService securityService)
         {
             _localStorageService = localStorageService;
+            _securityService = securityService;
         }
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -26,7 +27,23 @@ namespace SistemaGS.WebAssembly.Extensiones
 
             //if (response.StatusCode == HttpStatusCode.Unauthorized && sesion != null)
             //{
-            //    var refreshRequest = new HttpRequestMessage(HttpMethod.Post, "auth/refresh")
+            //    var refreshRequest = await _securityService.Refresh();
+            //    if (refreshRequest.EsCorrecto && refreshRequest.Resultado != null)
+            //    {
+            //        sesion.AuthResponse = refreshRequest.Resultado;
+            //        await _localStorageService.SetItemAsync("sesionUsuario", sesion);
+            //        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", sesion.AuthResponse.AccessToken);
+            //        response = await base.SendAsync(request, cancellationToken);
+
+            //    }
+            //}
+            //return response;
+
+            /*
+             * Este No es
+            //if (response.StatusCode == HttpStatusCode.Unauthorized && sesion != null)
+            //{
+            //    var refreshRequest = new HttpRequestMessage(HttpMethod.Post, "Security/Refresh")
             //    {
             //        Content = JsonContent.Create(new
             //        {
@@ -48,6 +65,7 @@ namespace SistemaGS.WebAssembly.Extensiones
             //    }
             //}
             //return response;
+            */
         }
     }
 }

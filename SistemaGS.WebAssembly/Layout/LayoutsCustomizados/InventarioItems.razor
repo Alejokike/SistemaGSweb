@@ -3,11 +3,12 @@
 
 <div class="card-body">
     <FiltroItem filtro="filtro" Estado="Estado" retorno="EventCallback.Factory.Create<ItemQuery>(this, ListarInventario)" />
-    <TableLayout listaOrigen="inventario" T="ItemDTO" Retorno="@(async (ItemDTO i) => {await retorno.InvokeAsync(i); toastService.ShowSuccess("Información cargada");})"/>
+    <TableLayout listaOrigen="inventario" MostrarOpcionales="MostrarOpcionales" T="ItemDTO" Retorno="@(async (ItemDTO i) => { toastService.ShowSuccess("Información cargada"); await retorno.InvokeAsync(i); })" />
     @* <InventarioAjax T="ItemDTO" Retorno="@(async (ItemDTO i) => await retorno.InvokeAsync(i))"/> *@
 </div>
 
 @code{
+    [Parameter] public bool MostrarOpcionales { get; set; } = true;
     [Parameter] public bool Estado { get; set; } = true;
     [Parameter] public EventCallback<ItemDTO> retorno { get; set; }
 

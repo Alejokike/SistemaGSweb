@@ -233,6 +233,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await usuarioService.Obtener(ayuda.Solicitante);
         if (response.EsCorrecto && response.Resultado != null) solicitante = response.Resultado;
 
@@ -241,11 +243,15 @@
             response = await usuarioService.Obtener(ayuda.Funcionario);
             if (response.EsCorrecto && response.Resultado != null) funcionario = response.Resultado;
         }
+        loadingService.Hide();
     }
 
     private async Task Comentar()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await ayudaService.Editar(ayuda);
+        loadingService.Hide();
         if (response.EsCorrecto) toastService.ShowSuccess("Se ha añadido el comentario");
         else toastService.ShowError($"Error: {response.Mensaje}");
     }

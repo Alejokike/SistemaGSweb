@@ -83,7 +83,7 @@
                     Seleccione los ítems para agregar
                 </h4>
             </div>
-            <InventarioItems Estado="false" retorno="@((ItemDTO r) => AgregarItemLista(r))" />
+            <InventarioItems Estado="false" MostrarOpcionales="false" retorno="@((ItemDTO r) => AgregarItemLista(r))" />
         </div>
     </div>
 </div>
@@ -249,8 +249,9 @@
     #region Item
     private void AgregarItemLista(ItemDTO item)
     {
-        if (Ayuda.ListaItems.Any(i => (i.ItemLista!.Nombre ?? "").ToLower() == item.Nombre.ToLower()))
+        if (Ayuda.ListaItems.Any(i => i.ItemLista.IdItem == item.IdItem))
         {
+            toastService.ClearAll();
             toastService.ShowError("El ítem ya esta en la lista");
             return;
         }
@@ -266,7 +267,7 @@
         Ayuda.ListaItems.Add(new ListaItemDTO()
             {
                 IdLista = (id + 1),
-                ItemLista = item
+                ItemLista = new ItemDTO(item)
             });
     }
     private void EliminarItem(int id)

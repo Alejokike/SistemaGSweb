@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SistemaGS.API.Extensions;
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
@@ -105,6 +106,7 @@ namespace SistemaGS.API.Controllers
             return Ok(response);
         }
         [HttpPost("Desbloquear/{IdAyuda:int}")]
+        [ServiceFilter(typeof(CorreoFilter))]
         public async Task<IActionResult> Desbloquear(int IdAyuda, [FromBody] List<InventarioDTO> movimientos)
         {
             var response = new ResponseDTO<bool>();

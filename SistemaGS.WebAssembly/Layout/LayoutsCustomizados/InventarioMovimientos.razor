@@ -50,7 +50,7 @@
         </div>
     </EditForm>
 
-    <TableLayout listaOrigen="Movimientos" T="InventarioDTO" Retorno="async (InventarioDTO m) => { await MostrarItem(m.Item); }" />
+    <TableLayout listaOrigen="Movimientos" T="InventarioDTO" MostrarAdministrador="true" Retorno="async (InventarioDTO m) => { await MostrarItem(m.Item); }" />
 </div>
 
 @code{

@@ -41,11 +41,18 @@
 </div>
 
 @code {
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private LoginDTO model = new LoginDTO();
 
     private async Task Iniciar()
     {
+        if (loadingService.IsLoading) return;
+
+        loadingService.Show();
         var response = await _usuarioService.Autorizacion(model);
+
         if (response.EsCorrecto)
         {
             SesionDTO sesion = (SesionDTO) response.Resultado!;
@@ -59,5 +66,6 @@
         {
             _toastService.ShowWarning(response.Mensaje!);
         }
+        loadingService.Hide();
     }
 }

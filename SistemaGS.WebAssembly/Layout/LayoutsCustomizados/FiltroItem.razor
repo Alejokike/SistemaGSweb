@@ -54,7 +54,8 @@
                     </div>
                 }                
                 <div class="form-row mt-2">
-                    <button class="btn btn-outline-secondary col-12" style="width:130px" type="submit" @onclick="@(async () => await retorno.InvokeAsync(filtro))">
+                    @* @onclick="@(async () => await retorno.InvokeAsync(filtro))" *@
+                    <button class="btn btn-outline-secondary col-12" style="width:130px" type="submit">
                         <i class="oi oi-magnifying-glass"></i> Aplicar filtros
                     </button>
                 </div>

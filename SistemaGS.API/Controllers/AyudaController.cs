@@ -90,7 +90,7 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpPut("Eliminar/{idAyuda:int}")]
+        [HttpDelete("Eliminar/{idAyuda:int}")]
         public async Task<IActionResult> Eliminar(int idAyuda)
         {
             var response = new ResponseDTO<bool>();
@@ -106,6 +106,101 @@ namespace SistemaGS.API.Controllers
                 response.Mensaje = ex.Message;
             }
             return Ok(response);
+        }
+        [HttpGet("Dashboard")]
+        public async Task<IActionResult> Dashboard()
+        {
+            var response = new ResponseDTO<DashboardDTO>();
+            try
+            {
+                DashboardDTO d = new DashboardDTO();
+                List<AyudaDTO> Ayudas = new List<AyudaDTO>();
+                Ayudas = await _ayudaService.Lista(new AyudaQuery() 
+                { 
+                    Estado = "Cerrada,Rechazada",
+                    FechaIni = new DateTime(DateTime.Today.Year - 1, 1, 1),
+                    FechaFin = DateTime.Now
+                });
+
+                d.AyudasCM = Ayudas.Count(a =>
+                    a.Estado == "Cerrada" &&
+                    (a.FechaEntrega.HasValue &&
+                        (
+                            a.FechaEntrega.Value >= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1) &&
+                            a.FechaEntrega.Value <= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1)
+                        )
+                    )
+                );
+                d.AyudasLM = Ayudas.Count(a =>
+                    a.Estado == "Cerrada" &&
+                    (a.FechaEntrega.HasValue &&
+                        (
+                            a.FechaEntrega.Value >= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-1) &&
+                            a.FechaEntrega.Value <= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1)
+                        )
+                    )
+                );
+
+                d.AyudasCY = Ayudas.Count(a =>
+                    a.Estado == "Cerrada" &&
+                    (
+                        a.FechaEntrega.HasValue &&
+                        a.FechaEntrega.Value.Year == DateTime.Today.Year
+                    )
+                );
+                d.AyudasLY = Ayudas.Count(a =>
+                    a.Estado == "Cerrada" &&
+                    (
+                        a.FechaEntrega.HasValue &&
+                        a.FechaEntrega.Value.Year == DateTime.Today.Year - 1
+                    )
+                );
+
+                d.PersonasCM = Ayudas.Where(a =>
+                    a.Estado == "Cerrada" &&
+                    (a.FechaEntrega.HasValue &&
+                        (
+                            a.FechaEntrega.Value >= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1) &&
+                            a.FechaEntrega.Value <= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1)
+                        )
+                    )).Select(a => a.Solicitante).Distinct().Count();
+                d.PersonasLM = Ayudas.Where(a =>
+                    a.Estado == "Cerrada" &&
+                    (a.FechaEntrega.HasValue &&
+                        (
+                            a.FechaEntrega.Value >= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-1) &&
+                            a.FechaEntrega.Value <= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1)
+                        )
+                    )).Select(a => a.Solicitante).Distinct().Count();
+
+                d.RechazadasCM = Ayudas.Count(a =>
+                    a.Estado == "Rechazada" &&
+                    (a.FechaEntrega.HasValue &&
+                        (
+                            a.FechaEntrega.Value >= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1) &&
+                            a.FechaEntrega.Value <= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1)
+                        )
+                    )
+                );
+                d.RechazadasLM = Ayudas.Count(a =>
+                    a.Estado == "Rechazada" &&
+                    (a.FechaEntrega.HasValue &&
+                        (
+                            a.FechaEntrega.Value >= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-1) &&
+                            a.FechaEntrega.Value <= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1)
+                        )
+                    )
+                );
+
+                response.EsCorrecto = true;
+                response.Resultado = d;
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response); ;
         }
         [HttpGet("Imprimir/{idAyuda:int}/{option:int}")]
         public async Task<IActionResult> Imprimir(int idAyuda, int option)

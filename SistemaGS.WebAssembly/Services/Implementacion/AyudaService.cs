@@ -87,5 +87,10 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         {
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<AyudaDTO>>($"Ayuda/Obtener/{idAyuda}"))!;
         }
+
+        public async Task<ResponseDTO<DashboardDTO>> Dashboard()
+        {
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<DashboardDTO>>($"Ayuda/Dashboard"))!;
+        }
     }
 }

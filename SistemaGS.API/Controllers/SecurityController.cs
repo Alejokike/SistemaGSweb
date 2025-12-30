@@ -47,11 +47,13 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        [HttpPost("Refresh/{refreshtoken}")]
-        public async Task<ActionResult<AuthResponse>> Refresh(string refreshtoken)
+        [HttpPost("Refresh")]
+        public async Task<ActionResult<AuthResponse>> Refresh()
         {
             try
             {
+                string refreshtoken = Request.Cookies["refreshtoken"] ?? "";
+
                 AuthResponse response = new AuthResponse();
 
                 if (string.IsNullOrEmpty(refreshtoken)) return BadRequest();
@@ -87,7 +89,7 @@ namespace SistemaGS.API.Controllers
 
             return Ok();
         }
-        [HttpGet("Auditoria")]
+        [HttpGet("Listar")]
         public async Task<IActionResult> Auditoria([FromQuery] RegistroQuery filtro)
         {
             var response = new ResponseDTO<List<RegistroDTO>>();

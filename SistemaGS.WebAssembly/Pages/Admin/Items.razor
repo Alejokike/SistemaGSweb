@@ -3,26 +3,36 @@
 @inject IInventarioService inventarioService;
 @inject IToastService toastService;
 
-<h3 clss="mt-3">Administrar Items</h3>
+<h3 clss="m-3">Administrar Items</h3>
 
 <FiltroItem filtro="filtro" Estado="Estado" retorno="EventCallback.Factory.Create<ItemQuery>(this, ListarInventario)" />
-<TableLayout listaOrigen="inventario" T="ItemDTO" Retorno="@(async (ItemDTO i) => { await retorno.InvokeAsync(i); toastService.ShowSuccess("Información cargada"); })" />
+<div class="card mt-2 mb-2">
+    <div class="card-body">
+        <TableLayout 
+            listaOrigen="inventario" 
+            T="ItemDTO" 
+            MostrarAdministrador="true" 
+            MostrarOpcionales="true"
+            Retorno="@(async (ItemDTO i) => { model = new ItemDTO(i); agregar = false; toastService.ShowSuccess("Información cargada"); })" />
+    </div>
+</div>
 
 <div class="row-cols-12 mt-3">
     <div class="col-sm-12">
         <div class="card mb-3">
 
             <div class="card-header text-center">
-                <h5>Realizar movimiento</h5>
+                <h5>Gestionar ítem</h5>
             </div>
 
             <div class="card-body">
 
-                <div class="input-group mt-2 mb-2">
+                <div class="input-group-text mt-2 mb-2">
                     <label class="input-group-text bg-light">Cargar ítem</label>
-                    <InputNumber min="0" step="1" class="form-control" placeholder="Ingresa el ID del ítem del movimiento" @bind-value="model.IdItem" oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
+                    <InputNumber min="0" step="1" class="form-control h-100" placeholder="Ingresa el ID del ítem del movimiento" @bind-value="model.IdItem" oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
                     <i class="bi bi-info-circle input-group-text bg-primary text-white fs-5" title="Para dar entrada a un ítem que no exista en inventario, dejar el campo en 0"></i>
-                    <button type="button" class="btn btn-light">
+                    <button type="button" class="btn btn-light" 
+                    @onclick="@(async () => await ObtenerItem())">
                         <i class="bi bi-pencil-square text-primary fs-5"></i>
                     </button>
                 </div>
@@ -65,7 +75,6 @@
                             </div>
                             <ValidationMessage For="@(() => model.Categoria)" />
                         </div>
-
                     </div>
 
                     <span class="form-label mt-3" id="basic-addon3">Descripción</span>
@@ -95,8 +104,11 @@
 </div>
 
 @code {
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     public bool Estado { get; set; } = true;
-    public EventCallback<ItemDTO> retorno { get; set; }
+
     private ItemQuery filtro { get; set; } = new ItemQuery();
     private List<ItemDTO> inventario = new List<ItemDTO>();
 
@@ -110,12 +122,39 @@
 
     private async Task ListarInventario()
     {
+        if(loadingService.IsLoading) return;
+        loadingService.Show();
         var respuesta = await inventarioService.ListarInventario(filtro);
         if (respuesta.EsCorrecto && respuesta.Resultado != null) inventario = respuesta.Resultado;
+        loadingService.Hide();
+    }
+
+    private async Task ObtenerItem()
+    {
+        if (model.IdItem == 0)
+        {
+            model = new ItemDTO(); agregar = true;
+        }
+        else
+        {
+            var response = await inventarioService.ObtenerItem(model.IdItem);
+            if (response.EsCorrecto && response.Resultado != null) { model = response.Resultado; agregar = false; }
+            else { model = new ItemDTO(); agregar = true; }
+        }
     }
 
     private void Guardar()
     {
-        
+        if(loadingService.IsLoading) return;
+        loadingService.Show();
+        if(model.IdItem != 0)
+        {
+
+        }
+        else
+        {
+            
+        }
+        loadingService.Hide();
     }
 }

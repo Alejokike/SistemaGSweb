@@ -47,8 +47,8 @@ namespace SistemaGS.Service.Implementacion
             try
             {
                 var email = new MimeMessage();
-                email.From.Add(MailboxAddress.Parse("germaine96@ethereal.email"));
-                email.To.Add(MailboxAddress.Parse("germaine96@ethereal.email"));
+                email.From.Add(MailboxAddress.Parse(correo.From));
+                email.To.Add(MailboxAddress.Parse(correo.To));
                 email.Subject = correo.Subject;
                 email.Body = new TextPart(TextFormat.Html) { Text = correo.Body.ToString() };
 

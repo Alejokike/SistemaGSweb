@@ -4,7 +4,7 @@ namespace SistemaGS.DTO.ModelDTO
 {
     public class InventarioDTO
     {
-        [Display(Name = "ID Transacción")]
+        [Display(Name = "ID Transacción", Description = "Admin")]
         public int IdTransaccion { get; set; }
         [Required(ErrorMessage = "Seleccione un tipo de operación")]
         [Display(Name = "Tipo de Operación")]

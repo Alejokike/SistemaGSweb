@@ -16,13 +16,16 @@ namespace SistemaGS.Service.Implementacion
         private readonly IGenericoRepository<Ayuda> _modelRepository;
         private readonly IAyudaRepository _AyudaRepository;
         private readonly IGenericoRepository<Persona> _PersonaRepository;
+        private readonly IGenericoRepository<Item> _InventarioRepository;
 
         private readonly IMapper _mapper;
-        public AyudaService(IGenericoRepository<Ayuda> modelRepository, IAyudaRepository AyudaRepository, IGenericoRepository<Persona> personaRepository,IMapper mapper)
+        public AyudaService(IGenericoRepository<Ayuda> modelRepository, IAyudaRepository AyudaRepository, IGenericoRepository<Persona> personaRepository, IGenericoRepository<Item> InventarioRepository, IMapper mapper)
         {
             _modelRepository = modelRepository;
             _AyudaRepository = AyudaRepository;
             _PersonaRepository = personaRepository;
+            _InventarioRepository = InventarioRepository;
+
             _mapper = mapper;
         }
         public async Task<AyudaDTO> Crear(AyudaDTO Model)
@@ -88,7 +91,6 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }
-
         public async Task<byte[]> Imprimir(int idAyuda, int option, AyudaQuery filtro)
         {
             try
@@ -100,7 +102,7 @@ namespace SistemaGS.Service.Implementacion
                         {
                             var ayuda = await Obtener(idAyuda);
                             PersonaDTO Solicitante = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Solicitante).FirstOrDefault() ?? throw new TaskCanceledException("El solicitante de la ayuda no existe"));
-                            PersonaDTO Funcionario = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Funcionario).FirstOrDefault() ?? throw new TaskCanceledException("El funcionario de la ayuda no existe"));
+                            PersonaDTO? Funcionario = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Funcionario).FirstOrDefault()); //?? throw new TaskCanceledException("El funcionario de la ayuda no existe"));
                             documento = Impresion.GeneratePDFplanilla(ayuda, Solicitante, Funcionario);
                             break;
                         }
@@ -108,7 +110,7 @@ namespace SistemaGS.Service.Implementacion
                         {
                             var ayuda = await Obtener(idAyuda);
                             PersonaDTO Solicitante = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Solicitante).FirstOrDefault() ?? throw new TaskCanceledException("El solicitante de la ayuda no existe"));
-                            PersonaDTO Funcionario = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Funcionario).FirstOrDefault() ?? throw new TaskCanceledException("El funcionario de la ayuda no existe"));
+                            PersonaDTO? Funcionario = _mapper.Map<PersonaDTO>(_PersonaRepository.Consultar(p => p.Cedula == ayuda.Funcionario).FirstOrDefault()); //?? throw new TaskCanceledException("El funcionario de la ayuda no existe"));
                             documento = Impresion.GeneratePDFdetalle(ayuda, Solicitante, Funcionario);
                             break;
                         }
@@ -132,7 +134,6 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }        
         }
-
         public async Task<List<AyudaDTO>> Lista(AyudaQuery filtro)
         {
             try
@@ -168,6 +169,23 @@ namespace SistemaGS.Service.Implementacion
                     AyudaDTO transform = _mapper.Map<AyudaDTO>(model);
                     transform.Detalle = JsonConvert.DeserializeObject<Dictionary<string, string>>(model.Detalle!) ?? new Dictionary<string, string>();
                     transform.ListaItems = JsonConvert.DeserializeObject<List<ListaItemDTO>>(model.ListaItems!) ?? new List<ListaItemDTO>();
+
+                    List<int> ids = transform.ListaItems.Select(li => li.ItemLista.IdItem).ToList();
+
+                    Dictionary<int, ItemDTO> actualizados = _mapper.Map<Dictionary<int, ItemDTO>>(
+                        await _InventarioRepository
+                        .Consultar(i => ids.Contains(i.IdItem))
+                        .ToDictionaryAsync(k => k.IdItem)
+                        );
+
+                    foreach (var item in transform.ListaItems)
+                    {
+                        if(actualizados.TryGetValue(item.ItemLista.IdItem, out ItemDTO? act))
+                        {
+                            item.ItemLista = act;
+                        }
+                    }
+
                     return transform;
                 }
                 else throw new TaskCanceledException("No existen coincidencias");

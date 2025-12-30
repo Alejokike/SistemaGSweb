@@ -48,6 +48,9 @@
                     DisplayAttribute? custom = prop.GetCustomAttribute<DisplayAttribute>();
                     
                     if (!MostrarOpcionales && custom != null && custom.GetAutoGenerateField() == false) continue;
+                    else if (prop.PropertyType == typeof(string) && custom != null && custom.GetAutoGenerateField() == false) continue;
+
+                    if (!MostrarAdministrador && custom != null && custom.GetDescription() == "Admin") continue;
 
                     string nombre = custom?.Name ?? prop.Name;
 
@@ -71,7 +74,7 @@
                 }
                 @if (MostrarBotones)
                 {
-                    <th valign="middle" align="center" class="text-center">Detalle</th>
+                    <th valign="middle" align="center" class="text-center">Seleccionar</th>
                 }
             </tr>
         </thead>
@@ -90,6 +93,9 @@
 
                             DisplayAttribute? custom = prop.GetCustomAttribute<DisplayAttribute>();
                             if (!MostrarOpcionales && custom != null && custom.GetAutoGenerateField() == false) continue;
+                            else if (prop.PropertyType == typeof(string) && custom != null && custom.GetAutoGenerateField() == false) continue;
+
+                            if (!MostrarAdministrador && custom != null && custom.GetDescription() == "Admin") continue;
 
                             if (esAyuda)
                             {
@@ -147,8 +153,11 @@
 @code {
     [Parameter]
     public List<T> listaOrigen { get; set; } = new();
+
     [Parameter] public bool MostrarOpcionales {get;set;} = false;
     [Parameter] public bool MostrarBotones {get;set;} = true;
+    [Parameter] public bool MostrarAdministrador { get; set; } = false;
+
     [Parameter]
     public EventCallback<T> Retorno { get; set; }
 

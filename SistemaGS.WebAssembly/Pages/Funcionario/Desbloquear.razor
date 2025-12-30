@@ -19,6 +19,13 @@
 
 <PageTitle>Desbloquear Ayuda</PageTitle>
 
+<style>
+    th {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+</style>
+
 <h3 class="m-3">Desbloquear Ayuda</h3>
 
 <ModalLayout
@@ -27,7 +34,7 @@
     TextoConfirmar="Ejecutar"
     TextoCancelar="Cancelar"
     OnCerrar="(() => Mostrar = false)"
-    OnConfirmar="EventCallback.Factory.Create(this, async () => {await Transaccion();})">
+    OnConfirmar="EventCallback.Factory.Create(this, Transaccion)">
     
     <div class="form-label fw-bold mb-1">Tipo de operación</div>
     <InputSelect class="form-select mb-2" @bind-Value="movimiento">
@@ -56,11 +63,6 @@
                             </div>
                         }
 
-                        @* <div class="mb-3">
-                            <label class="form-label fw-bold">Comentarios de la entrega</label>
-                            <InputTextArea class="form-control" required @bind-value="@ayuda.Detalle["Aprobado"]" />
-                        </div> *@
-
                         <div class="mb-3">
                         <label class="form-label fw-bold">Categoría de la ayuda</label>
                         <div class="form-control">@ayuda.Categoria</div>
@@ -82,14 +84,16 @@
                             <table class="table table-sm bg-light table-bordered">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th class="text-center">ID</th>
-                                        <th class="text-center">Código ítem</th>
-                                        <th class="text-center">Nombre</th>
-                                        <th class="text-center">Categoria</th>
-                                        <th class="text-center">Unidad</th>
-                                        <th class="text-center">Cantidad Solicitada</th>
-                                        <th class="text-center">Cantidad a mover</th>
-                                        <th class="text-center">Asignar</th>
+                                        <th>ID</th>
+                                        <th>Código ítem</th>
+                                        <th>Nombre</th>
+                                        <th>Categoria</th>
+                                        <th>Unidad</th>
+                                        <th>Cantidad Solicitada</th>
+                                        <th>Cantidad Entregada</th>
+                                        <th>Stock en Inventario</th>
+                                        <th>Cantidad a mover</th>
+                                        <th>Asignar</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -102,12 +106,14 @@
                                             string signo = !string.IsNullOrEmpty(mov.TipoOperacion) ? (mov.TipoOperacion == "ASI" ? "+" : "-") : "";
                                             string color = !string.IsNullOrEmpty(mov.TipoOperacion) ? (mov.TipoOperacion == "ASI" ? "text-success" : "text-danger") : "text-light";
                                             <tr>
-                                                <td valign="middle">@item.IdLista</td>
+                                                <td valign="middle" align="center">@item.IdLista</td>
                                                 <td valign="middle" align="center">@item.ItemLista.IdItem</td>
-                                                <td valign="middle">@item.ItemLista!.Nombre</td>
-                                                <td valign="middle">@item.ItemLista!.Categoria</td>
+                                                <td valign="middle" align="center">@item.ItemLista!.Nombre</td>
+                                                <td valign="middle" align="center">@item.ItemLista!.Categoria</td>
                                                 <td valign="middle" align="center">@item.ItemLista!.Unidad</td>
                                                 <td valign="middle" align="center">@item.CantidadSolicitada</td>
+                                                <td valign="middle" align="center">@item.CantidadEntregada</td>
+                                                <td valign="middle" align="center">@item.ItemLista.Cantidad</td>
                                                 <td valign="middle" align="center" class="@color">@($"{signo}{mov.Cantidad.ToString("N2")}")</td>
 
                                                 <td align="center">
@@ -142,22 +148,17 @@
     @* Lista Movimientos *@
 
     <div class="row-cols-12 mt-4">
-
         <div class="col-sm-12">
             <div class="card mb-3">
-
                 <div class="card-body">
                     <TableLayout 
                         listaOrigen="movimientos" 
                         T="InventarioDTO" 
                         MostrarBotones="false" />
                 </div>
-
             </div>
         </div>
-
     </div>
-
 </div>
 
 <div class="bg-light p-3 mt-5">
@@ -195,7 +196,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
         var response = await ayudaService.Obtener(IDAyuda);
+        loadingService.Hide();
         if (response.EsCorrecto && response.Resultado != null)
         {
             if (response.Resultado.ListaItems.Any(Li => Li.ItemLista!.IdItem == 0))
@@ -209,28 +213,26 @@
 
         if (ayuda.Funcionario != cedula) navigationManager.NavigateTo($"/GestionarAyudas/{cedula}");
     }
-
-    private async Task Transaccion()
+    private void Transaccion()
     {
         Mostrar = false;
-        if (movimiento == "ASI") await Asignar(position,cantidad);
+        if (movimiento == "ASI") Asignar(position,cantidad);
         else Retirar(position,cantidad);
         position = new ListaItemDTO();
         cantidad = 0;
     }
-
-    private async Task Asignar(ListaItemDTO item, decimal cantidad)
+    private void Asignar(ListaItemDTO item, decimal cantidad)
     {
         if (item.ItemLista.Unidad != "VE") cantidad = Math.Floor(cantidad);
 
-        bool val1 = (await ObtenerStock(item.ItemLista.IdItem)) < cantidad;
-        bool val2 = cantidad <= 0;
+        bool val1 = (item.ItemLista.IdItem) < cantidad;
+        bool val2 = cantidad < 0;
         bool val3 = cantidad > item.CantidadSolicitada;
 
         if (val1 || val2 || val3)
         {
             if(val1) toastService.ShowWarning("No hay el stock necesario para asignar esa cantidad");
-            if(val2) toastService.ShowWarning("Se debe de asignar algo");
+            if(val2) toastService.ShowWarning("La cantidad a asignar no puede ser negativa");
             if(val3) toastService.ShowWarning("No se puede asignar más stock del solicitado");
             return;
         }
@@ -238,9 +240,9 @@
         var encontrado = movimientos.FirstOrDefault(m => m.Item.IdItem == item.ItemLista.IdItem);
         if (encontrado == null)
         {
+            if (cantidad == 0) return;
             movimientos.Add(new InventarioDTO()
                 {
-                    IdTransaccion = 0,
                     TipoOperacion = "ASI",
                     Item = item.ItemLista,
                     Unidad = item.ItemLista.Unidad,
@@ -252,6 +254,7 @@
         else 
         {
             movimientos.Remove(encontrado);
+            if (cantidad == 0) return;
             encontrado.Cantidad = cantidad;
             movimientos.Add(encontrado);
         }
@@ -261,24 +264,21 @@
         if (item.ItemLista.Unidad != "VE") cantidad = Math.Floor(cantidad);
 
         bool val1 = item.CantidadEntregada < cantidad;
-        bool val2 = cantidad <= 0;
+        bool val2 = cantidad < 0;
 
         if (val1 || val2)
         {
             if (val1) toastService.ShowWarning("No se puede retirar más de lo asignado");
-            if (val2) toastService.ShowWarning("La cantidad a retira no puede ser nula");
+            if (val2) toastService.ShowWarning("La cantidad a retirar no puede ser negativa");
             return;
         }
 
         var encontrado = movimientos.FirstOrDefault(m => m.Item.IdItem == item.ItemLista.IdItem);
         if (encontrado == null)
         {
-            int id;
-            if (!movimientos.Any()) id = 0;
-            else id = movimientos.Max(li => li.IdTransaccion);
+            if (cantidad == 0) return;
             movimientos.Add(new InventarioDTO()
             {
-                IdTransaccion = id + 1,
                 TipoOperacion = "RET",
                 Item = item.ItemLista,
                 Unidad = item.ItemLista.Unidad,
@@ -290,6 +290,7 @@
         else
         {
             movimientos.Remove(encontrado);
+            if (cantidad == 0) return;
             encontrado.Cantidad = cantidad;
             movimientos.Add(encontrado);
         }
@@ -305,10 +306,10 @@
         else toastService.ShowError($"Error: {response.Mensaje}");
     }
 
-    private async Task<decimal> ObtenerStock(int idItem)
-    {
-        var response = await inventarioService.ObtenerItem(idItem);
-        if (response.EsCorrecto && response.Resultado != null) return response.Resultado.Cantidad;
-        else return 0;
-    }
+    // private async Task<decimal> ObtenerStock(int idItem)
+    // {
+    //     var response = await inventarioService.ObtenerItem(idItem);
+    //     if (response.EsCorrecto && response.Resultado != null) return response.Resultado.Cantidad;
+    //     else return 0;
+    // }
 }

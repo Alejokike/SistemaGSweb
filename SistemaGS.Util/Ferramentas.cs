@@ -117,7 +117,7 @@ namespace SistemaGS.Util
 
                                 tabla.Cell().Height(30);
                                 tabla.Cell().RowSpan(2).Column(1).Border(1.3f).AlignMiddle().Text($"{Solicitante.Nombre} {Solicitante.Apellido}").FontSize(9).Justify().AlignCenter();
-                                tabla.Cell().RowSpan(2).Column(2).Border(1.3f).AlignMiddle().Text($"{Solicitante.Cedula}").FontSize(9).AlignCenter();
+                                tabla.Cell().RowSpan(2).Column(2).Border(1.3f).AlignMiddle().Text($"{Solicitante.Cedula!.Value.ToString("N0")}").FontSize(9).AlignCenter();
                                 tabla.Cell().RowSpan(2).Column(3).Border(1.3f).AlignMiddle().Text($"{CalcularEdad(ayuda.FechaSolicitud, Solicitante.FechaNacimiento!.Value)}").FontSize(9).AlignCenter();
                                 tabla.Cell().RowSpan(2).Column(4).Border(1.3f).AlignMiddle().Text($"{Solicitante.Profesion}").FontSize(9).AlignCenter();
                                 tabla.Cell().RowSpan(2).Column(5).Border(1.3f).AlignMiddle().Text($"{Solicitante.Ocupacion}").FontSize(9).AlignCenter();
@@ -211,7 +211,7 @@ namespace SistemaGS.Util
 
                                 tabla.Cell().Height(30);
                                 tabla.Cell().RowSpan(2).Column(1).Border(1.3f).AlignMiddle().Text($"{Solicitante.Nombre} {Solicitante.Apellido}").FontSize(9).Justify().AlignCenter();
-                                tabla.Cell().RowSpan(2).Column(2).Border(1.3f).AlignMiddle().Text($"{Solicitante.Cedula}").FontSize(9).AlignCenter();
+                                tabla.Cell().RowSpan(2).Column(2).Border(1.3f).AlignMiddle().Text($"{Solicitante.Cedula!.Value.ToString("N0")}").FontSize(9).AlignCenter();
                                 tabla.Cell().RowSpan(2).Column(3).Border(1.3f).AlignMiddle().Text($"{CalcularEdad(ayuda.FechaSolicitud, Solicitante.FechaNacimiento!.Value)}").FontSize(9).AlignCenter();
                                 tabla.Cell().RowSpan(2).Column(4).Border(1.3f).AlignMiddle().Text($"{Solicitante.FechaNacimiento.Value.ToString("dd/MM/yyyy")}").FontSize(9).AlignCenter();
                                 tabla.Cell().RowSpan(2).Column(5).Border(1.3f).AlignMiddle().Text($"{Solicitante.Ocupacion}").FontSize(9).AlignCenter();
@@ -301,8 +301,8 @@ namespace SistemaGS.Util
                                         });
 
                                         inner.Cell().Height(12);
-                                        inner.Cell().Column(1).Border(1.3f).AlignMiddle().Text($"{Funcionario.Nombre} {Funcionario.Apellido}").FontSize(9).Justify().AlignCenter();
-                                        inner.Cell().Column(2).Border(1.3f).AlignMiddle().Text($"{Funcionario.Cedula}").FontSize(9).Justify().AlignCenter();
+                                        inner.Cell().Column(1).Border(1.3f).AlignMiddle().Text($"{Funcionario?.Nombre ?? "  Sin funcionario"} {Funcionario?.Apellido}").FontSize(9).Justify().AlignCenter();
+                                        inner.Cell().Column(2).Border(1.3f).AlignMiddle().Text($"{Funcionario?.Cedula?.ToString("N0") ?? "N/A"}").FontSize(9).Justify().AlignCenter();
                                     });
                                 });
 
@@ -319,7 +319,7 @@ namespace SistemaGS.Util
 
             return PlanillaPDF;
         }
-        public static byte[] GeneratePDFdetalle(AyudaDTO ayuda, PersonaDTO Solicitante, PersonaDTO Funcionario)
+        public static byte[] GeneratePDFdetalle(AyudaDTO ayuda, PersonaDTO Solicitante, PersonaDTO? Funcionario)
         {
             QuestPDF.Settings.License = LicenseType.Community;
 
@@ -375,7 +375,7 @@ namespace SistemaGS.Util
                             col2.Item().Text(txt =>
                             {
                                 txt.Span("Funcionario: ").SemiBold().FontSize(10);
-                                txt.Span($"{Funcionario.Nombre} {Funcionario.Apellido}").FontSize(10);
+                                txt.Span($"{Funcionario?.Nombre ?? "  Sin funcionario"} {Funcionario?.Apellido}").FontSize(10);
                             });
                         });
 

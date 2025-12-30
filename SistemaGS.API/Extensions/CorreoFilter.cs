@@ -13,15 +13,17 @@ namespace SistemaGS.API.Extensions
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
         private readonly ISecurityService _securityService;
+        private readonly IAyudaService _ayudaService;
 
         private SesionDTO UsuarioAccion;
         private AyudaDTO? Ayuda { get; set; } = null;
 
-        public CorreoFilter(IConfiguration configuration, IEmailService emailService, ISecurityService securityService)
+        public CorreoFilter(IConfiguration configuration, IEmailService emailService, ISecurityService securityService, IAyudaService ayudaService)
         {
             _configuration = configuration;
             _emailService = emailService;
             _securityService = securityService;
+            _ayudaService = ayudaService;
 
             UsuarioAccion = new SesionDTO() { Rol = new RolDTO() };
         }
@@ -88,26 +90,7 @@ namespace SistemaGS.API.Extensions
                                 From = "sistema@sistemags.gov",
                                 Subject = "Sistema GS - ¡Solicitud Enviada!",
                                 Body = $@"
-                                <html>
-                                    <body style='font-family: Open Sans, sans-serif; color:#333;'>
-                                        <div style='max-width:600px; margin:auto; padding:20px; border:1px solid #ddd; border-radius:10px;'>
-                                            <h2 style='font-family: Montserrat, sans-serif; color:#9B2873;'>¡Hola {solicitante?.NombreUsuario}!</h2>
-                                            <p style='font-size:1.1rem;'>
-                                                Se ha abierto una solicitud de ayuda a su nombre bajo el Nro:
-                                                <span style='font-weight:bold; color:#00B3CB;'>{ayuda.IdAyuda}</span>
-                                            </p>
-                                            <p style='margin-top:15px;'>
-                                                Ingrese al sistema para obtener más detalles sobre su solicitud, en caso de no haber realizado ninguna solicitud contacte con soporte
-                                            </p>
-                                            <div style='margin-top:25px; text-align:center;'>
-                                                <a href='https://wa.me/584147913306'
-                                                   style='background-color:#9B2873; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold;'>
-                                                   Contactar soporte
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </body>
-                                </html>
+                                <html><body style=""font-family: Open Sans, sans-serif; color:#333; margin:0; padding:0; background-color:#f4f4f4;""> <div style=""max-width:600px; margin:30px auto; padding:20px; border:1px solid #ddd; border-radius:10px; background-color:#fff;""> <!-- Header --> <div style=""background-color:#9B2873; padding:15px; border-radius:8px 8px 0 0; text-align:center;""> <h2 style=""margin:0; font-family: Montserrat, sans-serif; color:#f8f9fa;""> Sistema GS - ¡Solicitud Enviada! </h2> </div> <!-- Body --> <div style=""padding:20px;""> <h3 style=""font-family: Montserrat, sans-serif; color:#9B2873; margin-top:0;""> ¡Hola {solicitante?.NombreUsuario}! </h3> <p style=""font-size:1.1rem; line-height:1.5; margin:0;""> Se ha abierto una solicitud de ayuda a su nombre bajo el Nro: <span style=""font-weight:bold; color:#00B3CB;"">{ayuda.IdAyuda}</span> </p> <p style=""margin-top:15px; line-height:1.5;""> Ingrese al sistema para obtener más detalles sobre su solicitud. En caso de no haber realizado ninguna solicitud, contacte con soporte. </p> <!-- Botón --> <div style=""margin-top:25px; text-align:center;""> <a href=""https://wa.me/584147913306"" style=""background-color:#9B2873; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block;""> Contactar soporte </a> </div> </div> <!-- Footer --> <div style=""background-color:#FF315F; color:#f8f9fa; text-align:center; padding:12px; border-radius:0 0 8px 8px; font-size:0.9rem;""> © 2025 Sistema GS - Todos los derechos reservados </div> </div> </body> </html>
                                 "
                             };
                         }
@@ -119,32 +102,13 @@ namespace SistemaGS.API.Extensions
                                 From = "sistema@sistemags.gov",
                                 Subject = "Sistema GS - Aprobación Revocada",
                                 Body = $@"
-                                <html>
-                                    <body style='font-family: Open Sans, sans-serif; color:#333;'>
-                                        <div style='max-width:600px; margin:auto; padding:20px; border:1px solid #ddd; border-radius:10px;'>
-                                            <h2 style='font-family: Montserrat, sans-serif; color:#9B2873;'>¡Hola {solicitante?.NombreUsuario}!</h2>
-                                            <p style='font-size:1.1rem;'>
-                                                Lamentamos informarle que la aprobación de su solicitud de ayuda Nro {ayuda.IdAyuda} fué revocada
-                                            </p>
-                                            <p style='margin-top:15px;'>
-                                                Ingrese al sistema para obtener más detalles sobre su solicitud, en caso de no haber realizado ninguna solicitud contacte con soporte
-                                            </p>
-                                            <div style='margin-top:25px; text-align:center;'>
-                                                <a href='https://wa.me/584147913306'
-                                                   style='background-color:#9B2873; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold;'>
-                                                   Contactar soporte
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </body>
-                                </html>
+                                <html> <body style=""font-family: Open Sans, sans-serif; color:#333; margin:0; padding:0; background-color:#f4f4f4;""> <div style=""max-width:600px; margin:30px auto; padding:20px; border:1px solid #ddd; border-radius:10px; background-color:#fff;""> <!-- Header --> <div style=""background-color:#FF315F; padding:15px; border-radius:8px 8px 0 0; text-align:center;""> <h2 style=""margin:0; font-family: Montserrat, sans-serif; color:#f8f9fa;""> Sistema GS - Aprobación Revocada </h2> </div> <!-- Body --> <div style=""padding:20px;""> <h3 style=""font-family: Montserrat, sans-serif; color:#9B2873; margin-top:0;""> ¡Hola {solicitante?.NombreUsuario}! </h3> <p style=""font-size:1.1rem; line-height:1.5; margin:0;""> Lamentamos informarle que la aprobación de su solicitud de ayuda Nro <span style=""font-weight:bold; color:#00B3CB;"">{ayuda.IdAyuda}</span> fue revocada. </p> <p style=""margin-top:15px; line-height:1.5;""> Ingrese al sistema para obtener más detalles sobre su solicitud. En caso de no haber realizado ninguna solicitud, contacte con soporte. </p> <!-- Botón --> <div style=""margin-top:25px; text-align:center;""> <a href=""https://wa.me/584147913306"" style=""background-color:#9B2873; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block;""> Contactar soporte </a> </div> </div> <!-- Footer --> <div style=""background-color:#FFD515; color:#333; text-align:center; padding:12px; border-radius:0 0 8px 8px; font-size:0.9rem; font-weight:bold;""> © 2025 Sistema GS - Todos los derechos reservados </div> </div> </body> </html>
                                 "
                             };
                         }
-
                         break;
                     }
-                case "Por Procesar":
+                case "En Proceso":
                     {
                         if(UsuarioAccion.Rol.Nombre == "Administrador")
                         {
@@ -153,7 +117,9 @@ namespace SistemaGS.API.Extensions
                                 To = solicitante?.Correo ?? "",
                                 From = "sistema@sistemags.gov",
                                 Subject = "Sistema GS - ¡Su Solicitud ha sido Aprobada!",
-                                Body = "Este correo no debería existir"
+                                Body = $@"
+                                <html> <body style=""font-family: Open Sans, sans-serif; color:#333; margin:0; padding:0; background-color:#f4f4f4;""> <div style=""max-width:600px; margin:30px auto; padding:20px; border:1px solid #ddd; border-radius:10px; background-color:#fff;""> <!-- Header --> <div style=""background-color:#00B3CB; padding:15px; border-radius:8px 8px 0 0; text-align:center;""> <h2 style=""margin:0; font-family: Montserrat, sans-serif; color:#f8f9fa;""> Sistema GS - ¡Solicitud Aprobada! </h2> </div> <!-- Body --> <div style=""padding:20px;""> <h3 style=""font-family: Montserrat, sans-serif; color:#9B2873; margin-top:0;""> ¡Hola {solicitante?.NombreUsuario}! </h3> <p style=""font-size:1.1rem; line-height:1.5; margin:0;""> Nos complace informarle que la solicitud de ayuda a su nombre bajo el Nro <span style=""font-weight:bold; color:#FFD515;"">{ayuda.IdAyuda}</span> fue aprobada. </p> <p style=""margin-top:15px; line-height:1.5;""> Comuníquese a la brevedad con el funcionario a cargo. Ingrese al sistema para obtener más detalles sobre su solicitud. En caso de no haber realizado ninguna solicitud, contacte con soporte. </p> <!-- Botón --> <div style=""margin-top:25px; text-align:center;""> <a href=""https://wa.me/584147913306"" style=""background-color:#9B2873; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block;""> Contactar soporte </a> </div> </div> <!-- Footer --> <div style=""background-color:#FF315F; color:#f8f9fa; text-align:center; padding:12px; border-radius:0 0 8px 8px; font-size:0.9rem;""> © 2025 Sistema GS - Todos los derechos reservados </div> </div> </body> </html>
+                                "
                             };
                         }
                         else
@@ -163,10 +129,12 @@ namespace SistemaGS.API.Extensions
                                 To = "administrador@sistemags.gov",
                                 From = "sistema@sistemags.gov",
                                 Subject = $"Sistema GS - Stock Retirado Ayuda {ayuda.IdAyuda}",
-                                Body = "Este correo no debería existir"
+                                Body = $@"
+                                <html> <body style=""font-family: Open Sans, sans-serif; color:#333; margin:0; padding:0; background-color:#f4f4f4;""> <div style=""max-width:600px; margin:30px auto; padding:20px; border:1px solid #ddd; border-radius:10px; background-color:#fff;""> <!-- Header --> <div style=""background-color:#FFD515; padding:15px; border-radius:8px 8px 0 0; text-align:center;""> <h2 style=""margin:0; font-family: Montserrat, sans-serif; color:#9B2873;""> Sistema GS - Stock Retirado Ayuda {ayuda.IdAyuda} </h2> </div> <!-- Body --> <div style=""padding:20px;""> <h3 style=""font-family: Montserrat, sans-serif; color:#9B2873; margin-top:0;""> ¡Hola {solicitante?.NombreUsuario}! </h3> <p style=""font-size:1.1rem; line-height:1.5; margin:0;""> Se ha retirado todo el stock de la ayuda bajo el Nro <span style=""font-weight:bold; color:#00B3CB;"">{ayuda.IdAyuda}</span>. Por lo que su estado de proceso vuelve al punto anterior. </p> <p style=""margin-top:15px; line-height:1.5;""> Ingrese al sistema para obtener más detalles sobre la solicitud. </p> <!-- Botón --> <div style=""margin-top:25px; text-align:center;""> <a href=""https://wa.me/584147913306"" style=""background-color:#9B2873; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block;""> Contactar soporte </a> </div> </div> <!-- Footer --> <div style=""background-color:#FF315F; color:#f8f9fa; text-align:center; padding:12px; border-radius:0 0 8px 8px; font-size:0.9rem;""> © 2025 Sistema GS - Todos los derechos reservados </div> </div> </body> </html>
+                                "
                             };
                         }
-                            break;
+                        break;
                     }
                 case "Lista Para Entregar":
                     {
@@ -175,7 +143,9 @@ namespace SistemaGS.API.Extensions
                             To = solicitante?.Correo ?? "",
                             From = "sistema@sistemags.gov",
                             Subject = "Sistema GS - ¡Su ayuda esta lista!",
-                            Body = ""
+                            Body = $@"
+                            <html> <body style=""font-family: Open Sans, sans-serif; color:#333; margin:0; padding:0; background-color:#f4f4f4;""> <div style=""max-width:600px; margin:30px auto; padding:20px; border:1px solid #ddd; border-radius:10px; background-color:#fff;""> <!-- Header --> <div style=""background-color:#9B2873; padding:15px; border-radius:8px 8px 0 0; text-align:center;""> <h2 style=""margin:0; font-family: Montserrat, sans-serif; color:#f8f9fa;""> Sistema GS - ¡Su ayuda está lista! </h2> </div> <!-- Body --> <div style=""padding:20px;""> <h3 style=""font-family: Montserrat, sans-serif; color:#9B2873; margin-top:0;""> ¡Hola {solicitante?.NombreUsuario}! </h3> <p style=""font-size:1.1rem; line-height:1.5; margin:0;""> Su solicitud de ayuda ya se encuentra lista. Comuníquese con el funcionario a cargo para culminar los detalles de la entrega. </p> <p style=""margin-top:15px; line-height:1.5;""> Verifique los detalles de la solicitud en el sistema. </p> <!-- Botón --> <div style=""margin-top:25px; text-align:center;""> <a href=""https://wa.me/584147913306"" style=""background-color:#00B3CB; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block;""> Contactar soporte </a> </div> </div> <!-- Footer --> <div style=""background-color:#FFD515; color:#333; text-align:center; padding:12px; border-radius:0 0 8px 8px; font-size:0.9rem; font-weight:bold;""> © 2025 Sistema GS - Todos los derechos reservados </div> </div> </body> </html>
+                            "
                         };
                         break;
                     }
@@ -186,7 +156,10 @@ namespace SistemaGS.API.Extensions
                             To = solicitante?.Correo ?? "",
                             From = "sistema@sistemags.gov",
                             Subject = "Sistema GS - Solicitud Cerrada",
-                            Body = "Este correo no debería existir"
+                            Body = $@"
+                            <html> <body style=""font-family: Open Sans, sans-serif; color:#333; margin:0; padding:0; background-color:#f4f4f4;""> <div style=""max-width:600px; margin:30px auto; padding:20px; border:1px solid #ddd; border-radius:10px; background-color:#fff;""> <!-- Header --> <div style=""background-color:#FF315F; padding:15px; border-radius:8px 8px 0 0; text-align:center;""> <h2 style=""margin:0; font-family: Montserrat, sans-serif; color:#f8f9fa;""> Sistema GS - Solicitud Cerrada </h2> </div> <!-- Body --> <div style=""padding:20px;""> <h3 style=""font-family: Montserrat, sans-serif; color:#9B2873; margin-top:0;""> ¡Hola {solicitante?.NombreUsuario}! </h3> <p style=""font-size:1.1rem; line-height:1.5; margin:0;""> Se ha cerrado su solicitud bajo el Nro <span style=""font-weight:bold; color:#00B3CB;"">{ayuda.IdAyuda}</span>, le agradecemos por su confianza a lo largo de este proceso. </p> <p style=""margin-top:15px; line-height:1.5;""> Verifique los detalles de la solicitud en el sistema. </p> <!-- Botón --> <div style=""margin-top:25px; text-align:center;""> <a href=""https://wa.me/584147913306"" style=""background-color:#9B2873; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block;""> Contactar soporte </a> </div> </div> <!-- Footer --> <div style=""background-color:#FFD515; color:#333; text-align:center; padding:12px; border-radius:0 0 8px 8px; font-size:0.9rem; font-weight:bold;""> © 2025 Sistema GS - Todos los derechos reservados </div> </div> </body> </html>
+                            "
+
                         };
                         break;
                     }
@@ -196,8 +169,10 @@ namespace SistemaGS.API.Extensions
                         {
                             To = solicitante?.Correo ?? "",
                             From = "sistema@sistemags.gov",
-                            Subject = "Solicitud Rechazada",
-                            Body = "Este correo no debería existir"
+                            Subject = "Sistema GS - Solicitud Rechazada",
+                            Body = $@"
+                            <html> <body style=""font-family: Open Sans, sans-serif; color:#333; margin:0; padding:0; background-color:#f4f4f4;""> <div style=""max-width:600px; margin:30px auto; padding:20px; border:1px solid #ddd; border-radius:10px; background-color:#fff;""> <!-- Header --> <div style=""background-color:#FF315F; padding:15px; border-radius:8px 8px 0 0; text-align:center;""> <h2 style=""margin:0; font-family: Montserrat, sans-serif; color:#f8f9fa;""> Sistema GS - Solicitud Rechazada </h2> </div> <!-- Body --> <div style=""padding:20px;""> <h3 style=""font-family: Montserrat, sans-serif; color:#9B2873; margin-top:0;""> ¡Hola {solicitante?.NombreUsuario}! </h3> <p style=""font-size:1.1rem; line-height:1.5; margin:0;""> Lamentamos informarle que su solicitud bajo el Nro <span style=""font-weight:bold; color:#00B3CB;"">{ayuda.IdAyuda}</span> ha sido rechazada. </p> <p style=""margin-top:15px; line-height:1.5;""> En caso de creer que esta resolución es un error, comuníquese con nosotros. Verifique los detalles de la solicitud en el sistema. </p> <!-- Botón --> <div style=""margin-top:25px; text-align:center;""> <a href=""https://wa.me/584147913306"" style=""background-color:#9B2873; color:#f8f9fa; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block;""> Contactar soporte </a> </div> </div> <!-- Footer --> <div style=""background-color:#FFD515; color:#333; text-align:center; padding:12px; border-radius:0 0 8px 8px; font-size:0.9rem; font-weight:bold;""> © 2025 Sistema GS - Todos los derechos reservados </div> </div> </body> </html>
+                            "
                         };
                         break;
                     }
@@ -208,12 +183,11 @@ namespace SistemaGS.API.Extensions
                             To = "admin@soporteit.sial",
                             From = "sistema@sistemags.gov",
                             Subject = "Error",
-                            Body = "Este correo no debería existir"
+                            Body = "Este correo no debería existir, verifique los logs en caso de error."
                         };
                         break;
                     }
             }
-
             return email;
         }
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -227,12 +201,13 @@ namespace SistemaGS.API.Extensions
                 UsuarioAccion.Correo = user.FindFirst(ClaimTypes.Email)?.Value ?? "N/A";
             }
 
-            if (context.ActionArguments.TryGetValue("ayuda", out object? ayudaObj) && ayudaObj is not null && ayudaObj is AyudaDTO ayuda) Ayuda = ayuda;
-
             var executedContext = await next();
 
             if (executedContext.Result is OkObjectResult okResult && Ayuda is not null)
             {
+                if (context.ActionArguments.TryGetValue("ayuda", out object? ayudaObj) && ayudaObj is not null && ayudaObj is AyudaDTO ayuda) Ayuda = ayuda;
+                if (context.ActionArguments.TryGetValue("IdAyuda", out object? ayudaIdObj) && ayudaIdObj is not null && ayudaIdObj is int idAyuda) Ayuda = await _ayudaService.Obtener(idAyuda);
+
                 SMTPhost smtphost = new SMTPhost()
                 {
                     host = _configuration["SMTP:host"]!,

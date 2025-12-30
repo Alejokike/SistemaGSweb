@@ -59,7 +59,7 @@
                                 <ValidationMessage For="@(() => model.ConfirmarClave)" />
 
                                 <div class="mt-3">
-                                    <button type="submit" disabled="@(IsSending ? true : null)" class="btn btn-primary m-3">Registrarse</button>
+                                    <button type="submit" disabled="@(loadingService.IsLoading ? true : null)" class="btn btn-primary m-3">Registrarse</button>
                                 </div>
                             }
                             else
@@ -177,10 +177,12 @@
 </div>
 
 @code {
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     private UsuarioDTO model = new UsuarioDTO() {Persona = new PersonaDTO(), Rol = new RolDTO()};
 
     private string activeTab = "cuenta";
-    private bool IsSending = false;
 
     public required EditContext editContext;
     public required ValidationMessageStore messageStore;
@@ -224,9 +226,7 @@
 
     private async Task GuardarCambios()
     {
-        if(IsSending) return;
-
-        IsSending = true;
+        if(loadingService.IsLoading) return;
 
         if(model.Clave != model.ConfirmarClave)
         {
@@ -239,7 +239,9 @@
         model.ResetearClave = true;
         model.FechaCreacion = DateTime.Now;
 
+        loadingService.Show();
         var response = await _usuarioService.Crear(model);
+        loadingService.Hide();
 
         if (response.EsCorrecto)
         {
@@ -249,7 +251,6 @@
         else
         {
             _toastService.ShowWarning("No se pudo crear su cuenta");
-            IsSending = false;
             return;
         }
 
