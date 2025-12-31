@@ -122,10 +122,24 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        
-
+        [HttpPut("EditarItem")]
+        public async Task<IActionResult> EditarItem([FromBody] ItemDTO model)
+        {
+            var response = new ResponseDTO<bool>();
+            try
+            {
+                response.EsCorrecto = true;
+                response.Resultado = await _inventarioService.Editar(model);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
         //Descartado temporalmente
-        [HttpPost("ItemsAjax")]
+        [HttpPost("ItemsAjax")]        
         public async Task<IActionResult> ItemsAjax([FromBody] DataTablesRequest request)
         {
             var query = _dbContext.Items.AsQueryable();

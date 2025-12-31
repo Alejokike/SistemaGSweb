@@ -15,7 +15,7 @@
     [Inject]
     private LoadingService loadingService { get; set; } = default!;
 
-    private ItemQuery filtro { get; set; } = new ItemQuery();
+    private ItemQuery filtro { get; set; } = new ItemQuery() { Activo = true };
     private List<ItemDTO> inventario = new List<ItemDTO>();
 
     protected override async Task OnInitializedAsync()

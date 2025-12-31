@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SistemaGS.API.Extensions;
 using SistemaGS.API.Infraestructure;
 using SistemaGS.DTO;
 using SistemaGS.DTO.AuthDTO;
@@ -22,6 +23,7 @@ namespace SistemaGS.API.Controllers
             _dataAccess = dataAccess;
         }
         [HttpPost("Autorizacion")]
+        [ServiceFilter(typeof(AuthFilter))]
         public async Task<IActionResult> Autorizacion([FromBody] LoginDTO model)
         {
             var response = new ResponseDTO<SesionDTO>();
@@ -95,6 +97,9 @@ namespace SistemaGS.API.Controllers
             var response = new ResponseDTO<List<RegistroDTO>>();
             try
             {
+                if (filtro.FechaIni == null) filtro.FechaIni = DateTime.Today;
+                if (filtro.FechaFin == null) filtro.FechaFin = DateTime.Now;
+
                 response.EsCorrecto = true;
                 response.Resultado = await _securityService.Listar(filtro);
             }

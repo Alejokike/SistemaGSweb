@@ -1,9 +1,10 @@
-﻿using SistemaGS.DTO.ModelDTO;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SistemaGS.DTO.ModelDTO;
 using SistemaGS.Service.Contrato;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using Newtonsoft.Json;
 
 namespace SistemaGS.API.Extensions
 {
@@ -19,9 +20,11 @@ namespace SistemaGS.API.Extensions
         public async Task Invoke(HttpContext context)
         {
             if(
-                context.Request.Method == HttpMethods.Post ||
+                (context.Request.Method == HttpMethods.Post ||
                 context.Request.Method == HttpMethods.Put ||
-                context.Request.Method ==  HttpMethods.Delete
+                context.Request.Method ==  HttpMethods.Delete) &&
+                context.Response.StatusCode == 200 &&
+                (context.Request.Path.Value?.Split('/')[3] ?? "") != "Autorizacion"
                 )
             {
                 using (var scope = scopeFactory.CreateScope())
@@ -31,6 +34,7 @@ namespace SistemaGS.API.Extensions
                     try
                     {
                         JsonDummy bodyJson = new JsonDummy();
+
                         bodyJson.Accion = context.Request.Method;
                         bodyJson.status = context.Response.StatusCode;
 
@@ -51,10 +55,10 @@ namespace SistemaGS.API.Extensions
                                     leaveOpen: true
                                 )
                             )
-                            bodyJson.Detalle = await reader.ReadToEndAsync();
-
-                            context.Request.Body.Position = 0;
-
+                            {
+                                bodyJson.Detalle = await reader.ReadToEndAsync();
+                                context.Request.Body.Position = 0;
+                            }
                             try
                             {
                                 JsonDocument.Parse(bodyJson.Detalle);
@@ -69,20 +73,12 @@ namespace SistemaGS.API.Extensions
                         RegistroDTO registro = new RegistroDTO()
                         {
                             TablaAfectada = context.Request.Path.Value?.Split('/')[2] ?? "",
-                            IdRegistroAfectado = int.TryParse(context.Request.Path.Value?.Split('/').Last(), out int result) ? result : 0,
+                            IdRegistroAfectado = int.TryParse(context.Request.Path.Value?.Split('/').Last(), out int result) ? result : ObjectTryParse(bodyJson.Detalle, out var id) ? id!.Value : 0,
                             Accion = context.Request.Path.Value?.Split('/')[3] ?? "",
                             UsuarioResponsable = Convert.ToInt32(context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "0"),
                             Detalle = JsonConvert.SerializeObject(bodyJson),
                             FechaAccion = DateTime.Now,
                         };
-
-                        //RegistroDTO registro = new RegistroDTO();
-                        //registro.TablaAfectada = context.Request.Path.Value?.Split('/')[2] ?? "";
-                        //registro.IdRegistroAfectado = int.TryParse(context.Request.Path.Value?.Split('/').Last(), out int result) ? result : 0;
-                        //registro.Accion = context.Request.Path.Value?.Split('/')[3] ?? "";
-                        //registro.UsuarioResponsable = Convert.ToInt32(context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "0");
-                        //registro.Detalle = body;
-                        //registro.FechaAccion = DateTime.Now;
 
                         await securityService.Registrar(registro);
                     }
@@ -92,7 +88,46 @@ namespace SistemaGS.API.Extensions
                     }
                 }
             }
+
             await requestDelegate(context);
+        }
+        private static bool ObjectTryParse(string body, out int? id)
+        {
+            id = null;
+
+            if (string.IsNullOrWhiteSpace(body)) return false;
+
+            try
+            {
+                JObject result = JObject.Parse(body);
+
+                if (result == null) return false;
+
+                var knownTypes = new string[]
+                {
+                    "cedula",
+                    "idItem",
+                    "idTransaccion",
+                    "idAyuda",
+                    "idRegistro",
+                    "idRol"
+                };
+
+                foreach(string key in knownTypes)
+                {
+                    var token = result[key];
+                    if (token != null && token.Type == JTokenType.Integer)
+                    {
+                        id = token.Value<int>();
+                        return true;
+                    }
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
     internal class JsonDummy()

@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
 using SistemaGS.DTO;
-using SistemaGS.DTO.AuthDTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
+using SistemaGS.WebAssembly.Extensiones;
 using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Json;
 
@@ -25,30 +26,23 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
                 ["FechaFin"] = filtro.FechaFin.HasValue ? filtro.FechaFin.Value.ToString("yyyy-MM-dd") : null
             };
 
-            var url = QueryHelpers.AddQueryString("Security/Lista", queryparams);
-
+            var url = QueryHelpers.AddQueryString("Security/Listar", queryparams);
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<RegistroDTO>>>(url))!;
         }
         public async Task<ResponseDTO<RegistroDTO>> Obtener(int id)
         {
-            return await new Task<ResponseDTO<RegistroDTO>>(() => new ResponseDTO<RegistroDTO>()
-            {
-                EsCorrecto = true,
-                Mensaje = "",
-                Resultado = new RegistroDTO()
-            });
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<RegistroDTO>>($"Security/Obtener/{id}"))!;
         }
-        public Task<ResponseDTO<SesionDTO>> Autorizar()
+        public async Task<ResponseDTO<SesionDTO>> Autorizacion(LoginDTO model)
         {
-            throw new NotImplementedException();
-        }
-        public Task<ResponseDTO<AuthResponse>> Refresh()
-        {
-            throw new NotImplementedException();
-        }
-        public Task Logout()
-        {
-            throw new NotImplementedException();
+            LoginDTO login = JsonConvert.DeserializeObject<LoginDTO>(JsonConvert.SerializeObject(model))!;
+            login.Clave = Ferramentas.ConvertToSha256(login.Clave);
+            model.Clave = "";
+
+            var response = await _httpClient.PostAsJsonAsync("Security/Autorizacion", login);
+
+            var result = await response.Content.ReadFromJsonAsync<ResponseDTO<SesionDTO>>();
+            return result!;
         }
     }
 }

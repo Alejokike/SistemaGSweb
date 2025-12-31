@@ -11,5 +11,6 @@ namespace SistemaGS.Service.Contrato
         Task<ItemDTO> ObtenerItem(int IdItem, string nombre);
         Task<InventarioDTO> Registrar(InventarioDTO Transaccion);
         Task<bool> Desbloquear(List<InventarioDTO> movimientos, int IdAyuda);
+        Task<bool> Editar(ItemDTO model);
     }
 }

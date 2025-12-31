@@ -1,6 +1,5 @@
 ﻿using Blazored.LocalStorage;
 using SistemaGS.DTO;
-using SistemaGS.WebAssembly.Services.Contrato;
 using System.Net.Http.Headers;
 
 namespace SistemaGS.WebAssembly.Extensiones
@@ -8,11 +7,9 @@ namespace SistemaGS.WebAssembly.Extensiones
     public class AuthMessageHandler : DelegatingHandler
     {
         private readonly ILocalStorageService _localStorageService;
-        private readonly ISecurityService _securityService;
-        public AuthMessageHandler(ILocalStorageService localStorageService, ISecurityService securityService)
+        public AuthMessageHandler(ILocalStorageService localStorageService)
         {
             _localStorageService = localStorageService;
-            _securityService = securityService;
         }
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -24,6 +21,7 @@ namespace SistemaGS.WebAssembly.Extensiones
             }
 
             return await base.SendAsync(request, cancellationToken);
+            //var response = await base.SendAsync(request, cancellationToken);
 
             //if (response.StatusCode == HttpStatusCode.Unauthorized && sesion != null)
             //{
@@ -39,8 +37,7 @@ namespace SistemaGS.WebAssembly.Extensiones
             //}
             //return response;
 
-            /*
-             * Este No es
+
             //if (response.StatusCode == HttpStatusCode.Unauthorized && sesion != null)
             //{
             //    var refreshRequest = new HttpRequestMessage(HttpMethod.Post, "Security/Refresh")
@@ -65,7 +62,7 @@ namespace SistemaGS.WebAssembly.Extensiones
             //    }
             //}
             //return response;
-            */
+
         }
     }
 }

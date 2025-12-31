@@ -39,6 +39,27 @@ namespace SistemaGS.Service.Implementacion
                 return false;
             }
         }
+
+        public async Task<bool> Editar(ItemDTO model)
+        {
+            try
+            {
+                bool result = false;
+                if(model.IdItem == 0)
+                {
+                    var responseBD = await _ItemRepository.Crear(_mapper.Map<Item>(model));
+                    result = responseBD is not null;
+                }
+                else result = await _ItemRepository.Editar(_mapper.Map<Item>(model));
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
         public async Task<List<InventarioDTO>> Lista(InventarioQuery filtro)
         {
             try

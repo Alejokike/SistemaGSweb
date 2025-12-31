@@ -15,11 +15,13 @@ namespace SistemaGS.Service.Implementacion
     {
         private readonly IGenericoRepository<Registro> _auditoriaRepository;
         private readonly IGenericoRepository<Usuario> _usuarioRepository;
+        private readonly IGenericoRepository<Rol> _RolRepository;
         private readonly IMapper _mapper;
-        public SecurityService(IGenericoRepository<Usuario> usuarioRepository, IGenericoRepository<Registro> auditoriaRepository, IMapper mapper)
+        public SecurityService(IGenericoRepository<Usuario> usuarioRepository, IGenericoRepository<Registro> auditoriaRepository, IGenericoRepository<Rol> rolRepository, IMapper mapper)
         {
             _usuarioRepository = usuarioRepository;
             _auditoriaRepository = auditoriaRepository;
+            _RolRepository = rolRepository;
             _mapper = mapper;
         }
         public async Task<bool> Registrar(RegistroDTO registro)
@@ -77,7 +79,12 @@ namespace SistemaGS.Service.Implementacion
 
                 if (responseBD != null)
                 {
-                    if (Ferramentas.ConvertToSha256(login.Clave + responseBD.Cedula) == responseBD.Clave) return _mapper.Map<SesionDTO>(responseBD);
+                    if (Ferramentas.ConvertToSha256(login.Clave + responseBD.Cedula) == responseBD.Clave)
+                    {
+                        var sesion = _mapper.Map<SesionDTO>(responseBD);
+                        sesion.Rol = _mapper.Map<RolDTO>(await _RolRepository.Consultar(r => r.IdRol == responseBD.IdRol).FirstAsync());
+                        return sesion;
+                    }
                     else throw new TaskCanceledException("Contraseña incorrecta");
                 }
                 else throw new TaskCanceledException("Usuario no encontrado");

@@ -66,7 +66,7 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         }
         public async Task<ResponseDTO<bool>> Editar(ItemDTO item)
         {
-            var response = await _httpClient.PutAsJsonAsync("Inventario/Editar", item);
+            var response = await _httpClient.PutAsJsonAsync("Inventario/EditarItem", item);
             var result = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
             return result!;
         }

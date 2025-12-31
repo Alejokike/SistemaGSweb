@@ -1,36 +1,34 @@
 ﻿@page "/HistoricoTransacciones"
+
 @inject ISecurityService securityService;
 @inject NavigationManager navigationManager;
 
 <ModalLayout Mostrar="Mostrar"
-             Titulo="Seleccione el tipo de operación"
+             MostrarCancelar ="false"
+             Titulo="Detalle Registro"
              TextoConfirmar="Cerrar"
-             OnConfirmar="(() => {Mostrar = false; Registro = new RegistroDTO();})">
+             OnCerrar="@(() => {Mostrar = false; Registro = new RegistroDTO();})"
+             OnConfirmar="@(() => {Mostrar = false; Registro = new RegistroDTO();})">
     <div class="mb-3">
-        <div class="input-group col-6 mt-1">
-            <label class="input-group-text bg-light">ID Transacción</label>
-            <div class="form-control">@Registro.IdRegistro</div>
-        </div>
+        <label class="form-label fw-bold">ID Transacción</label>
+        <div class="form-label">@Registro.IdRegistro</div>
     </div>
     <div class="mb-3">
         <label class="form-label fw-bold">Transacción</label>
-        <div class="form-control">Acción: @Registro.Accion</div>
-        <div class="form-control">Tabla Afectada: @Registro.TablaAfectada</div>
-        <div class="form-control">ID Registro afectado: @Registro.IdRegistroAfectado</div>
-    </div>
-    <div class="mb-3">
-        <div class="input-group col-6 mt-1">
-            <label class="input-group-text bg-light">ID Usuario Responsable</label>
-            <div class="form-control">@Registro.UsuarioResponsable</div>
-        </div>
-        <div class="input-group col-6 mt-1">
-            <label class="input-group-text bg-light">Fecha de la transacción</label>
-            <div class="form-control">@Registro.FechaAccion.ToString("dd/MM/yyyy")</div>
-        </div>
+        <div class="form-label">Acción: @Registro.Accion</div>
+        <div class="form-label">Tabla Afectada: @Registro.TablaAfectada</div>
+        <div class="form-label">ID Registro afectado: @Registro.IdRegistroAfectado</div>
+
+        <label class="form-label fw-bold mt-1">ID Usuario Responsable</label>
+        <div class="form-label">@Registro.UsuarioResponsable</div>
+
+        <label class="form-label fw-bold mt-1">Fecha de la transacción</label>
+        <div class="form-label">@Registro.FechaAccion.ToString("dd/MM/yyyy")</div>
     </div>
     <div class="mb-3">
         <label class="form-label fw-bold">Detalle</label>
-        <div class="form-control">@Registro.Detalle</div>
+        <pre class="bg-light p-2">@Formato(Registro.Detalle)</pre>
+        
     </div>
 </ModalLayout>
 
@@ -110,8 +108,39 @@
         loadingService.Hide();
         if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
     }
+    private string Formato(string jsonCrudo)
+    {
+        if (!Mostrar) return "";
+        var parsed = Newtonsoft.Json.Linq.JObject.Parse(jsonCrudo);
+        if (parsed.TryGetValue("Detalle", out var detalleToken)) 
+        { 
+            var detalleString = detalleToken?.ToString(); 
+            if (!string.IsNullOrWhiteSpace(detalleString)) 
+            { 
+                try 
+                {
+                    var innerArray = Newtonsoft.Json.Linq.JArray.Parse(detalleString); 
+                    parsed["Detalle"] = innerArray; 
+                } 
+                catch 
+                {
+                    try 
+                    { 
+                        var innerObj = Newtonsoft.Json.Linq.JObject.Parse(detalleString); 
+                        parsed["Detalle"] = innerObj; 
+                    } 
+                    catch
+                    {
+                        
+                    } 
+                } 
+            } 
+        }
+        return parsed.ToString(Newtonsoft.Json.Formatting.Indented);
+    }
     private void CargarTransaccion(RegistroDTO registro)
     {
         Registro = registro;
+        Mostrar = true;
     }
 }

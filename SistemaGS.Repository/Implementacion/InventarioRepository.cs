@@ -105,8 +105,9 @@ namespace SistemaGS.Repository.Implementacion
                                     (query.ID == 0 || i.IdItem == query.ID) &&
                                     (string.IsNullOrEmpty(query.Nombre) || EF.Functions.Like((i.Nombre ?? "").ToLower(), query.Nombre.ToLower())) &&
                                     (string.IsNullOrEmpty(query.Categoria) || i.Categoria == query.Categoria) &&
-                                    (string.IsNullOrEmpty(query.Unidad) || i.Unidad == query.Unidad)
-                                   select i;
+                                    (string.IsNullOrEmpty(query.Unidad) || i.Unidad == query.Unidad) &&
+                                    (query.Activo == null || query.Activo == i.Activo)
+                                    select i;
                     return await consulta.ToListAsync();
                 }
                 catch (Exception ex)

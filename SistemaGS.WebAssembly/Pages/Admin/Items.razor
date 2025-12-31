@@ -92,6 +92,15 @@
                         <ValidationMessage For="@(() => model.Unidad)" />
                     </div>
 
+                    <div class="form-row mt-1">
+                        <div class="form-check form-switch d-inline-flex align-items-center gap-2 row-cols-1">
+                            <div class="ms-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="userStatusSwitch" @bind="model.Activo">
+                                <label class="form-check-label">@((model.Activo) ? "Activo" : "Inactivo")</label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mt-3">
                         <div class="d-grid gap-1">
                             <button class="btn btn-outline-primary float-end" type="submit">Cargar movimiento</button>
@@ -109,7 +118,7 @@
 
     public bool Estado { get; set; } = true;
 
-    private ItemQuery filtro { get; set; } = new ItemQuery();
+    private ItemQuery filtro { get; set; } = new ItemQuery() { Activo = null};
     private List<ItemDTO> inventario = new List<ItemDTO>();
 
     private bool agregar = true;
@@ -137,24 +146,31 @@
         }
         else
         {
+
+            if (loadingService.IsLoading) return;
+            loadingService.Show();
             var response = await inventarioService.ObtenerItem(model.IdItem);
+            loadingService.Hide();
             if (response.EsCorrecto && response.Resultado != null) { model = response.Resultado; agregar = false; }
             else { model = new ItemDTO(); agregar = true; }
         }
     }
 
-    private void Guardar()
+    private async Task Guardar()
     {
         if(loadingService.IsLoading) return;
         loadingService.Show();
-        if(model.IdItem != 0)
-        {
-
-        }
-        else
-        {
-            
-        }
+        var response = await inventarioService.Editar(model);
         loadingService.Hide();
+        if (response.EsCorrecto)
+        {
+            if (model.IdItem == 0) toastService.ShowSuccess("Se ha añadido el código del ítem al inventario");
+            else toastService.ShowSuccess("Se ha modificado el ítem en el inventario");
+            agregar = true;
+            model = new ItemDTO();
+        }
+        else toastService.ShowError($"Error: {response.Mensaje}");
+
+        await ListarInventario();
     }
 }

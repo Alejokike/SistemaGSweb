@@ -62,6 +62,7 @@ builder.Services.AddScoped<IAyudaService, AyudaService>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISecurityService, SecurityService>();
+builder.Services.AddScoped<AuthFilter>();
 builder.Services.AddScoped<CorreoFilter>();
 
 builder.Services.AddCors(options =>

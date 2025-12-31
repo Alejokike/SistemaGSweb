@@ -1,10 +1,11 @@
 ﻿@page "/login"
 @layout LoginLayout
 
-@inject IUsuarioService _usuarioService;
+@inject ISecurityService securityService;
 @inject NavigationManager navManager;
 @inject IToastService _toastService;
 @inject AuthenticationStateProvider authenticationStateProvider;
+
 
 <div class="col-lg-5 mb-5">
     <div class="card rounded-lg mt-5">
@@ -51,7 +52,7 @@
         if (loadingService.IsLoading) return;
 
         loadingService.Show();
-        var response = await _usuarioService.Autorizacion(model);
+        var response = await securityService.Autorizacion(model);
 
         if (response.EsCorrecto)
         {

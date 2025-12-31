@@ -185,6 +185,7 @@
     }
     protected override void OnParametersSet()
     {
+        if (typeof(T) == typeof(RegistroDTO) || esAyuda) Filtrados = TotalRegistros = listaOrigen.Count();
         ActualizarParametros();
     }
     private void ActualizarParametros()

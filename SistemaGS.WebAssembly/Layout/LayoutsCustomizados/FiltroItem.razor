@@ -48,7 +48,7 @@
                         <div class="form-check form-switch d-inline-flex align-items-center gap-2 row-cols-1">
                             <div class="p-3">
                                 <input class="form-check-input" type="checkbox" role="switch" id="userStatusSwitch" @bind="filtro.Activo">
-                                <label class="form-check-label">@((filtro.Activo.HasValue && filtro.Activo.Value) ? "Activo" : "Inactivo")</label>
+                                <label class="form-check-label">@(filtro.Activo.HasValue ? filtro.Activo.Value ? "Activo" : "Inactivo" : "Todos")</label>
                             </div>
                         </div>
                     </div>

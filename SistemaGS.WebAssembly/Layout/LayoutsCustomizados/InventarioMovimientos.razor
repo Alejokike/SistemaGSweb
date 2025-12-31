@@ -50,7 +50,7 @@
         </div>
     </EditForm>
 
-    <TableLayout listaOrigen="Movimientos" T="InventarioDTO" MostrarAdministrador="true" Retorno="async (InventarioDTO m) => { await MostrarItem(m.Item); }" />
+    <TableLayout listaOrigen="Movimientos" T="InventarioDTO" MostrarAdministrador="true" Retorno="async (InventarioDTO m) => { await MostrarItem(m); }" />
 </div>
 
 @code{
@@ -77,23 +77,31 @@
     {
         string validar = item.IdItem != 0 ? item.IdItem.ToString() : "No revisado por un funcionario";
         string resultado =
-           $@"<ul>
+           $@"<div style='text-align:left'>
+           <ul>
            <li><strong>ID:</strong> {validar}</li>
            <li><strong>Nombre:</strong> {item.Nombre}</li>
            <li><strong>categoría:</strong> {item.Categoria}</li>
            <li><strong>Unidad:</strong> {item.Unidad}</li>
            <li><strong>Descripción:</strong> {item.Descripcion}</li>
            <li><strong>Stock en Inventario:</strong> {item.Cantidad}</li>
-           </ul>";
+           </ul>
+           </div>";
         return resultado;
     }
-    private async Task MostrarItem(ItemDTO item)
+    private async Task MostrarItem(InventarioDTO movimiento)
     {
+        if(loadingService.IsLoading) return;
+        loadingService.Show();
+        var response = await inventarioService.Obtener(movimiento.IdTransaccion);
+        loadingService.Hide();
+        if (response.EsCorrecto && response.Resultado != null) movimiento = response.Resultado;
+
         SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
         {
             Title = "Detalle ítem",
-            Html = Detallar(item),
-            Icon = item.IdItem == 0 ? SweetAlertIcon.Question : SweetAlertIcon.Success,
+            Html = Detallar(movimiento.Item),
+            Icon = movimiento.Item.IdItem == 0 ? SweetAlertIcon.Question : SweetAlertIcon.Success,
             ShowCancelButton = false,
             ConfirmButtonText = "Cerrar"
         });

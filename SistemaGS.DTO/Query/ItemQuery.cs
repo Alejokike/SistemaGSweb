@@ -6,7 +6,7 @@
         public string? Nombre { get; set; } = "";
         public string? Categoria { get; set; } = "";
         public string? Unidad { get; set; } = "";
-        public bool? Activo { get; set; }
+        public bool? Activo { get; set; } = true;
         public DateTime? FechaIni { get; set; }
         public DateTime? FechaFin { get; set; }
     }

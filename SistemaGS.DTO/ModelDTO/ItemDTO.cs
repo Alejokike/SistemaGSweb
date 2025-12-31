@@ -36,7 +36,7 @@ namespace SistemaGS.DTO.ModelDTO
         [RegularExpression(@"^\d+([,]\d{1,2})?$", ErrorMessage = "Formato inválido")]
         public decimal Cantidad { get; set; }
         [Display(AutoGenerateField = false, Description = "Admin")]
-        public bool Activo { get; set; }
+        public bool Activo { get; set; } = true;
         [Display(Name = "Fecha de Creación", AutoGenerateField = false, Description = "Admin")]
         public DateTime FechaCreacion { get; set; }
     }
