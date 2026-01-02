@@ -14,9 +14,10 @@
 <AuthorizeView>
     <Authorized>
         @{
-            int IdLogged = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
+            int IdLogged = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "0"));
             disable = IdLogged == model.Cedula;
             Rol = context.User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)!.Value;
+            //if (IdLogged == 0) _navService.NavigateTo("/login");
             if (ID != IdLogged && Rol != "Administrador") _navService.NavigateTo($"/Usuario/{IdLogged}");
         }
     </Authorized>

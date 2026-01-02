@@ -28,6 +28,7 @@
         }
     default:
         {
+            navigationManager.NavigateTo("/login");
             break;
         }
 }
@@ -59,8 +60,8 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var User = authState.User;
 
-        ID = Convert.ToInt32((User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
-        Rol = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)!.Value;
+        ID = Convert.ToInt32((User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "0"));
+        Rol = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Role)?.Value ?? "";
     }
     protected override async Task OnParametersSetAsync()
     {

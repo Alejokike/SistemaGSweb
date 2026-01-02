@@ -33,7 +33,7 @@ namespace SistemaGS.DTO.ModelDTO
         public string Unidad { get; set; } = null!;
         //[Required(ErrorMessage = "Ingrese una cantidad")]
         [Display(Name = "Cantidad", AutoGenerateField = false)]
-        [RegularExpression(@"^\d+([,]\d{1,2})?$", ErrorMessage = "Formato inválido")]
+        //[RegularExpression(@"^\d+([,]\d{1,2})?$", ErrorMessage = "Formato inválido")]
         public decimal Cantidad { get; set; }
         [Display(AutoGenerateField = false, Description = "Admin")]
         public bool Activo { get; set; } = true;

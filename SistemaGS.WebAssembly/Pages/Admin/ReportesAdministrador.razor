@@ -4,6 +4,8 @@
 @inject SweetAlertService Swat;
 @inject IJSRuntime JS;
 
+@attribute [Authorize(Roles = "Administrador")]
+
 <h3 class="m-3">Reportes</h3>
 
 <FiltroAyuda filtro="filtro" Estado="false" retorno="@(EventCallback.Factory.Create<AyudaQuery>(this, ListarAyuda))" />

@@ -3,6 +3,8 @@
 @inject ISecurityService securityService;
 @inject NavigationManager navigationManager;
 
+@attribute [Authorize(Roles = "Administrador")]
+
 <ModalLayout Mostrar="Mostrar"
              MostrarCancelar ="false"
              Titulo="Detalle Registro"

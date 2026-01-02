@@ -16,7 +16,7 @@
 <AuthorizeView>
     <Authorized>
         @{
-            int IdLogged = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value ?? "0"));
+            int IdLogged = Convert.ToInt32((context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "0"));
             if (ID != IdLogged) _navService.NavigateTo($"/Solicitar/{IdLogged}/0");
         }
     </Authorized>

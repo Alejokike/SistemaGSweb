@@ -3,7 +3,9 @@
 @inject IInventarioService inventarioService;
 @inject IToastService toastService;
 
-<h3 clss="m-3">Administrar Items</h3>
+@attribute [Authorize(Roles = "Administrador")]
+
+<h3 class="m-3">Administrar Items</h3>
 
 <FiltroItem filtro="filtro" Estado="Estado" retorno="EventCallback.Factory.Create<ItemQuery>(this, ListarInventario)" />
 <div class="card mt-2 mb-2">

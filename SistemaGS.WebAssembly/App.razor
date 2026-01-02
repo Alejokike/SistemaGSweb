@@ -7,7 +7,7 @@
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
                     @{
-                        if (context.User.Identity?.IsAuthenticated != true) navManager.NavigateTo("/FundacionGS");
+                        if (context.User.Identity?.IsAuthenticated != true) navManager.NavigateTo("/login");
                         else
                         {
                             <h1 class="alert alert-danger m-5">No esta autorizado para ver esta página</h1>

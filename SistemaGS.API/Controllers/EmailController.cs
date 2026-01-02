@@ -1,8 +1,4 @@
-﻿using MailKit.Net.Smtp;
-using MailKit.Security;
-using Microsoft.AspNetCore.Mvc;
-using MimeKit;
-using MimeKit.Text;
+﻿using Microsoft.AspNetCore.Mvc;
 using SistemaGS.DTO;
 using SistemaGS.DTO.Email;
 using SistemaGS.DTO.ModelDTO;

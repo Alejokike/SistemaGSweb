@@ -4,7 +4,6 @@ using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
 using SistemaGS.Service.Contrato;
-using System.Reflection.Metadata;
 
 namespace SistemaGS.API.Controllers
 {

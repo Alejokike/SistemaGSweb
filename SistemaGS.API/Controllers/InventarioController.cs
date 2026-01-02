@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SistemaGS.API.Extensions;
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
-using SistemaGS.Repository.DBContext;
 using SistemaGS.Service.Contrato;
 
 namespace SistemaGS.API.Controllers
@@ -13,12 +11,10 @@ namespace SistemaGS.API.Controllers
     [ApiController]
     public class InventarioController : ControllerBase
     {
-        private readonly DbsistemaGsContext _dbContext;
         private readonly IInventarioService _inventarioService;
-        public InventarioController(IInventarioService inventarioService, DbsistemaGsContext dbContext)
+        public InventarioController(IInventarioService inventarioService)
         {
             _inventarioService = inventarioService;
-            _dbContext = dbContext;
         }
         [HttpGet("Listar")]
         public async Task<IActionResult> Lista([FromQuery] InventarioQuery filtro)
@@ -138,7 +134,7 @@ namespace SistemaGS.API.Controllers
             }
             return Ok(response);
         }
-        //Descartado temporalmente
+        /*Descartado temporalmente
         [HttpPost("ItemsAjax")]        
         public async Task<IActionResult> ItemsAjax([FromBody] DataTablesRequest request)
         {
@@ -213,5 +209,6 @@ namespace SistemaGS.API.Controllers
 
             return Ok(response);
         }
+        */
     }
 }

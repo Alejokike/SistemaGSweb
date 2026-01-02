@@ -2,6 +2,7 @@
 using SistemaGS.DTO;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
+using Microsoft.JSInterop;
 
 namespace SistemaGS.WebAssembly.Extensiones
 {
