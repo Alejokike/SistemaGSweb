@@ -44,19 +44,24 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                bool result = false;
-                if(model.IdItem == 0)
+                bool result = false;                
+                if (model.IdItem == 0)
                 {
                     var responseBD = await _ItemRepository.Crear(_mapper.Map<Item>(model));
                     result = responseBD is not null;
                 }
-                else result = await _ItemRepository.Editar(_mapper.Map<Item>(model));
+                else
+                {
+                    var busqueda = await _ItemRepository.Consultar(i => i.IdItem == model.IdItem).FirstOrDefaultAsync();
+                    if (busqueda is not null && model.Activo == false && busqueda.Activo == true && busqueda.Cantidad > 0) throw new TaskCanceledException("No se puede inactivar un ítem con stock en inventario");                    
+                    result = await _ItemRepository.Editar(_mapper.Map<Item>(model));
+                }
                 return result;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
+                throw;
             }
         }
 

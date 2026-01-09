@@ -1,0 +1,10 @@
+.tabla-modal { 
+	white-space: nowrap !important; 
+}
+.swal2-html-container { 
+	white-space: nowrap !important; 
+	word-break: keep-all !important; 
+} 
+.swal2-html-container td { 
+	white-space: nowrap !important; 
+}

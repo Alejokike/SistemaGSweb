@@ -201,12 +201,14 @@ namespace SistemaGS.API.Extensions
                 UsuarioAccion.Correo = user.FindFirst(ClaimTypes.Email)?.Value ?? "N/A";
             }
 
+            if (context.ActionArguments.TryGetValue("ayuda", out object? ayudaObj) && ayudaObj is not null && ayudaObj is AyudaDTO ayuda) Ayuda = ayuda;
+
             var executedContext = await next();
 
             if (executedContext.Result is OkObjectResult okResult && Ayuda is not null)
             {
-                if (context.ActionArguments.TryGetValue("ayuda", out object? ayudaObj) && ayudaObj is not null && ayudaObj is AyudaDTO ayuda) Ayuda = ayuda;
-                if (context.ActionArguments.TryGetValue("IdAyuda", out object? ayudaIdObj) && ayudaIdObj is not null && ayudaIdObj is int idAyuda) Ayuda = await _ayudaService.Obtener(idAyuda);
+                //if (context.ActionArguments.TryGetValue("IdAyuda", out object? ayudaIdObj) && ayudaIdObj is not null && ayudaIdObj is int idAyuda) 
+                Ayuda = await _ayudaService.Obtener(Ayuda.IdAyuda);
 
                 SMTPhost smtphost = new SMTPhost()
                 {

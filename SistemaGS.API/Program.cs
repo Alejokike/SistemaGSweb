@@ -28,6 +28,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
+        //opt.Authority = "https://4s5mmlnk-7165.use2.devtunnels.ms/";
         opt.RequireHttpsMetadata = true;
         opt.TokenValidationParameters = new TokenValidationParameters
         {
@@ -69,7 +70,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Nueva Politica",app =>
     {
-        app.AllowAnyOrigin()
+        app.WithOrigins("https://localhost:7165" ,"https://4s5mmlnk-7165.use2.devtunnels.ms")
+        //app.AllowAnyOrigin()
         .AllowAnyMethod()
         .AllowAnyHeader();
     });

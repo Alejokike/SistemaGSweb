@@ -52,15 +52,16 @@ namespace SistemaGS.Service.Implementacion
                 email.Subject = correo.Subject;
                 email.Body = new TextPart(TextFormat.Html) { Text = correo.Body.ToString() };
 
+                string response;
                 using (var smtp = new SmtpClient())
                 {
                     smtp.Connect(smtphost.host, smtphost.port, SecureSocketOptions.StartTls);
                     smtp.Authenticate(smtphost.auth.user, smtphost.auth.pass);
-                    await smtp.SendAsync(email);
-                    smtp.Disconnect(true);
+                    response = await smtp.SendAsync(email);
+                    await smtp.DisconnectAsync(true);
                 }
 
-                return true;
+                return response.StartsWith("Accepted");
             }
             catch (Exception ex)
             {

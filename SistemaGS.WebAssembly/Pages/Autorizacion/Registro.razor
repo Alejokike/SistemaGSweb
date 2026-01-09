@@ -224,6 +224,34 @@
         };
     }
 
+    bool esRegistro = false;
+    string ClaveTemporal = "";
+    string Clave = "";
+    DateTime expires;
+
+    private async Task ConfirmarClave()
+    {
+        if(loadingService.IsLoading) return;
+
+        if (model.Clave != model.ConfirmarClave)
+        {
+            _toastService.ShowWarning("Las contrasñas no coinciden");
+            return;
+        }
+        if(expires < DateTime.Now)
+        {
+            _toastService.ShowWarning("Clave temporal vencida");
+            return;
+        }
+        if(ClaveTemporal != Clave)
+        {
+            _toastService.ShowError("Clave inválida");
+            return;
+        }
+
+        await GuardarCambios();
+    }
+
     private async Task GuardarCambios()
     {
         if(loadingService.IsLoading) return;

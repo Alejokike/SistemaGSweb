@@ -787,9 +787,9 @@ namespace SistemaGS.Util
                             {
                                 column.Item().Text(txt =>
                                 {
-                                    txt.Span("Item más solicitado: ").SemiBold(); txt.Span(ms.Nombre);
+                                    txt.Span("Item más solicitado: ").SemiBold(); txt.Line(ms.Nombre);
                                     string x = ms.Unidad == "VE" ? ms.CantidadSolicitada.ToString("N2") : ms.CantidadSolicitada.ToString("N2");
-                                    txt.Line("Cantidad solicitada: ").SemiBold(); txt.Span(x);
+                                    txt.Span("Cantidad solicitada: ").SemiBold(); txt.Line(x);
                                     txt.Line("");
                                 });
                             }

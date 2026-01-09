@@ -24,7 +24,9 @@ builder.Services.AddScoped(sp =>
 {
     var handler = sp.GetRequiredService<AuthMessageHandler>();
     handler.InnerHandler = new HttpClientHandler();
-    return new HttpClient(handler) { BaseAddress = new Uri("http://localhost:5006/api/") };
+    //return new HttpClient(handler) { BaseAddress = new Uri("https://4s5mmlnk-5005.use2.devtunnels.ms/api/") };
+    //return new HttpClient(handler) { BaseAddress = new Uri("http://localhost:5006/api/") };
+    return new HttpClient(handler) { BaseAddress = new Uri("https://localhost:5005/api/") };
 });
 
 builder.Services.AddBlazoredLocalStorage();

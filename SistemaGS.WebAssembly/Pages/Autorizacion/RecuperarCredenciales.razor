@@ -15,7 +15,7 @@
             {
                 case 0:
                     {
-                        <EditForm Model="correo" OnValidSubmit="@(async () => {await MandarCorreo(); IsSending = true;})">
+                        <EditForm Model="correo" OnValidSubmit="@(async () => {await MandarCorreo();})">
                             <DataAnnotationsValidator />
                             <div class="form-floating mb-3">
                                 <InputText class="form-control" id="inputCorreo" type="text" placeholder="Ingrese su correo" @bind-value="correo.correo" autocomplete="off" />
@@ -23,7 +23,7 @@
                                 <ValidationMessage For="@(() => correo.correo)" />
                             </div>
                             <div class="d-grid gap-1 mt-4 mb-0">
-                                <button class="btn btn-primary" disabled="@(IsSending ? true : null)" type="submit">@(IsSending ? "Enviando, espere un momento" : "Enviar clave al correo")</button>
+                                <button class="btn btn-primary" disabled="@(loadingService.IsLoading ? true : null)" type="submit">@(loadingService.IsLoading ? "Enviando, espere un momento" : "Enviar clave al correo")</button>
                             </div>
                         </EditForm>
 
@@ -35,6 +35,9 @@
                             <InputText class="form-control" id="inputClave" placeholder="Ingrese su correo" @bind-value="Clave" autocomplete="off" />
                             <label for="inputClave">Ingrese clave temporal</label>
                         </div>
+
+                        @* <div class="text-center form-label"><small>Tiempo restante de la clave: </small></div> *@
+
                         <div class="d-grid gap-1 mt-4 mb-0">
                             <button class="btn btn-primary" @onclick="ConfirmarClave">Enviar</button>
                         </div>
@@ -57,7 +60,7 @@
                             </div>
 
                             <div class="d-grid gap-1 mt-4 mb-0">
-                                <button class="btn btn-primary" disabled="@(IsSending ? true : null)" type="submit">Cambiar Clave</button>
+                                <button class="btn btn-primary" disabled="@(loadingService.IsLoading ? true : null)" type="submit">Cambiar Clave</button>
                             </div>
                         </EditForm>
                         break;
@@ -76,21 +79,22 @@
 </div>
 
 @code {
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
     int Estado = 0;
 
     Correo correo { get; set; } = new Correo();
 
     string ClaveTemporal = "";
+    DateTime expires;
     string Clave = "";
 
     UsuarioDTO usuario = new UsuarioDTO();
 
-    private bool IsSending = false;
     private async Task MandarCorreo()
     {
-        if (IsSending) return;
-
-        IsSending = true;
+        if (loadingService.IsLoading) return;
 
         var response = await emailService.ObtenerUsuarioByCorreo(correo.correo);
         if (response.EsCorrecto && response.Resultado != null)
@@ -99,6 +103,10 @@
             usuario.Clave = "";
 
             ClaveTemporal = Ferramentas.GenerateCode();
+            expires = DateTime.Now.AddMinutes(5);
+
+            loadingService.Show();
+            
             var CorreoEnviado = await emailService.EnviarCorreo(new DTO.Email.EmailDTO()
                 {
                     From = "sistema@sistemags.gov",
@@ -127,48 +135,44 @@
                     </html>
                     "
                 });
+            loadingService.Hide();
+            
             if (CorreoEnviado.Resultado)
             {
                 Estado = 1;
                 toastService.ShowSuccess("Se ha enviado su clave temporal al correo ingresado, por favor no cierre esta ventana");
-                IsSending = false;
                 StateHasChanged();
             }
-            else
-            {
-                toastService.ShowWarning($"No se pudo enviar el correo, Error: {CorreoEnviado.Mensaje}");
-                IsSending = false;
-            }
+            else toastService.ShowWarning($"No se pudo enviar el correo, Error: {CorreoEnviado.Mensaje}");
         }
-        else
-        {
-            toastService.ShowError("El correo ingresado no existe");
-            IsSending = false;
-        }
+        else toastService.ShowError("El correo ingresado no existe");
     }
 
     private void ConfirmarClave()
     {
+        if (expires < DateTime.Now)
+        {
+            toastService.ShowWarning("Clave temporal vencida, reinicie el proceso");
+            return;
+        }
+
         if (Clave != ClaveTemporal) toastService.ShowError("Clave inválida");
         else 
         {
             Estado = 2;
-            IsSending = false;
             StateHasChanged();
         }
     }
 
     private async Task CambiarClave()
     {
-        if (IsSending) return;
+        if (loadingService.IsLoading) return;
 
         if(usuario.ConfirmarClave != usuario.Clave)
         {
             toastService.ShowWarning("Las contraseñas no coinciden");
             return;
         }
-        
-        IsSending = true;
 
         usuario.Persona = new PersonaDTO()
             {
@@ -185,7 +189,9 @@
                 DireccionHabitacion = "Samba",
                 TelefonoHabitacion = "0212-1234567"
             };
+        loadingService.Show();
         var response = await emailService.CambiarClave(usuario);
+        loadingService.Hide();
         if (response.EsCorrecto) 
         {
             toastService.ShowSuccess("Contraseña recuperada con éxito");

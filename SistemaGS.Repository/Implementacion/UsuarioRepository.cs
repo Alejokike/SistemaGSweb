@@ -155,8 +155,8 @@ namespace SistemaGS.Repository.Implementacion
                 try
                 {
                     if (!await _dbContext.Rols.AnyAsync(r => r.IdRol == usuario.IdRol)) throw new TaskCanceledException("El rol seleccionado no existe");
-                    if (!await _dbContext.Usuarios.AnyAsync(u => u.NombreUsuario == usuario.NombreUsuario)) throw new TaskCanceledException("Ya existe ese nombre de usuario");
-                    if (!await _dbContext.Usuarios.AnyAsync(u => u.Correo == usuario.Correo)) throw new TaskCanceledException("Ya ese correo esta en uso");
+                    if (await _dbContext.Usuarios.AnyAsync(u => u.NombreUsuario == usuario.NombreUsuario)) throw new TaskCanceledException("Ya existe ese nombre de usuario");
+                    if (await _dbContext.Usuarios.AnyAsync(u => u.Correo == usuario.Correo)) throw new TaskCanceledException("Ya ese correo esta en uso");
 
                     if (!await _dbContext.Usuarios.AnyAsync(u => u.Cedula == usuario.Cedula))
                     {

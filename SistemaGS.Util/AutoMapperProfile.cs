@@ -2,6 +2,8 @@
 using SistemaGS.DTO;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.Model;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 /*
  * Aquí convertimos nuestros Modelos en Data Transfer Object (DTO) y viceversa mediante AutoMapper. Cabe destacar que

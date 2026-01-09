@@ -5,6 +5,7 @@ namespace SistemaGS.Service.Contrato
 {
     public interface IAyudaService
     {
+        Task<bool> MasiveAttack(List<AyudaDTO> ayudas);
         Task<List<AyudaDTO>> Lista(AyudaQuery filtro);
         Task<AyudaDTO> Obtener(int idAyuda);
         Task<AyudaDTO> Crear(AyudaDTO Model);

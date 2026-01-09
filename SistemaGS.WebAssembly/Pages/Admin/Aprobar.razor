@@ -144,7 +144,7 @@
     <div class="bg-light p-3 mt-5">
         <div class="d-flex justify-content-center align-items-center gap-5">
             <button class="@color" style="width: 500px" @onclick="AprobarAyuda">@boton</button>
-            <button class="btn btn-danger" style="width: 500px" @onclick="RechazarAyuda">Rechazar</button>
+            <button class="btn btn-danger" disabled="@(boton == "Revocar Aprobación" ? true : null)" style="width: 500px" @onclick="RechazarAyuda">Rechazar</button>
         </div>
     </div>
 

@@ -159,8 +159,8 @@
                                         <td valign="middle" align="center">@item.IdLista</td>
                                         <td valign="middle">@item.ItemLista!.Nombre</td>
                                         <td valign="middle">@item.ItemLista!.Categoria</td>
-                                        <td valign="middle" align="center">@item.CantidadSolicitada</td>
-                                        <td valign="middle" align="center">@item.CantidadEntregada</td>
+                                        <td valign="middle" align="center">@item.CantidadSolicitada.ToString("N2")</td>
+                                        <td valign="middle" align="center">@item.CantidadEntregada.ToString("N2")</td>
                                         <td valign="middle" align="center">
                                             <button class="btn btn-light" @onclick="@(() => MostrarItem(item.ItemLista))">
                                                 <i class="bi bi-card-list text-primary fs-5"></i>
@@ -188,10 +188,10 @@
 </div>
 
 @code {
-    [Parameter]
-    public bool ImpresionHabilitada { get; set; }
-    [Parameter]
-    public AyudaDTO ayuda { get; set; } = new AyudaDTO()
+        [Parameter]
+        public bool ImpresionHabilitada { get; set; }
+        [Parameter]
+        public AyudaDTO ayuda { get; set; } = new AyudaDTO()
         {
             ListaItems = new List<ListaItemDTO>(),
             Detalle = new Dictionary<string, string>()
@@ -203,8 +203,8 @@
             }
         };
 
-    [Inject]
-    private LoadingService loadingService { get; set; } = default!;
+        [Inject]
+        private LoadingService loadingService { get; set; } = default!;
 
     private UsuarioDTO solicitante = new UsuarioDTO()
         {
@@ -259,6 +259,7 @@
     private string Detallar(ItemDTO item)
     {
         string validar = item.IdItem != 0 ? item.IdItem.ToString() : "No revisado por un funcionario";
+        string funcionario = Rol != "Solicitante" ? $"<li><strong>Stock en Inventario:</strong> {item.Cantidad}</li>" : "";
         string resultado = 
            $@"<ul>
            <li><strong>ID:</strong> {validar}</li>
@@ -266,7 +267,7 @@
            <li><strong>categoría:</strong> {item.Categoria}</li>
            <li><strong>Unidad:</strong> {item.Unidad}</li>
            <li><strong>Descripción:</strong> {item.Descripcion}</li>
-           <li><strong>Stock en Inventario:</strong> {item.Cantidad}</li>
+           {funcionario}
            </ul>";
         return resultado;
     }

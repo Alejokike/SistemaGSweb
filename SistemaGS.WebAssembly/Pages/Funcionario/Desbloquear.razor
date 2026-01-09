@@ -111,9 +111,9 @@
                                                 <td valign="middle" align="center">@item.ItemLista!.Nombre</td>
                                                 <td valign="middle" align="center">@item.ItemLista!.Categoria</td>
                                                 <td valign="middle" align="center">@item.ItemLista!.Unidad</td>
-                                                <td valign="middle" align="center">@item.CantidadSolicitada</td>
-                                                <td valign="middle" align="center">@item.CantidadEntregada</td>
-                                                <td valign="middle" align="center">@item.ItemLista.Cantidad</td>
+                                                <td valign="middle" align="center">@item.CantidadSolicitada.ToString("N2")</td>
+                                                <td valign="middle" align="center">@item.CantidadEntregada.ToString("N2")</td>
+                                                <td valign="middle" align="center">@item.ItemLista.Cantidad.ToString("N2")</td>
                                                 <td valign="middle" align="center" class="@color">@($"{signo}{mov.Cantidad.ToString("N2")}")</td>
 
                                                 <td align="center">
@@ -225,7 +225,7 @@
     {
         if (item.ItemLista.Unidad != "VE") cantidad = Math.Floor(cantidad);
 
-        bool val1 = (item.ItemLista.IdItem) < cantidad;
+        bool val1 = (item.ItemLista.Cantidad) < cantidad;
         bool val2 = cantidad < 0;
         bool val3 = cantidad > item.CantidadSolicitada;
 
@@ -256,6 +256,7 @@
             movimientos.Remove(encontrado);
             if (cantidad == 0) return;
             encontrado.Cantidad = cantidad;
+            encontrado.TipoOperacion = "ASI";
             movimientos.Add(encontrado);
         }
     }
@@ -292,6 +293,7 @@
             movimientos.Remove(encontrado);
             if (cantidad == 0) return;
             encontrado.Cantidad = cantidad;
+            encontrado.TipoOperacion = "RET";
             movimientos.Add(encontrado);
         }
     }

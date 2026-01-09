@@ -40,16 +40,27 @@
                 </div>
 
                 <EditForm Model="model" OnValidSubmit="Guardar">
+                    <DataAnnotationsValidator />
                     <ValidationSummary />
 
                     <div class="form-row mt-3 mb-2">
+                        <div class="col-md-4 flex-column">
+                            <ValidationMessage For="@(() => model.IdItem)" />
+                        </div>
+                        <div class="col-md-4 flex-column">
+                            <ValidationMessage For="@(() => model.Nombre)" />
+                        </div>
+                        <div class="col-md-4 flex-column">
+                            <ValidationMessage For="@(() => model.Categoria)" />
+                        </div>
+                    </div>
 
+                    <div class="form-row mt-3 mb-2">
                         <div class="col-md-4 flex-column">
                             <div class="input-group">
                                 <label class="input-group-text bg-light">ID ítem</label>
                                 <InputNumber min="0" class="form-control" disabled @bind-value="model.IdItem" />
                             </div>
-                            <ValidationMessage For="@(() => model.IdItem)" />
                         </div>
 
                         <div class="col-md-4 flex-column">
@@ -57,7 +68,6 @@
                                 <label class="input-group-text bg-light">Nombre</label>
                                 <InputText class="form-control" disabled="@(agregar ? null : true)" @bind-value="model.Nombre" />
                             </div>
-                            <ValidationMessage For="@(() => model.Nombre)" />
                         </div>
 
                         <div class="col-md-4 flex-column">
@@ -75,7 +85,6 @@
                                     <option value="Otros">Otros</option>
                                 </InputSelect>
                             </div>
-                            <ValidationMessage For="@(() => model.Categoria)" />
                         </div>
                     </div>
 
@@ -95,6 +104,7 @@
                     </div>
 
                     <div class="form-row mt-1">
+                        <ValidationMessage For="@(() => model.Activo)" />
                         <div class="form-check form-switch d-inline-flex align-items-center gap-2 row-cols-1">
                             <div class="ms-3">
                                 <input class="form-check-input" type="checkbox" role="switch" id="userStatusSwitch" @bind="model.Activo">

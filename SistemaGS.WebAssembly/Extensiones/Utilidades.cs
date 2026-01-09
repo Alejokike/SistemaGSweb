@@ -35,6 +35,7 @@ namespace SistemaGS.WebAssembly.Extensiones
     }
     public static class Utilidades
     {
+        //Jaro–Winkler distance
         public static int CalcularDistanciaLevenshtein(string fuente, string destino)
         {
             if (string.IsNullOrEmpty(fuente))
@@ -132,6 +133,7 @@ namespace SistemaGS.WebAssembly.Extensiones
 
             return valor switch
             {
+                int i => i != 0 ? i.ToString() : "No Asignado",
                 DateTime fecha => fecha.ToString("dd/MM/yyyy"),
                 decimal d => d.ToString("N2"),
                 bool b => b ? "Sí" : "No",

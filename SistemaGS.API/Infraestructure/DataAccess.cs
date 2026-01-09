@@ -7,6 +7,7 @@ namespace SistemaGS.API.Infraestructure
     public class DataAccess : IDisposable
     {
         private SqlConnection connection;
+        //private readonly string ConnectionString;
         //private SqlConnection? connection;
         //private bool disposed = false; 
         public DataAccess(IConfiguration configuration)

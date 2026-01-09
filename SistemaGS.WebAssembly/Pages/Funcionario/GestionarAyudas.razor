@@ -6,6 +6,17 @@
 
 @attribute [Authorize(Roles = "Funcionario")]
 
+<style>
+    .tabla-modal {
+        white-space: nowrap !important;
+    }
+
+    .swal2-html-container {
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+    }
+</style>
+
 <PageTitle>Gestionar Ayudas</PageTitle>
 
 <h3 class="m-3">Gestionar Ayudas</h3>
@@ -94,7 +105,9 @@
     private string ListarItems(List<ListaItemDTO> listaItems)
     {
         StringBuilder listahtml = new StringBuilder(
-            @"<table class='table table-bordered'>
+            @"
+            <div class='tabla-modal'>
+            <table class='table table-responsive table-bordered mt-3'>
             <thead>
             <tr>
                 <td>Nombre</td>
@@ -110,13 +123,14 @@
                                         <td>{item.CantidadEntregada}</td>
                                     </tr>");
         }
-        listahtml.Append("</table>");
+        listahtml.Append("</table></div>");
         return listahtml.ToString();
     }
     private async Task CerrarAyuda(AyudaDTO ayuda)
     {
         if (loadingService.IsLoading) return;
-
+        SweetAlertCustomClass customClass = new SweetAlertCustomClass();
+        customClass.HtmlContainer = "table table-responsive table-bordered mt-3";
         navigationManager.NavigateTo($"/Ayuda/{ayuda.IdAyuda}");
         SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
         {
@@ -134,11 +148,12 @@
             {
                 Title = "Comentarios adicionales previo el cierre de la ayuda",
                 ShowCancelButton = false,
+                ShowCloseButton = true,
                 InputPlaceholder = "Ingrese detalles adicionales",
                 Input = SweetAlertInputType.Textarea,
                 InputAttributes = new Dictionary<string, string>
                 {
-                    {"maxlength", "250" }
+                     {"maxlength", "250" }
                 },
                 ConfirmButtonText = "Aceptar",
                 InputValidator = new InputValidatorCallback((string value) =>
@@ -147,6 +162,12 @@
                     return null;
                 })
             });
+
+            if (result.IsDismissed) 
+            {
+                navigationManager.NavigateTo("/Ayudas");
+                return;
+            }
 
             ayuda.Estado = "Cerrada";
             ayuda.FechaEntrega = DateTime.Today;

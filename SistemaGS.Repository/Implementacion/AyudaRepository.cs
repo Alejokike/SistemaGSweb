@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
 using SistemaGS.Model;
 using SistemaGS.Repository.Contrato;
@@ -13,6 +14,25 @@ namespace SistemaGS.Repository.Implementacion
         public AyudaRepository(DbsistemaGsContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
+        }
+        public async Task<bool> MasiveAttack(List<Ayuda> ayudas)
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    await _dbContext.Ayuda.AddRangeAsync(ayudas);
+                    await _dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    Console.WriteLine(ex.Message);
+                    throw;
+                }
+            }
         }
         public async Task<List<Ayuda>> Listar(AyudaQuery filtro)
         {
@@ -40,17 +60,17 @@ namespace SistemaGS.Repository.Implementacion
                                     (filtro.funcionario == null || filtro.funcionario == f.Cedula) &&
 
                                     (string.IsNullOrEmpty(filtro.DataSoli) ||
-                                        EF.Functions.Like((s.Nombre ?? "").ToLower(), datasoli) ||
-                                        EF.Functions.Like((s.Apellido ?? "").ToLower(), datasoli) ||
-                                        EF.Functions.Like((s.TelefonoTrabajo ?? "").ToLower(), datasoli) ||
-                                        EF.Functions.Like((s.TelefonoHabitacion ?? "").ToLower(), datasoli)
+                                        EF.Functions.Like((s.Nombre ?? "").ToLower(), $"%{datasoli}%") ||
+                                        EF.Functions.Like((s.Apellido ?? "").ToLower(), $"%{datasoli}%") ||
+                                        EF.Functions.Like((s.TelefonoTrabajo ?? "").ToLower(), $"%{datasoli}%") ||
+                                        EF.Functions.Like((s.TelefonoHabitacion ?? "").ToLower(), $"%{datasoli}%")
                                     ) &&
 
                                     (string.IsNullOrEmpty(filtro.DataFunci) ||
-                                        EF.Functions.Like((f.Nombre ?? "").ToLower(), datafunci) ||
-                                        EF.Functions.Like((f.Apellido ?? "").ToLower(), datafunci) ||
-                                        EF.Functions.Like((f.TelefonoTrabajo ?? "").ToLower(), datafunci) ||
-                                        EF.Functions.Like((f.TelefonoHabitacion ?? "").ToLower(), datafunci)
+                                        EF.Functions.Like((f.Nombre ?? "").ToLower(), $"%{datafunci}%") ||
+                                        EF.Functions.Like((f.Apellido ?? "").ToLower(), $"%{datafunci}%") ||
+                                        EF.Functions.Like((f.TelefonoTrabajo ?? "").ToLower(), $"%{datafunci}%") ||
+                                        EF.Functions.Like((f.TelefonoHabitacion ?? "").ToLower(), $"%{datafunci}%")
                                     )
                                    select new
                                    {

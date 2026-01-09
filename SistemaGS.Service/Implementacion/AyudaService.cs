@@ -196,5 +196,27 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }               
+
+        public async Task<bool> MasiveAttack(List<AyudaDTO> ayudas)
+        {
+            try
+            {
+                List<Ayuda> insertar = new List<Ayuda>();
+                foreach (var ayuda in ayudas)
+                {
+                    Ayuda aux = _mapper.Map<Ayuda>(ayuda);
+                    aux.Detalle = JsonConvert.SerializeObject(ayuda.Detalle);
+                    aux.ListaItems = JsonConvert.SerializeObject(ayuda.ListaItems);
+                    insertar.Add(aux);
+                }
+
+                return await _AyudaRepository.MasiveAttack(insertar);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
     }
 }
