@@ -14,6 +14,42 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         {
             _httpClient = httpClient;
         }
+        public async Task<ResponseDTO<List<AyudaDTO>>> ListarCerradas(AyudaQuery filtro)
+        {
+            var queryparams = new Dictionary<string, string?>
+            {
+                ["categoria"] = filtro.categoria,
+                ["solicitante"] = filtro.solicitante.ToString(),
+                ["funcionario"] = filtro.funcionario.ToString(),
+                ["DataSoli"] = filtro.DataSoli,
+                ["DataFunci"] = filtro.DataFunci,
+                ["Estado"] = filtro.Estado,
+                ["FechaIni"] = filtro.FechaIni.HasValue ? filtro.FechaIni.Value.ToString("yyyy-MM-dd") : null,
+                ["FechaFin"] = filtro.FechaFin.HasValue ? filtro.FechaFin.Value.ToString("yyyy-MM-dd") : null
+            };
+
+            var url = QueryHelpers.AddQueryString("Ayuda/ListaCerradas", queryparams);
+
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<AyudaDTO>>>(url))!;
+        }
+        public async Task<ResponseDTO<List<AyudaDTO>>> Listar(AyudaQuery filtro)
+        {
+            var queryparams = new Dictionary<string, string?>
+            {
+                ["categoria"] = filtro.categoria,
+                ["solicitante"] = filtro.solicitante.ToString(),
+                ["funcionario"] = filtro.funcionario.ToString(),
+                ["DataSoli"] = filtro.DataSoli,
+                ["DataFunci"] = filtro.DataFunci,
+                ["Estado"] = filtro.Estado,
+                ["FechaIni"] = filtro.FechaIni.HasValue ? filtro.FechaIni.Value.ToString("yyyy-MM-dd") : null,
+                ["FechaFin"] = filtro.FechaFin.HasValue ? filtro.FechaFin.Value.ToString("yyyy-MM-dd") : null
+            };
+
+            var url = QueryHelpers.AddQueryString("Ayuda/Lista", queryparams);
+
+            return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<AyudaDTO>>>(url))!;
+        }
         public async Task<ResponseDTO<AyudaDTO>> Crear(AyudaDTO model)
         {
             var response = await _httpClient.PostAsJsonAsync("Ayuda/Crear", model);
@@ -46,25 +82,6 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         {
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<byte[]>>($"Ayuda/Imprimir/{idAyuda}/{option}"))!;
         }
-
-        public async Task<ResponseDTO<List<AyudaDTO>>> Listar(AyudaQuery filtro)
-        {
-            var queryparams = new Dictionary<string, string?>
-            {
-                ["categoria"] = filtro.categoria,
-                ["solicitante"] = filtro.solicitante.ToString(),
-                ["funcionario"] = filtro.funcionario.ToString(),
-                ["DataSoli"] = filtro.DataSoli,
-                ["DataFunci"] = filtro.DataFunci,
-                ["Estado"] = filtro.Estado,
-                ["FechaIni"] = filtro.FechaIni.HasValue ? filtro.FechaIni.Value.ToString("yyyy-MM-dd") : null,
-                ["FechaFin"] = filtro.FechaFin.HasValue ? filtro.FechaFin.Value.ToString("yyyy-MM-dd") : null
-            };
-
-            var url = QueryHelpers.AddQueryString("Ayuda/Lista", queryparams);
-
-            return (await _httpClient.GetFromJsonAsync<ResponseDTO<List<AyudaDTO>>>(url))!;
-        }
         public async Task<ResponseDTO<byte[]>> ImprimirReporte(AyudaQuery filtro)
         {
             var queryparams = new Dictionary<string, string?>
@@ -87,10 +104,9 @@ namespace SistemaGS.WebAssembly.Services.Implementacion
         {
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<AyudaDTO>>($"Ayuda/Obtener/{idAyuda}"))!;
         }
-
         public async Task<ResponseDTO<DashboardDTO>> Dashboard()
         {
             return (await _httpClient.GetFromJsonAsync<ResponseDTO<DashboardDTO>>($"Ayuda/Dashboard"))!;
-        }
+        }        
     }
 }

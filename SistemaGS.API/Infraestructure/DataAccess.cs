@@ -14,7 +14,14 @@ namespace SistemaGS.API.Infraestructure
         {
             string connectionString = configuration.GetConnectionString("CadenaSQL")!;
             connection = new SqlConnection(connectionString);
-            connection.Open();
+            try
+            {
+                connection.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
         public void Dispose()
         {
@@ -52,7 +59,7 @@ namespace SistemaGS.API.Infraestructure
         public bool InsertRefreshToken(RefreshToken refreshToken, int Cedula)
         {
             string sql = "INSERT INTO [RefreshToken] (Token, CreatedDate, Expires, Enabled, Cedula) VALUES (@token, @createddate, @expires, @enabled, @cedula)";
-            
+            //connection.Open();
             int result = connection.Execute(sql,new
             {
                 refreshToken.Token,
@@ -61,46 +68,54 @@ namespace SistemaGS.API.Infraestructure
                 refreshToken.Enabled,
                 Cedula
             });
-            
+            //connection.Dispose();
+            //connection.Close();
             return result > 0; 
         }
         public bool DisableUserTokenByCedula(int Cedula)
         {
             string sql = "UPDATE [RefreshToken] Set [Enabled] = 0 WHERE [Cedula] = @cedula";
-
+            //connection.Open();
             int result = connection.Execute(sql, new
             {
                 Cedula
             });
-
+            //connection.Dispose();
+            //connection.Close();
             return result > 0;
         }
         public bool DisableUserToken(string token)
         {
             string sql = "UPDATE [RefreshToken] Set [Enabled] = 0 WHERE [Token] = @token";
-
+            //connection.Open();
             int result = connection.Execute(sql, new
             {
                 token
             });
-
+            //connection.Dispose();
+            //connection.Close();
             return result > 0;
         }
         public bool IsRefreshTokenValid(string token)
         {
             string sql = "SELECT COUNT(1) FROM RefreshToken WHERE [Token] = @token AND [Enabled] = 1 AND [Expires] >= CAST(GETDATE() AS DATE)";
-
+            //connection.Open();
             int result = connection.ExecuteScalar<int>(sql, new
             {
                 token
             });
-
+            //connection.Dispose();
+            //connection.Close();
             return result > 0;
         }
         public int FindUserByToken(string token)
         {
             string sql = "SELECT [Cedula] FROM [RefreshToken] WHERE [Token] = @token";
-            return connection.QueryFirstOrDefault<int>(sql, new { token });
+            //connection.Open();
+            int result = connection.QueryFirstOrDefault<int>(sql, new { token });
+            //connection.Dispose();
+            //connection.Close();
+            return result;
         }
     }
 }

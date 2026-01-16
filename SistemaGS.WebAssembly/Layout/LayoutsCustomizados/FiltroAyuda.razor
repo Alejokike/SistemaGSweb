@@ -52,12 +52,40 @@
                         <div class="input-group col-6">
                             <label class="input-group-text bg-light">Estado</label>
                             <InputSelect class="form-select" @bind-value="filtro.Estado">
-                                <option value="" selected>--Cualquiera</option>
-                                <option value="Por Aprobar">Por Aprobar</option>
-                                <option value="En Proceso">En Proceso</option>
-                                <option value="Lista Para Entregar">Lista Para Entregar</option>
-                                <option value="Cerrada">Cerrada</option>
-                                <option value="Rechazada">Rechazada</option>
+                                @switch (EstadosPosibles)
+                                {
+                                    case 0:
+                                        {
+                                            <option value="" selected>--Cualquiera</option>
+                                            <option value="Por Aprobar">Por Aprobar</option>
+                                            <option value="En Proceso">En Proceso</option>
+                                            <option value="Lista Para Entregar">Lista Para Entregar</option>
+                                            <option value="Cerrada">Cerrada</option>
+                                            <option value="Rechazada">Rechazada</option>
+                                            break;
+                                        }
+                                    case 1:
+                                        {
+                                            <option value="Por Aprobar,En Proceso" selected>--Cualquiera</option>
+                                            <option value="Por Aprobar">Por Aprobar</option>
+                                            <option value="En Proceso">En Proceso</option>
+                                            break;
+                                        }
+                                    case 2:
+                                        {
+                                            <option value="En Proceso,Lista Para Entregar" selected>--Cualquiera</option>
+                                            <option value="En Proceso">En Proceso</option>
+                                            <option value="Lista Para Entregar">Lista Para Entregar</option>
+                                            break;
+                                        }
+                                    case 3:
+                                        {
+                                            <option value="Cerrada,Rechazada" selected>--Cualquiera</option>
+                                            <option value="Cerrada">Cerrada</option>
+                                            <option value="Rechazada">Rechazada</option>
+                                            break;
+                                        }
+                                }
                             </InputSelect>
                         </div>
                     }
@@ -90,5 +118,7 @@
 
     [Parameter] public bool Solicitante {get; set;} = true;
     [Parameter] public bool Funcionario {get; set;} = true;
+
     [Parameter] public bool Estado {get; set;} = true;
+    [Parameter] public int EstadosPosibles { get; set; } = 0;
 }

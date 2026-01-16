@@ -11,7 +11,7 @@
 
 <FiltroAyuda filtro="filtro" retorno="EventCallback.Factory.Create(this, ListarAyuda)" 
     Solicitante="false"
-    Estado="false"/>
+    EstadosPosibles="3"/>
 
 <div class="card">
     <div class="card-body">
@@ -43,7 +43,7 @@
     {
         if (loadingService.IsLoading) return;
         loadingService.Show();
-        var response = await ayudaService.Listar(filtro);
+        var response = await ayudaService.ListarCerradas(filtro);
         if (response.EsCorrecto && response.Resultado != null) lista = response.Resultado;
         loadingService.Hide();
     }

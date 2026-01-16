@@ -116,7 +116,7 @@ namespace SistemaGS.Service.Implementacion
                         }
                     case 3:
                         {
-                            List<AyudaDTO> ayudas = await Lista(filtro);
+                            List<AyudaDTO> ayudas = await ListaCerradas(filtro);
                             if (!ayudas.Any()) throw new TaskCanceledException("No hay casos de ayudas cerradas en el período seleccionado");
                             documento = Impresion.GeneratePDFreporte(filtro, ayudas);
                             break;
@@ -133,6 +133,31 @@ namespace SistemaGS.Service.Implementacion
                 Console.WriteLine(ex.Message);
                 throw;
             }        
+        }
+        public async Task<List<AyudaDTO>> ListaCerradas(AyudaQuery filtro)
+        {
+            try
+            {
+                var model = await _AyudaRepository.ListarCerradas(filtro);
+                if (model != null)
+                {
+                    List<AyudaDTO> transform = new List<AyudaDTO>();
+                    foreach (Ayuda ayuda in model)
+                    {
+                        AyudaDTO t = _mapper.Map<AyudaDTO>(ayuda);
+                        t.Detalle = JsonConvert.DeserializeObject<Dictionary<string, string>>(ayuda.Detalle!) ?? new Dictionary<string, string>();
+                        t.ListaItems = JsonConvert.DeserializeObject<List<ListaItemDTO>>(ayuda.ListaItems!) ?? new List<ListaItemDTO>();
+                        transform.Add(t);
+                    }
+                    return transform;
+                }
+                else throw new TaskCanceledException("No existen coincidencias");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
         }
         public async Task<List<AyudaDTO>> Lista(AyudaQuery filtro)
         {
@@ -195,8 +220,7 @@ namespace SistemaGS.Service.Implementacion
                 Console.WriteLine(ex.Message);
                 throw;
             }
-        }               
-
+        }
         public async Task<bool> MasiveAttack(List<AyudaDTO> ayudas)
         {
             try
@@ -217,6 +241,12 @@ namespace SistemaGS.Service.Implementacion
                 Console.WriteLine(ex.Message);
                 throw;
             }
+        }
+        public async Task<DashboardDTO> Dashboard()
+        {
+            DashboardDTO d = new DashboardDTO();
+
+            return d;
         }
     }
 }

@@ -10,7 +10,7 @@
 
 <FiltroAyuda filtro="filtro" retorno="ListarAyudas" 
     Solicitante="false"
-    Estado="false"/>
+    EstadosPosibles="1"/>
 <TableLayout listaOrigen="lista" T="AyudaDTO" Retorno="@(EventCallback.Factory.Create<AyudaDTO>(this, CargarAyuda))"></TableLayout>
 
 @code {

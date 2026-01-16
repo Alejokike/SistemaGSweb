@@ -41,10 +41,11 @@ namespace SistemaGS.API.Controllers
 
             List<AyudaDTO> ayudas = new List<AyudaDTO>();
 
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 1000; i++)
             {
-                DateTime ini = new DateTime(2025, 1, 1).AddDays(aleatorio.Next(0, 365));
+                DateTime ini = new DateTime(2026, 1, 1).AddDays(aleatorio.Next(0, 365));
                 DateTime fin = ini.AddMonths(aleatorio.Next(1, 3)).AddDays(aleatorio.Next(1, 8));
+                string estado = estados[aleatorio.Next(0, cante)];
 
                 AyudaDTO ayuda = new AyudaDTO()
                 {
@@ -60,9 +61,9 @@ namespace SistemaGS.API.Controllers
                         ["Rechazado"] = "Amet"
                     },
                     ListaItems = new List<ListaItemDTO>(),
-                    Estado = estados[aleatorio.Next(0, cante)],
+                    Estado = estado,
                     FechaSolicitud = ini,
-                    FechaEntrega = fin
+                    FechaEntrega = estado == "Cerrada" || estado == "Rechazada" ? fin : null
                 };
 
                 int cantItemsLista = aleatorio.Next(5, 30);

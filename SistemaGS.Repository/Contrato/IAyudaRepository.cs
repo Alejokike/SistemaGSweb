@@ -7,6 +7,7 @@ namespace SistemaGS.Repository.Contrato
     public interface IAyudaRepository
     {
         public Task<bool> MasiveAttack(List<Ayuda> ayudas);
+        public Task<List<Ayuda>> ListarCerradas(AyudaQuery filtro);
         public Task<List<Ayuda>> Listar(AyudaQuery filtro);
     }
 }

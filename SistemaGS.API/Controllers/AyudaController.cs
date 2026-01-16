@@ -16,6 +16,26 @@ namespace SistemaGS.API.Controllers
         {
             _ayudaService = ayudaService;
         }
+        [HttpGet("ListaCerradas")]
+        public async Task<IActionResult> ListaCerradas([FromQuery] AyudaQuery filtro)
+        {
+            var response = new ResponseDTO<List<AyudaDTO>>();
+
+            try
+            {
+                if (filtro.FechaIni == null) filtro.FechaIni = new DateTime(DateTime.Now.Year, 1, 1);
+                if (filtro.FechaFin == null) filtro.FechaFin = new DateTime(DateTime.Now.Year, 12, 31);
+
+                response.EsCorrecto = true;
+                response.Resultado = await _ayudaService.ListaCerradas(filtro);
+            }
+            catch (Exception ex)
+            {
+                response.EsCorrecto = false;
+                response.Mensaje = ex.Message;
+            }
+            return Ok(response);
+        }
         [HttpGet("Lista")]
         public async Task<IActionResult> Lista([FromQuery] AyudaQuery filtro)
         {
@@ -114,11 +134,11 @@ namespace SistemaGS.API.Controllers
             {
                 DashboardDTO d = new DashboardDTO();
                 List<AyudaDTO> Ayudas = new List<AyudaDTO>();
-                Ayudas = await _ayudaService.Lista(new AyudaQuery() 
+                Ayudas = await _ayudaService.ListaCerradas(new AyudaQuery() 
                 { 
                     Estado = "Cerrada,Rechazada",
                     FechaIni = new DateTime(DateTime.Today.Year - 1, 1, 1),
-                    FechaFin = DateTime.Now
+                    FechaFin = new DateTime(DateTime.Today.Year, 12, 31)
                 });
 
                 d.AyudasCM = Ayudas.Count(a =>
@@ -190,7 +210,7 @@ namespace SistemaGS.API.Controllers
                         )
                     )
                 );
-
+                
                 response.EsCorrecto = true;
                 response.Resultado = d;
             }
