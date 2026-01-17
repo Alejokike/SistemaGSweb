@@ -97,7 +97,7 @@ namespace SistemaGS.Repository.Implementacion
                                 };
 
                     List<(Usuario usuario, Persona persona, Rol rol)> temp = new List<(Usuario usuario, Persona persona, Rol rol)>(); 
-                    await lista.ForEachAsync(t => 
+                    await lista.AsNoTracking().ForEachAsync(t => 
                     {
                         (Usuario usuario, Persona persona, Rol rol) x;
                         x.usuario = t.usuario;
@@ -131,7 +131,7 @@ namespace SistemaGS.Repository.Implementacion
                                     u,
                                     p,
                                     r
-                                }).FirstOrDefaultAsync();
+                                }).AsNoTracking().FirstOrDefaultAsync();
                     (Usuario usuario, Persona persona, Rol rol) t = (usuario: new Usuario(), persona: new Persona(), rol: new Rol());
                     if (consulta != null)
                     {

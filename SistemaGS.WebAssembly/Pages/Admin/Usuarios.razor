@@ -137,7 +137,7 @@
             loadingService.Hide();
             if (response.EsCorrecto)
             {
-                await ObtenerUsuarios();
+                await ObtenerUsuarios(rol, buscar);
                 toastService.ShowSuccess("Usuario eliminado");
             }
             else toastService.ShowError($"Error: {response.Mensaje!}");

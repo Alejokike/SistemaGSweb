@@ -1,4 +1,5 @@
-﻿using SistemaGS.DTO.ModelDTO;
+﻿using SistemaGS.DTO;
+using SistemaGS.DTO.ModelDTO;
 using SistemaGS.DTO.Query;
 using SistemaGS.Model;
 
@@ -8,6 +9,8 @@ namespace SistemaGS.Repository.Contrato
     {
         public Task<bool> MasiveAttack(List<Ayuda> ayudas);
         public Task<List<Ayuda>> ListarCerradas(AyudaQuery filtro);
+        public Task<List<Ayuda>> ListarImpresion(AyudaQuery filtro);
         public Task<List<Ayuda>> Listar(AyudaQuery filtro);
+        public Task<DashboardDTO> Dashboard();
     }
 }

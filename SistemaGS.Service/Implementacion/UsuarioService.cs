@@ -23,17 +23,16 @@ namespace SistemaGS.Service.Implementacion
             _RolRepository = RolRepository;
             _mapper = mapper;
         }
-
         public async Task<SesionDTO> Autorizacion(LoginDTO Model)
         {
             try
             {
                 if (await _modelRepository.Consultar(l => l.NombreUsuario == Model.NombreUsuario && l.Activo == true).AnyAsync())
                 {
-                    Usuario usuario = _modelRepository.Consultar(u => u.NombreUsuario == Model.NombreUsuario).FirstOrDefault() ?? new Usuario();
+                    Usuario usuario = _modelRepository.Consultar(u => u.NombreUsuario == Model.NombreUsuario).AsNoTracking().FirstOrDefault() ?? new Usuario();
                     string clave = Ferramentas.ConvertToSha256(Model.Clave + usuario.Cedula);
                     
-                    var fromDBmodel = await _modelRepository.Consultar(p => p.NombreUsuario == Model.NombreUsuario && p.Clave == clave && p.Activo == true).FirstOrDefaultAsync();
+                    var fromDBmodel = await _modelRepository.Consultar(p => p.NombreUsuario == Model.NombreUsuario && p.Clave == clave && p.Activo == true).AsNoTracking().FirstOrDefaultAsync();
 
                     if (fromDBmodel != null)
                     {
@@ -127,7 +126,6 @@ namespace SistemaGS.Service.Implementacion
                 throw;
             }
         }
-
         public async Task<UsuarioDTO> Obtener(int id)
         {
             try

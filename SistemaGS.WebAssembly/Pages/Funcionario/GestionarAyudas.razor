@@ -131,7 +131,18 @@
         if (loadingService.IsLoading) return;
         SweetAlertCustomClass customClass = new SweetAlertCustomClass();
         customClass.HtmlContainer = "table table-responsive table-bordered mt-3";
+
+        var listaItems = await ayudaService.Obtener(ayuda.IdAyuda);
+
+        if (listaItems.EsCorrecto && listaItems.Resultado != null) ayuda = listaItems.Resultado;
+        else
+        {
+            toastService.ShowError($"Error: {listaItems.Mensaje}");
+            return;
+        }
+
         navigationManager.NavigateTo($"/Ayuda/{ayuda.IdAyuda}");
+
         SweetAlertResult result = await Swat.FireAsync(new SweetAlertOptions
         {
             Title = "¿Cerrar Solicitud?",

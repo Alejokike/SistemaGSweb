@@ -86,7 +86,7 @@ namespace SistemaGS.Service.Implementacion
                                    Fecha = m.Fecha.HasValue ? m.Fecha.Value : DateTime.Today
                                };
                 if (!(await consulta.AnyAsync())) return new List<InventarioDTO>();
-                return await consulta.ToListAsync();
+                return await consulta.AsNoTracking().ToListAsync();
             }
             catch (Exception ex)
             {

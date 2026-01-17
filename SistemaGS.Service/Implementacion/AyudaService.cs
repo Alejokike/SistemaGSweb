@@ -116,7 +116,17 @@ namespace SistemaGS.Service.Implementacion
                         }
                     case 3:
                         {
-                            List<AyudaDTO> ayudas = await ListaCerradas(filtro);
+                            List<AyudaDTO> ayudas = new List<AyudaDTO>();
+                            var model = await _AyudaRepository.ListarImpresion(filtro);
+                            
+                            foreach (Ayuda ayuda in model)
+                            {
+                                AyudaDTO t = _mapper.Map<AyudaDTO>(ayuda);
+                                t.Detalle = JsonConvert.DeserializeObject<Dictionary<string, string>>(ayuda.Detalle!) ?? new Dictionary<string, string>();
+                                t.ListaItems = JsonConvert.DeserializeObject<List<ListaItemDTO>>(ayuda.ListaItems!) ?? new List<ListaItemDTO>();
+                                ayudas.Add(t);
+                            }
+                            
                             if (!ayudas.Any()) throw new TaskCanceledException("No hay casos de ayudas cerradas en el período seleccionado");
                             documento = Impresion.GeneratePDFreporte(filtro, ayudas);
                             break;
@@ -141,6 +151,7 @@ namespace SistemaGS.Service.Implementacion
                 var model = await _AyudaRepository.ListarCerradas(filtro);
                 if (model != null)
                 {
+                    /*
                     List<AyudaDTO> transform = new List<AyudaDTO>();
                     foreach (Ayuda ayuda in model)
                     {
@@ -150,6 +161,8 @@ namespace SistemaGS.Service.Implementacion
                         transform.Add(t);
                     }
                     return transform;
+                    */
+                    return _mapper.Map<List<AyudaDTO>>(model);
                 }
                 else throw new TaskCanceledException("No existen coincidencias");
             }
@@ -166,6 +179,7 @@ namespace SistemaGS.Service.Implementacion
                 var model = await _AyudaRepository.Listar(filtro);
                 if (model != null) 
                 {
+                    
                     List<AyudaDTO> transform = new List<AyudaDTO>();
                     foreach (Ayuda ayuda in model)
                     {
@@ -175,6 +189,8 @@ namespace SistemaGS.Service.Implementacion
                         transform.Add(t);
                     }
                     return transform;
+                    
+                    //return _mapper.Map<List<AyudaDTO>>(model);
                 }
                 else throw new TaskCanceledException("No existen coincidencias");
             }
@@ -188,7 +204,7 @@ namespace SistemaGS.Service.Implementacion
         {
             try
             {
-                var model = await _modelRepository.Consultar(a => a.IdAyuda == idAyuda).FirstOrDefaultAsync();
+                var model = await _modelRepository.Consultar(a => a.IdAyuda == idAyuda).AsNoTracking().FirstOrDefaultAsync();
                 if (model != null) 
                 {
                     AyudaDTO transform = _mapper.Map<AyudaDTO>(model);
@@ -244,9 +260,7 @@ namespace SistemaGS.Service.Implementacion
         }
         public async Task<DashboardDTO> Dashboard()
         {
-            DashboardDTO d = new DashboardDTO();
-
-            return d;
+            return await _AyudaRepository.Dashboard();
         }
     }
 }

@@ -132,6 +132,7 @@ namespace SistemaGS.API.Controllers
             var response = new ResponseDTO<DashboardDTO>();
             try
             {
+                /*
                 DashboardDTO d = new DashboardDTO();
                 List<AyudaDTO> Ayudas = new List<AyudaDTO>();
                 Ayudas = await _ayudaService.ListaCerradas(new AyudaQuery() 
@@ -210,9 +211,9 @@ namespace SistemaGS.API.Controllers
                         )
                     )
                 );
-                
+                */
                 response.EsCorrecto = true;
-                response.Resultado = d;
+                response.Resultado = await _ayudaService.Dashboard();
             }
             catch (Exception ex)
             {

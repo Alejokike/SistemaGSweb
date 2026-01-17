@@ -108,7 +108,7 @@ namespace SistemaGS.Repository.Implementacion
                                     (string.IsNullOrEmpty(query.Unidad) || i.Unidad == query.Unidad) &&
                                     (query.Activo == null || query.Activo == i.Activo)
                                     select i;
-                    return await consulta.ToListAsync();
+                    return await consulta.AsNoTracking().ToListAsync();
                 }
                 catch (Exception ex)
                 {

@@ -76,7 +76,7 @@ namespace SistemaGS.API.Controllers
                         IdLista = j + 1,
                         ItemLista = items[aleatorio.Next(0,canti)],
                         CantidadSolicitada = cantidad,
-                        CantidadEntregada = aleatorio.Next(1,cantidad)
+                        CantidadEntregada = ayuda.Estado != "Cerrada" ? 0 : aleatorio.Next(1,cantidad)
                     });
                 }
 

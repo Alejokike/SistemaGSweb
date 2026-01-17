@@ -92,6 +92,7 @@
                                 </div>
 
                                 <div class="input-group mt-3">
+                                    @* validar *@
                                     <span class="input-group-text bg-light" id="basic-addon3">Fecha de nacimiento</span>
                                     <InputDate max="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" id="birthdaytime" name="birthdaytime" @bind-value="model.Persona.FechaNacimiento" />
                                 </div>
@@ -255,6 +256,12 @@
     private async Task GuardarCambios()
     {
         if(loadingService.IsLoading) return;
+
+        if (model.Persona.FechaNacimiento > DateTime.Today)
+        {
+            _toastService.ShowWarning("La fecha de nacimiento no puede ser mayor a la fecha actual");
+            return;
+        }
 
         if(model.Clave != model.ConfirmarClave)
         {

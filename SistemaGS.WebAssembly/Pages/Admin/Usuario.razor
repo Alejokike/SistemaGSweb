@@ -312,6 +312,12 @@
     {
         if (loadingService.IsLoading) return;
 
+        if (model.Persona.FechaNacimiento > DateTime.Today)
+        {
+            toastService.ShowWarning("La fecha de nacimiento no puede ser mayor a la fecha actual");
+            return;
+        }
+
         if(model.Clave != model.ConfirmarClave)
         {
             toastService.ShowWarning("Las contraseñas no coinciden");
