@@ -22,6 +22,10 @@
     {
         await ListarInventario();
     }
+    protected override async Task OnParametersSetAsync()
+    {
+        await ListarInventario();
+    }
 
     private async Task ListarInventario()
     {

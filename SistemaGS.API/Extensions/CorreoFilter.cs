@@ -207,8 +207,16 @@ namespace SistemaGS.API.Extensions
 
             if (executedContext.Result is OkObjectResult okResult && Ayuda is not null)
             {
-                //if (context.ActionArguments.TryGetValue("IdAyuda", out object? ayudaIdObj) && ayudaIdObj is not null && ayudaIdObj is int idAyuda) 
-                Ayuda = await _ayudaService.Obtener(Ayuda.IdAyuda);
+                //if (context.ActionArguments.TryGetValue("IdAyuda", out object? ayudaIdObj) && ayudaIdObj is not null && ayudaIdObj is int idAyuda)
+                try
+                {
+                    Ayuda = await _ayudaService.Obtener(Ayuda.IdAyuda);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Es aquí");
+                    Ayuda = context.ActionArguments.TryGetValue("ayuda", out var parametro) ? (AyudaDTO?) parametro : new AyudaDTO();
+                }
 
                 SMTPhost smtphost = new SMTPhost()
                 {
@@ -221,10 +229,20 @@ namespace SistemaGS.API.Extensions
                     }
                 };
 
-                var solicitante = await UsuarioAyuda(Ayuda.Solicitante);
-                var funcionario = await UsuarioAyuda(Ayuda.Funcionario);
+                SesionDTO? solicitante = new SesionDTO();
+                SesionDTO? funcionario = new SesionDTO();
 
-                await _emailService.EnviarCorreo(smtphost, CuerpoCorreo(Ayuda, solicitante, context.HttpContext.Request.Method, funcionario));
+                try
+                {
+                    solicitante = await UsuarioAyuda(Ayuda!.Solicitante);
+                    funcionario = await UsuarioAyuda(Ayuda!.Funcionario);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("El error esta aca");
+                }
+
+                await _emailService.EnviarCorreo(smtphost, CuerpoCorreo(Ayuda!, solicitante, context.HttpContext.Request.Method, funcionario));
             }
         }
     }

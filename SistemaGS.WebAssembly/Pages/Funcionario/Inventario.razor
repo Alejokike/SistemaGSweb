@@ -87,11 +87,11 @@
                             </div>
                             <ValidationMessage For="@(() => model.Item.IdItem)" />
                         </div>
-
+                        @* disabled="@(agregar ? null : true)" *@
                         <div class="col-md-4 flex-column">
                             <div class="input-group">
                                 <label class="input-group-text bg-light">Nombre</label>
-                                <InputText class="form-control" disabled="@(agregar ? null : true)" @bind-value="model.Item.Nombre" />
+                                <InputText class="form-control" disabled @bind-value="model.Item.Nombre" />
                             </div>
                             <ValidationMessage For="@(() => model.Item.Nombre)" />
                         </div>
@@ -99,7 +99,7 @@
                         <div class="col-md-4 flex-column">
                             <div class="input-group">
                                 <label class="input-group-text bg-light">Categoría</label>
-                                <InputSelect class="form-select" disabled="@(agregar ? null : true)" @bind-value="model.Item.Categoria">
+                                <InputSelect class="form-select" disabled @bind-value="model.Item.Categoria">
                                     <option value="" selected>--Seleccione una categoría</option>
                                     <option value="Médicamentos">Médicamentos</option>
                                     <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
@@ -117,14 +117,14 @@
                     </div>
 
                     <span class="form-label mt-3" id="basic-addon3">Descripción</span>
-                    <InputTextArea class="form-control" disabled="@(agregar ? null : true)" placeholder="Ingrese para que sirve el ítem" @bind-value="model.Item.Descripcion" />
+                    <InputTextArea class="form-control" disabled placeholder="Ingrese para que sirve el ítem" @bind-value="model.Item.Descripcion" />
                     <ValidationMessage For="@(() => model.Item.Descripcion)" />
 
                     @*fin item*@
 
                     <div class="mb-3">
                         <label class="form-label"></label>
-                        <InputSelect class="form-select" disabled="@(agregar ? null : true)" @bind-value="model.Item.Unidad" @onchange="() => model.Unidad = model.Item.Unidad">
+                        <InputSelect class="form-select" disabled @bind-value="model.Item.Unidad" @onchange="() => model.Unidad = model.Item.Unidad">
                             <option value="" selected>--Seleccione una unidad</option>
                             <option value="EU">Unidad Estándar</option>
                             <option value="MU">Unidad Médica</option>
@@ -237,6 +237,11 @@
         model.Unidad = model.Item.Unidad;
         model.Fecha = DateTime.Today;
         if (model.Unidad != "VE") model.Cantidad = Math.Floor(model.Cantidad);
+        if(model.Cantidad == 0)
+        {
+            toastService.ShowWarning("La cantidad debe ser mayor a 0");
+            return;
+        }
 
         loadingService.Show();
         var response = await inventarioService.Registrar(model);
