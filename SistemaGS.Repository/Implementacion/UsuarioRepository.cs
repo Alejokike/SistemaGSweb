@@ -87,8 +87,7 @@ namespace SistemaGS.Repository.Implementacion
                                     EF.Functions.Like((p.Cedula.ToString() ?? "").ToLower(), filtro) ||
                                     EF.Functions.Like((p.Nombre ?? "").ToLower(), filtro) ||
                                     EF.Functions.Like((p.Apellido ?? "").ToLower(), filtro) ||
-                                    EF.Functions.Like((p.TelefonoTrabajo ?? "").ToLower(), filtro) ||
-                                    EF.Functions.Like((p.TelefonoHabitacion ?? "").ToLower(), filtro))
+                                    EF.Functions.Like((u.NombreUsuario ?? "").ToLower(), filtro))
                                 select new
                                 {
                                     usuario = u,

@@ -242,7 +242,15 @@ namespace SistemaGS.API.Extensions
                     Console.WriteLine("El error esta aca");
                 }
 
-                await _emailService.EnviarCorreo(smtphost, CuerpoCorreo(Ayuda!, solicitante, context.HttpContext.Request.Method, funcionario));
+                try
+                {
+                    await _emailService.EnviarCorreo(smtphost, CuerpoCorreo(Ayuda!, solicitante, context.HttpContext.Request.Method, funcionario));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                
             }
         }
     }

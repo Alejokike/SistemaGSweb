@@ -143,7 +143,7 @@
                 toastService.ShowSuccess("Se ha enviado su clave temporal al correo ingresado, por favor no cierre esta ventana");
                 StateHasChanged();
             }
-            else toastService.ShowWarning($"No se pudo enviar el correo, Error: {CorreoEnviado.Mensaje}");
+            else toastService.ShowWarning($"Error: {CorreoEnviado.Mensaje}");
         }
         else toastService.ShowError("El correo ingresado no existe");
     }

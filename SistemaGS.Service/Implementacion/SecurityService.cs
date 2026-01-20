@@ -76,9 +76,11 @@ namespace SistemaGS.Service.Implementacion
             try
             {
                 var responseBD = await _usuarioRepository.Consultar(u => u.NombreUsuario == login.NombreUsuario).FirstOrDefaultAsync();
-
+                
                 if (responseBD != null)
                 {
+                    if (responseBD.Activo == false) throw new TaskCanceledException("El usuario esta inactivo");
+
                     if (Ferramentas.ConvertToSha256(login.Clave + responseBD.Cedula) == responseBD.Clave)
                     {
                         var sesion = _mapper.Map<SesionDTO>(responseBD);

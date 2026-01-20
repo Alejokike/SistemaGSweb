@@ -61,7 +61,7 @@ namespace SistemaGS.Service.Implementacion
                     await smtp.DisconnectAsync(true);
                 }
 
-                return response.StartsWith("Accepted");
+                return response.StartsWith("Accepted") || response.StartsWith("2.0.0 OK");
             }
             catch (Exception ex)
             {

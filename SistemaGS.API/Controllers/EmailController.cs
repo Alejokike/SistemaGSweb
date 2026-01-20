@@ -56,8 +56,8 @@ namespace SistemaGS.API.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                response.EsCorrecto = true;
-                response.Resultado = true;
+                response.EsCorrecto = false;
+                response.Mensaje = "No se pudo enviar el mensaje";
             }
             return Ok(response);
         }

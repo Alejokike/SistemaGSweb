@@ -47,12 +47,13 @@ namespace SistemaGS.Service.Implementacion
                 bool result = false;                
                 if (model.IdItem == 0)
                 {
+                    model.FechaCreacion = DateTime.Today;
                     var responseBD = await _ItemRepository.Crear(_mapper.Map<Item>(model));
                     result = responseBD is not null;
                 }
                 else
                 {
-                    var busqueda = await _ItemRepository.Consultar(i => i.IdItem == model.IdItem).FirstOrDefaultAsync();
+                    var busqueda = await _ItemRepository.Consultar(i => i.IdItem == model.IdItem).AsNoTracking().FirstOrDefaultAsync();
                     if (busqueda is not null && model.Activo == false && busqueda.Activo == true && busqueda.Cantidad > 0) throw new TaskCanceledException("No se puede inactivar un ítem con stock en inventario");                    
                     result = await _ItemRepository.Editar(_mapper.Map<Item>(model));
                 }
@@ -135,11 +136,11 @@ namespace SistemaGS.Service.Implementacion
 
                 if(IdItem == 0)
                 {
-                    respuesta = await _ItemRepository.Consultar(i => i.Nombre == nombre).FirstOrDefaultAsync();
+                    respuesta = await _ItemRepository.Consultar(i => i.Nombre == nombre).AsNoTracking().FirstOrDefaultAsync();
                 }
                 else
                 {
-                    respuesta = await _ItemRepository.Consultar(i => i.IdItem == IdItem).FirstOrDefaultAsync();
+                    respuesta = await _ItemRepository.Consultar(i => i.IdItem == IdItem).AsNoTracking().FirstOrDefaultAsync();
                 }
                     
                 if (respuesta == null) throw new TaskCanceledException("El ítem no fue encontrado");

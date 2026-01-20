@@ -171,9 +171,11 @@
     private async Task Guardar()
     {
         if(loadingService.IsLoading) return;
-        loadingService.Show();
-        var response = await inventarioService.Editar(model);
-        loadingService.Hide();
+
+            loadingService.Show();
+            var response = await inventarioService.Editar(model);
+            loadingService.Hide();
+
         if (response.EsCorrecto)
         {
             if (model.IdItem == 0) toastService.ShowSuccess("Se ha añadido el código del ítem al inventario");
