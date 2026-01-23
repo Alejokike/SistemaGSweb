@@ -5,6 +5,7 @@
 
 @inject IInventarioService inventarioService;
 @inject IAyudaService ayudaService;
+@inject ICategoriaService categoriaService;
 @inject IToastService toastService;
 @inject NavigationManager _navService;
 @inject AuthenticationStateProvider authenticationStateProvider;
@@ -45,18 +46,10 @@
                         <label class="form-label fw-bold">Categoría de la ayuda</label>
                         <InputSelect class="form-select" @bind-value="Ayuda.Categoria">
                             <option value="" selected>--Seleccione una categoría</option>
-                            <option value="Medicamentos">Medicamentos</option>
-                            <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
-                            <option value="Citas para exámenes de laboratorio">Citas para exámenes de laboratorio</option>
-                            <option value="Citas para exámenes de diagnóstico">Citas para exámenes de diagnóstico</option>
-                            <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
-                            <option value="Prótesis">Prótesis</option>
-                            <option value="Apoyo financiero para cirugías">Apoyo financiero para cirugías</option>
-                            <option value="Utiles escolares">Utiles escolares</option>
-                            <option value="Alimentos">Alimentos</option>
-                            <option value="Financiamiento deportivo">Financiamiento deportivo</option>
-                            <option value="Ayudas funerarias">Ayudas funerarias</option>
-                            <option value="Otros">Otros</option>
+                            @foreach (var categoria in categorias)
+                            {
+                                <option value="@categoria.Nombre">@categoria.Nombre</option>
+                            }
                         </InputSelect>
                         <ValidationMessage For="@(() => Ayuda.Categoria)" />
                     </div>
@@ -184,6 +177,16 @@
             ["Rechazado"] = ""
         }
     };
+
+    List<CategoriaDTO> categorias = new List<CategoriaDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingService.Show();
+        var response = await categoriaService.Listar(new CategoriaQuery() { TipoCategoria = "Ayuda", Activo = true });
+        if (response.EsCorrecto && response.Resultado != null) categorias = response.Resultado;
+        loadingService.Hide();
+    }
 
     protected override async Task OnParametersSetAsync()
     {

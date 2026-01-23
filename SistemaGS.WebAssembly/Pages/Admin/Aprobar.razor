@@ -3,6 +3,7 @@
 
 @inject IUsuarioService usuarioService;
 @inject IAyudaService ayudaService;
+@inject ICategoriaService categoriaService;
 @inject IToastService toastService;
 @inject NavigationManager navigationManager;
 @inject SweetAlertService Swat;
@@ -51,17 +52,10 @@
                                 <label class="form-label">Categoría de la ayuda</label>
                                 <InputSelect class="form-select" readonly="@(boton == "Revocar Aprobación" ? true : null)" @bind-value="ayuda.Categoria">
                                     <option value="" selected>--Seleccione una categoría</option>
-                                    <option value="Medicamentos">Medicamentos</option>
-                                    <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
-                                    <option value="Citas para exámenes de laboratorio">Citas para exámenes de laboratorio</option>
-                                    <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
-                                    <option value="Prótesis">Prótesis</option>
-                                    <option value="Apoyo financiero para cirugías">Apoyo financiero para cirugías</option>
-                                    <option value="Utiles escolares">Utiles escolares</option>
-                                    <option value="Alimentos">Alimentos</option>
-                                    <option value="Financiamiento deportivo">Financiamiento deportivo</option>
-                                    <option value="Ayudas funerarias">Ayudas funerarias</option>
-                                    <option value="Otros">Otros</option>
+                                    @foreach (var categoria in categorias)
+                                    {
+                                        <option value="@categoria.Nombre">@categoria.Nombre</option>
+                                    }
                                 </InputSelect>
                             </div>
 
@@ -172,15 +166,19 @@
     string boton = "Aprobar";
     string color = "btn btn-success";
 
+    List<CategoriaDTO> categorias = new List<CategoriaDTO>();
+
     protected override async Task OnInitializedAsync()
     {
         if (loadingService.IsLoading) return;
 
         loadingService.Show();
 
+        var lista = await categoriaService.Listar(new CategoriaQuery() { TipoCategoria = "Ayuda", Activo = true });
+        if (lista.EsCorrecto && lista.Resultado != null) categorias = lista.Resultado;
+
         var response = await ayudaService.Obtener(IDAyuda);
         
-
         if (response.EsCorrecto && response.Resultado != null) ayuda = response.Resultado;
         else
         {

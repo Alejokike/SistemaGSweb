@@ -1,5 +1,6 @@
 ﻿@page "/Items"
 
+@inject ICategoriaService categoriaService;
 @inject IInventarioService inventarioService;
 @inject IToastService toastService;
 
@@ -75,14 +76,10 @@
                                 <label class="input-group-text bg-light">Categoría</label>
                                 <InputSelect class="form-select" disabled="@(agregar ? null : true)" @bind-value="model.Categoria">
                                     <option value="" selected>--Seleccione una categoría</option>
-                                    <option value="Médicamentos">Médicamentos</option>
-                                    <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
-                                    <option value="Prótesis">Prótesis</option>
-                                    <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
-                                    <option value="Servicios médicos">Servicios médicos</option>
-                                    <option value="Bienes de apoyo social">Bienes de apoyo social</option>
-                                    <option value="Fondos y financiamiento">Fondos y financiamiento</option>
-                                    <option value="Otros">Otros</option>
+                                    @foreach (var categoria in categorias)
+                                    {
+                                        <option value="@categoria.Nombre">@categoria.Nombre</option>
+                                    }
                                 </InputSelect>
                             </div>
                         </div>
@@ -136,8 +133,14 @@
     private bool agregar = true;
     private ItemDTO model = new ItemDTO();
 
+    List<CategoriaDTO> categorias = new List<CategoriaDTO>();
+
     protected override async Task OnInitializedAsync()
     {
+        loadingService.Show();
+        var response = await categoriaService.Listar(new CategoriaQuery() { TipoCategoria = "Item", Activo = true });
+        if (response.EsCorrecto && response.Resultado != null) categorias = response.Resultado;
+        loadingService.Hide();
         await ListarInventario();
     }
 

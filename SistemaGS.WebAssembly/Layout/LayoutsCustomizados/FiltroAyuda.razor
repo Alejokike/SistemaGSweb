@@ -1,4 +1,6 @@
-﻿<div class="card mt-2 mb-2">
+﻿@inject ICategoriaService categoriaService;
+
+<div class="card mt-2 mb-2">
     <div class="card-body">
         <EditForm Model="filtro" OnValidSubmit="@(async () => await retorno.InvokeAsync(filtro))">
             <div class="row-cols-12 gap-3 mt-1">
@@ -33,18 +35,10 @@
                         <label class="input-group-text bg-light">Categoría</label>
                         <InputSelect class="form-select" @bind-value="filtro.categoria">
                             <option value="" selected>--Cualquiera</option>
-                            <option value="Medicamentos">Medicamentos</option>
-                            <option value="Insumos quirúrgicos">Insumos quirúrgicos</option>
-                            <option value="Citas para exámenes de laboratorio">Citas para exámenes de laboratorio</option>
-                            <option value="Citas para exámenes de diagnóstico">Citas para exámenes de diagnóstico</option>
-                            <option value="Equipos de movilidad asistida">Equipos de movilidad asistida</option>
-                            <option value="Prótesis">Prótesis</option>
-                            <option value="Apoyo financiero para cirugías">Apoyo financiero para cirugías</option>
-                            <option value="Utiles escolares">Utiles escolares</option>
-                            <option value="Alimentos">Alimentos</option>
-                            <option value="Financiamiento deportivo">Financiamiento deportivo</option>
-                            <option value="Ayudas funerarias">Ayudas funerarias</option>
-                            <option value="Otros">Otros</option>
+                            @foreach (var categoria in categorias)
+                            {
+                                <option value="@categoria.Nombre">@categoria.Nombre</option>
+                            }
                         </InputSelect>
                     </div>
                     @if (Estado)
@@ -121,4 +115,17 @@
 
     [Parameter] public bool Estado {get; set;} = true;
     [Parameter] public int EstadosPosibles { get; set; } = 0;
+
+    [Inject] 
+    private LoadingService loadingService { get; set; } = default!;
+
+    List<CategoriaDTO> categorias = new List<CategoriaDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingService.Show();
+        var response = await categoriaService.Listar(new CategoriaQuery() { TipoCategoria = "Ayuda", Activo = true});
+        if (response.EsCorrecto && response.Resultado != null) categorias = response.Resultado;
+        loadingService.Hide();
+    }
 }

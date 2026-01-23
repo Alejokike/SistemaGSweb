@@ -1,5 +1,5 @@
-delete from Ayuda where IdAyuda > 100;
+delete from Ayuda where IdAyuda > 50;
 
-DBCC CHECKIDENT ('Ayuda', RESEED, 100);
+DBCC CHECKIDENT ('Ayuda', RESEED, 50);
 
 select * from Ayuda;

@@ -41,9 +41,9 @@ namespace SistemaGS.API.Controllers
 
             List<AyudaDTO> ayudas = new List<AyudaDTO>();
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 10000; i++)
             {
-                DateTime ini = new DateTime(2026, 1, 1).AddDays(aleatorio.Next(0, 365));
+                DateTime ini = new DateTime(2025, 1, 1).AddDays(aleatorio.Next(0, 730));
                 DateTime fin = ini.AddMonths(aleatorio.Next(1, 3)).AddDays(aleatorio.Next(1, 8));
                 string estado = estados[aleatorio.Next(0, cante)];
 

@@ -1,0 +1,237 @@
+﻿@page "/Categoria"
+
+@inject ICategoriaService categoriaService;
+@inject IToastService toastService;
+
+@attribute [Authorize(Roles = "Administrador")]
+
+<h3 class="m-3">Administrar Categorías</h3>
+
+@* filtro *@
+
+<div class="card mt-2 mb-2">
+    <div class="card-body">
+        <EditForm Model="filtro" OnValidSubmit="ListarCategoria">
+            <div class="row-cols-12 mt-1">
+                <div class="form-row mt-1">
+                    <div class="input-group col-3 mt-1">
+                        <label class="input-group-text bg-light">Tipo de categoría</label>
+                        <InputSelect class="form-select" @bind-value="filtro.TipoCategoria">
+                            <option value="" selected>--Seleccione una categoría</option>
+                            <option value="Ayuda">Ayuda</option>
+                            <option value="Item">Ítem</option>
+                        </InputSelect>
+                    </div>
+                    <div class="input-group col-7 mt-1">
+                        <label class="input-group-text bg-light">Nombre</label>
+                        <InputText class="form-control" @bind-value="filtro.Nombre" />
+                    </div>
+                </div>
+                <div class="form-row mt-1">
+                    <label class="form-label d-block" id="Categoria">Estado</label>
+                </div>
+                <div class="form-row mt-1">                    
+                    <InputRadioGroup TValue="bool?" @bind-value="filtro.Activo" class="form-check form-check-inline" id="Categoria">
+                        <div class="form-check form-check-inline">
+                            <InputRadio class="form-check-input" TValue="bool?" Value="true" id="activo" />
+                            <label class="form-check-label" for="activo">Activo</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <InputRadio class="form-check-input" TValue="bool?" Value="false" id="inactivo" />
+                            <label class="form-check-label" for="inactivo">Inactivo</label>
+                        </div>
+                    </InputRadioGroup>
+                </div>
+                <div class="form-row mt-2">
+                    <button class="btn btn-outline-secondary col-12" style="width:130px" type="submit">
+                        <i class="oi oi-magnifying-glass"></i> Aplicar filtros
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@* categorías *@
+
+<div class="card mt-2 mb-2">
+    <div class="card-body">
+        <TableLayout listaOrigen="categorias"
+                     T="CategoriaDTO"
+                     MostrarAdministrador="true"
+                     MostrarOpcionales="true"
+                     Retorno="@(async (CategoriaDTO c) => { model = new CategoriaDTO(c); agregar = false; toastService.ShowSuccess("Información cargada"); })" />
+    </div>
+</div>
+
+@* gestionar *@
+
+<div class="row-cols-12 mt-3">
+    <div class="col-sm-12">
+        <div class="card mb-3">
+
+            <div class="card-header text-center">
+                <h5>Gestionar categoría</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="input-group-text mt-2 mb-2">
+                    <label class="input-group-text bg-light">Cargar categoría</label>
+                    <InputNumber min="0" step="1" class="form-control h-100" placeholder="Ingresa el ID de la categoría" @bind-value="model.IdCategoria" oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
+                    <i class="bi bi-info-circle input-group-text bg-primary text-white fs-5" title="Para crear una categoría que no exista, dejar el campo en 0"></i>
+                    <button type="button" class="btn btn-light"
+                            @onclick="@(async () => await Obtener())">
+                        <i class="bi bi-pencil-square text-primary fs-5"></i>
+                    </button>
+                </div>
+
+                <EditForm Model="model" OnValidSubmit="Guardar">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-row mt-3 mb-2">
+                        <div class="col-md-2 flex-column">
+                            <ValidationMessage For="@(() => model.IdCategoria)" />
+                        </div>
+                        <div class="col-md-3 flex-column">
+                            <ValidationMessage For="@(() => model.TipoCategoria)" />
+                        </div>
+                        <div class="col-md-7 flex-column">
+                            <ValidationMessage For="@(() => model.Nombre)" />
+                        </div>
+                    </div>
+
+                    <div class="form-row mt-2 mb-2">
+                        <div class="col-md-2 flex-column">
+                            <div class="input-group">
+                                <label class="input-group-text bg-light">ID Categoría</label>
+                                <InputNumber min="0" class="form-control" disabled @bind-value="model.IdCategoria" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 flex-column">
+                            <div class="input-group">
+                                <label class="input-group-text bg-light">Tipo de categoría</label>
+                                <InputSelect class="form-select" disabled="@(agregar ? null : true)" @bind-value="model.TipoCategoria">
+                                    <option value="" selected>--Categoría</option>
+                                    <option value="Ayuda">Ayuda</option>
+                                    <option value="Item">Ítem</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 flex-column">
+                            <div class="input-group">
+                                <label class="input-group-text bg-light">Nombre de la categoría</label>
+                                <InputText class="form-control" disabled="@(agregar ? null : true)" maxlength="50" @bind-value="model.Nombre" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row mt-1">
+                        <ValidationMessage For="@(() => model.Activo)" />
+                        <div class="form-check form-switch d-inline-flex align-items-center gap-2 row-cols-1">
+                            <div class="ms-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="userStatusSwitch" @bind="model.Activo">
+                                <label class="form-check-label">@((model.Activo == true) ? "Activo" : "Inactivo")</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row mt-3">
+                        <div class="input-group">
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-primary w-100" type="submit">Guardar Categoría</button>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-danger w-100" type="button" @onclick="Eliminar">Eliminar Categoría</button>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private LoadingService loadingService { get; set; } = default!;
+
+    public bool Estado { get; set; } = true;
+
+    private CategoriaQuery filtro { get; set; } = new CategoriaQuery() { Activo = null };
+    private List<CategoriaDTO> categorias = new List<CategoriaDTO>();
+
+    private bool agregar = true;
+    private CategoriaDTO model = new CategoriaDTO() { Activo = true};
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ListarCategoria();
+    }
+
+    private async Task ListarCategoria()
+    {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
+        var respuesta = await categoriaService.Listar(filtro);
+        if (respuesta.EsCorrecto && respuesta.Resultado != null) categorias = respuesta.Resultado;
+        loadingService.Hide();
+    }
+    private async Task Obtener()
+    {
+        if (model.IdCategoria == 0)
+        {
+            model = new CategoriaDTO(); agregar = true;
+        }
+        else
+        {
+            if (loadingService.IsLoading) return;
+            loadingService.Show();
+            var response = await categoriaService.Obtener(model.IdCategoria);
+            loadingService.Hide();
+            if (response.EsCorrecto && response.Resultado != null) { model = response.Resultado; agregar = false; }
+            else { model = new CategoriaDTO(); agregar = true; }
+        }
+    }
+    private async Task Guardar()
+    {
+        if (loadingService.IsLoading) return;
+
+        if (model.IdCategoria != 0)
+        {
+            loadingService.Show();
+            var response = await categoriaService.Editar(model);
+            loadingService.Hide();
+            if (response.EsCorrecto) toastService.ShowSuccess("Se ha modificado la categoría con éxito");
+            else toastService.ShowError($"Error: {response.Mensaje}");
+        }
+        else
+        {
+            model.FechaAccion = DateTime.Today;
+            loadingService.Show();
+            var response = await categoriaService.Crear(model);
+            loadingService.Hide();
+            if (response.EsCorrecto) toastService.ShowSuccess("Se ha creado la categoría con éxito");
+            else toastService.ShowError($"Error: {response.Mensaje}");
+        }
+
+        model = new CategoriaDTO(){Activo = true};
+        agregar = true;
+
+        await ListarCategoria();
+    }
+    private async Task Eliminar()
+    {
+        if (loadingService.IsLoading) return;
+        loadingService.Show();
+        var response = await categoriaService.Eliminar(model.IdCategoria);
+        loadingService.Hide();
+        if (response.EsCorrecto) toastService.ShowSuccess("Categoría eliminada con éxito");
+        else toastService.ShowError($"Error: {response.Mensaje}");
+
+        await ListarCategoria();
+    }
+}

@@ -50,6 +50,9 @@ namespace SistemaGS.Util
                 .ForMember(dest => dest.Detalle, opt => opt.Ignore())
                 .ForMember(dest => dest.ListaItems, opt => opt.Ignore());
 
+            CreateMap<Categoria, CategoriaDTO>();
+            CreateMap<CategoriaDTO, Categoria>();
+
             CreateMap<Registro, RegistroDTO>();
             CreateMap<RegistroDTO, Registro>();
         }

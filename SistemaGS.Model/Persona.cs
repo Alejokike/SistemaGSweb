@@ -8,7 +8,7 @@ public partial class Persona
 
     public string? Apellido { get; set; }
 
-    public DateTime? FechaNacimiento { get; set; }
+    public DateTime FechaNacimiento { get; set; }
 
     public string? Genero { get; set; }
 

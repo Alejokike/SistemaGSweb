@@ -4,7 +4,7 @@ public partial class Ayuda
 {
     public int IdAyuda { get; set; }
 
-    public int? Solicitante { get; set; }
+    public int Solicitante { get; set; }
 
     public int? Funcionario { get; set; }
 
@@ -16,7 +16,7 @@ public partial class Ayuda
 
     public string? Estado { get; set; }
 
-    public DateTime? FechaSolicitud { get; set; }
+    public DateTime FechaSolicitud { get; set; }
 
     public DateTime? FechaEntrega { get; set; }
 

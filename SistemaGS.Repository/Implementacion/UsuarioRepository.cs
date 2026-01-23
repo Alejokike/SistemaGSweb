@@ -76,18 +76,30 @@ namespace SistemaGS.Repository.Implementacion
             {
                 try
                 {
-                    string filtro = (buscar ?? "").ToLower();
+                    bool esCedula = int.TryParse(buscar, out int cedula);
+                    string? filtro = string.IsNullOrEmpty(buscar) ? null : $"%{buscar.Trim()}%";
 
                     var lista = from u in _dbContext.Usuarios
                                 join p in _dbContext.Personas on u.Cedula equals p.Cedula
                                 join r in _dbContext.Rols on u.IdRol equals r.IdRol
                                 where
-                                (rol == 0 || r.IdRol.Equals(rol)) &&
+                                (rol == 0 || r.IdRol == rol) &&
+                                /*
                                 (string.IsNullOrEmpty(filtro) ||
                                     EF.Functions.Like((p.Cedula.ToString() ?? "").ToLower(), filtro) ||
                                     EF.Functions.Like((p.Nombre ?? "").ToLower(), filtro) ||
                                     EF.Functions.Like((p.Apellido ?? "").ToLower(), filtro) ||
                                     EF.Functions.Like((u.NombreUsuario ?? "").ToLower(), filtro))
+                                */
+                                (string.IsNullOrEmpty(filtro) ||
+                                    (esCedula && u.Cedula == cedula) ||
+                                    (
+                                        !esCedula && (
+                                        EF.Functions.Like((p.Nombre ?? ""), filtro) ||
+                                        EF.Functions.Like((p.Apellido ?? ""), filtro) ||
+                                        EF.Functions.Like((u.NombreUsuario ?? ""), filtro))
+                                    )
+                                )
                                 select new
                                 {
                                     usuario = u,

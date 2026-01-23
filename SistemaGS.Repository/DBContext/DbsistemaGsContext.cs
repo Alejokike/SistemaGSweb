@@ -20,11 +20,15 @@ public partial class DbsistemaGsContext : DbContext
 
     public virtual DbSet<Ayuda> Ayuda { get; set; }
 
+    public virtual DbSet<Categoria> Categoria { get; set; }
+
     public virtual DbSet<Inventario> Inventarios { get; set; }
 
     public virtual DbSet<Item> Items { get; set; }
 
     public virtual DbSet<Persona> Personas { get; set; }
+
+    //public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public virtual DbSet<Registro> Registros { get; set; }
 
@@ -34,32 +38,46 @@ public partial class DbsistemaGsContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-    //=> optionsBuilder.UseSqlServer("Server=localhost; DataBase=DBSISTEMA_GS; Trusted_Connection=True; TrustServerCertificate=True;");
     => optionsBuilder.UseSqlServer(_configuration.GetConnectionString("CadenaSQL"));
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Ayuda>(entity =>
         {
             entity.HasKey(e => e.IdAyuda).HasName("PK__Ayuda__649DCAF9868F6432");
 
+            entity.HasIndex(e => new { e.Estado, e.FechaSolicitud, e.FechaEntrega }, "IX_Ayuda");
+
             entity.Property(e => e.Categoria).HasMaxLength(50);
             entity.Property(e => e.Estado).HasMaxLength(20);
-            entity.Property(e => e.FechaEntrega)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.FechaEntrega).HasColumnType("datetime");
             entity.Property(e => e.FechaSolicitud)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
 
             entity.HasOne(d => d.FuncionarioNavigation).WithMany(p => p.AyudumFuncionarioNavigations)
                 .HasForeignKey(d => d.Funcionario)
-                .HasConstraintName("FK__Ayuda__Funcionar__5441852A")
-                .IsRequired(false);
+                .HasConstraintName("FK__Ayuda__Funcionar__5441852A");
 
             entity.HasOne(d => d.SolicitanteNavigation).WithMany(p => p.AyudumSolicitanteNavigations)
                 .HasForeignKey(d => d.Solicitante)
                 .HasConstraintName("FK__Ayuda__Solicitan__534D60F1");
+        });
+
+        modelBuilder.Entity<Categoria>(entity =>
+        {
+            entity.HasKey(e => e.IdCategoria).HasName("PK__Categori__A3C02A10EFFA60C1");
+
+            entity.HasIndex(e => e.Nombre, "UQ__Categori__75E3EFCF075A64CF").IsUnique();
+
+            entity.Property(e => e.Activo)
+                .IsRequired()
+                .HasDefaultValueSql("((1))");
+            entity.Property(e => e.FechaAccion)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Nombre).HasMaxLength(50);
+            entity.Property(e => e.TipoCategoria).HasMaxLength(10);
         });
 
         modelBuilder.Entity<Inventario>(entity =>
@@ -81,18 +99,18 @@ public partial class DbsistemaGsContext : DbContext
 
             entity.ToTable("Item");
 
+            entity.HasIndex(e => new { e.Categoria, e.Unidad, e.Activo }, "IX_Item");
+
             entity.HasIndex(e => e.Nombre, "UQ__Item__75E3EFCF56253DAC").IsUnique();
 
             entity.Property(e => e.Activo).HasDefaultValueSql("((1))");
-            entity.Property(e => e.Cantidad)
-                .HasDefaultValueSql("((0))")
-                .HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.Cantidad).HasColumnType("decimal(9, 2)");
             entity.Property(e => e.Categoria).HasMaxLength(50);
             entity.Property(e => e.Descripcion).HasMaxLength(300);
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Nombre).HasMaxLength(80);
+            entity.Property(e => e.Nombre).HasMaxLength(150);
             entity.Property(e => e.Unidad)
                 .HasMaxLength(2)
                 .HasDefaultValueSql("('EU')");
@@ -117,12 +135,32 @@ public partial class DbsistemaGsContext : DbContext
             entity.Property(e => e.TelefonoHabitacion).HasMaxLength(12);
             entity.Property(e => e.TelefonoTrabajo).HasMaxLength(12);
         });
+        /*
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Token);
 
+            entity.ToTable("RefreshToken");
+
+            entity.Property(e => e.Token)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.Expires).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CedulaNavigation).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.Cedula)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshToken_Usuario");
+        });
+        */
         modelBuilder.Entity<Registro>(entity =>
         {
             entity.HasKey(e => e.IdRegistro).HasName("PK__Registro__FFA45A9918E41B21");
 
             entity.ToTable("Registro");
+
+            entity.HasIndex(e => new { e.Accion, e.TablaAfectada }, "IX_Registro");
 
             entity.Property(e => e.Accion).HasMaxLength(12);
             entity.Property(e => e.FechaAccion).HasColumnType("datetime");

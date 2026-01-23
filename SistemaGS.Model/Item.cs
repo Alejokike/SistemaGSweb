@@ -14,7 +14,7 @@ public partial class Item
 
     public decimal Cantidad { get; set; }
 
-    public DateTime? FechaCreacion { get; set; }
+    public DateTime FechaCreacion { get; set; }
 
-    public bool? Activo { get; set; }
+    public bool Activo { get; set; }
 }

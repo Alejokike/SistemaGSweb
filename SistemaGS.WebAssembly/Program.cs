@@ -40,6 +40,8 @@ builder.Services.AddSingleton<LoadingService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IAyudaService, AyudaService>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+
 builder.Services.AddScoped<ISecurityService, SecurityService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 

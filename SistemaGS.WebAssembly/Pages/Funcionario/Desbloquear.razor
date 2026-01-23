@@ -54,7 +54,6 @@
             <div class="col-sm-12">
                 <div class="card mb-3">
                     <div class="card-body">
-
                         @if (ayuda.Detalle.TryGetValue("Observaciones", out string? observaciones) && !string.IsNullOrEmpty(observaciones))
                         {
                             <div class="mb-3">
@@ -62,7 +61,6 @@
                                 <div class="form-control">@observaciones</div>
                             </div>
                         }
-
                         <div class="mb-3">
                         <label class="form-label fw-bold">Categoría de la ayuda</label>
                         <div class="form-control">@ayuda.Categoria</div>

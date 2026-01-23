@@ -59,7 +59,7 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IAyudaService, AyudaService>();
-
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISecurityService, SecurityService>();
