@@ -653,7 +653,7 @@ namespace SistemaGS.Util
                                 .Padding(2).Text("Solicitante").Bold().FontColor("#fff").AlignCenter();
 
                                 header.Cell().Background("#003666").AlignMiddle()
-                               .Padding(2).Text("Beneficiario").Bold().FontColor("#fff").AlignCenter();
+                               .Padding(2).Text("Funcionario").Bold().FontColor("#fff").AlignCenter();
 
                                 header.Cell().Background("#003666").AlignMiddle()
                                .Padding(2).Text("Categoría").Bold().FontColor("#fff").AlignCenter();
