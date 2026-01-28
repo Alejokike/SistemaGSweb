@@ -5,6 +5,8 @@ using SistemaGS.DTO.Email;
 using SistemaGS.DTO.ModelDTO;
 using SistemaGS.Service.Contrato;
 using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 
 namespace SistemaGS.API.Extensions
 {
@@ -214,8 +216,13 @@ namespace SistemaGS.API.Extensions
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("Es aquí");
-                    Ayuda = context.ActionArguments.TryGetValue("ayuda", out var parametro) ? (AyudaDTO?) parametro : new AyudaDTO();
+                    if(okResult.Value is ResponseDTO<AyudaDTO> ayudacreada)
+                    {
+                        var idAyuda = ayudacreada.Resultado?.IdAyuda ?? 0;
+
+                        Ayuda = await _ayudaService.Obtener(idAyuda);
+                    }
+                    else Ayuda = context.ActionArguments.TryGetValue("ayuda", out var parametro) ? (AyudaDTO?) parametro : new AyudaDTO();
                 }
 
                 SMTPhost smtphost = new SMTPhost()
